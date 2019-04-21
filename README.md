@@ -1,2 +1,7 @@
 # MLB-StatsAPI
-Python 3 wrapper for MLB Stats API
+
+Python wrapper for MLB Stats API
+
+Created by Todd Roberts
+
+https://github.com/toddrob99/MLB-StatsAPI
