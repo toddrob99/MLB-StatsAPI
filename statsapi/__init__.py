@@ -1,5 +1,6 @@
 from . import version
 __version__ = version.VERSION
+"""Installed version of MLB-StatsAPI"""
 
 import requests
 
@@ -16,7 +17,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['teamId','leagueId','season','date','leagueListId','gameType','fields']
+                                                    'query_params': ['teamId','leagueId','season','date','leagueListId','gameType','fields'],
+                                                    'required_params': [['teamId'],['leagueId'],['leagueListid']]
                                                 },
                 'awards':                       {
                                                     'url': BASE_URL + '{ver}/awards{awardId}{recipients}',
@@ -45,9 +47,11 @@ ENDPOINTS = {
                                                                                     'required': False
                                                                                 }
                                                                     },
-                                                    'query_params': ['sportId','leagueId','season','hydrate','fields']
+                                                    'query_params': ['sportId','leagueId','season','hydrate','fields'],
+                                                    'required_params': [[]],
+                                                    'note': 'Call awards endpoint with no parameters to return a list of awardIds.'
                                                 },
-                'conference':                   {
+                'conferences':                   {
                                                     'url': BASE_URL + '{ver}/conferences',
                                                     'path_params':  {
                                                                         'ver':  {
@@ -58,9 +62,10 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['conferenceId','season','fields']
+                                                    'query_params': ['conferenceId','season','fields'],
+                                                    'required_params': [[]]
                                                 },
-                'division':                     {
+                'divisions':                     {
                                                     'url': BASE_URL + '{ver}/divisions',
                                                     'path_params':  {
                                                                         'ver':  {
@@ -71,7 +76,9 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['divisionId','leagueId','sportId']
+                                                    'query_params': ['divisionId','leagueId','sportId'],
+                                                    'required_params': [[]],
+                                                    'note': 'Call divisions endpoint with no parameters to return a list of divisions.'
                                                 },
                 'draft':                        {
                                                     'url': BASE_URL + '{ver}/draft{prospects}{year}{latest}',
@@ -110,7 +117,8 @@ ENDPOINTS = {
                                                                                 },
                                                                     },
                                                     'query_params': ['limit','fields','round','name','school','state','country','position','teamId','playerId','bisPlayerId'],
-                                                    'note': 'No query parameters are honored when "latest" endpoint is queried. Prospects and Latest cannot be used together.'
+                                                    'required_params': [[]],
+                                                    'note': 'No query parameters are honored when "latest" endpoint is queried (year is still required). Prospects and Latest cannot be used together.'
                                                 },
                 'game':                         {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/feed/live',
@@ -130,7 +138,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['timecode','hydrate','fields']
+                                                    'query_params': ['timecode','hydrate','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'game_diff':                    {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/feed/live/diffPatch',
@@ -150,7 +159,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['startTimecode','endTimecode']
+                                                    'query_params': ['startTimecode','endTimecode'],
+                                                    'required_params': [['startTimeCode','endTimeCode']]
                                                 },
                 'game_timestamps':              {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/feed/live/timestamps',
@@ -170,7 +180,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': []
+                                                    'query_params': [],
+                                                    'required_params': [[]]
                                                 },
                 'game_changes':                 {
                                                     'url': BASE_URL + '{ver}/game/changes',
@@ -183,7 +194,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['updatedSince','sportId','gameType','season','fields']
+                                                    'query_params': ['updatedSince','sportId','gameType','season','fields'],
+                                                    'required_params': [['updatedSince']]
                                                 },
                 'game_contextMetrics':          {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/contextMetrics',
@@ -203,7 +215,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['timecode','fields']
+                                                    'query_params': ['timecode','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'game_winProbability':          {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/winProbability',
@@ -223,7 +236,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['timecode','fields']
+                                                    'query_params': ['timecode','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'game_boxscore':                {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/boxscore',
@@ -243,7 +257,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['timecode','fields']
+                                                    'query_params': ['timecode','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'game_content':                 {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/content',
@@ -263,7 +278,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['highlightLimit']
+                                                    'query_params': ['highlightLimit'],
+                                                    'required_params': [[]]
                                                 },
                 'game_color':                   {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/feed/color',
@@ -283,7 +299,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['timecode','fields']
+                                                    'query_params': ['timecode','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'game_color_diff':              {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/feed/color/diffPatch',
@@ -303,7 +320,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['startTimecode','endTimecode']
+                                                    'query_params': ['startTimecode','endTimecode'],
+                                                    'required_params': [['startTimeCode','endTimeCode']]
                                                 },
                 'game_color_timestamps':        {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/feed/color/timestamps',
@@ -323,7 +341,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': []
+                                                    'query_params': [],
+                                                    'required_params': [[]]
                                                 },
                 'game_linescore':               {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/linescore',
@@ -343,7 +362,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['timecode','fields']
+                                                    'query_params': ['timecode','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'game_playByPlay':              {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/playByPlay',
@@ -363,7 +383,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['timecode','fields']
+                                                    'query_params': ['timecode','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'gamePace':                     {
                                                     'url': BASE_URL + '{ver}/gamePace',
@@ -376,7 +397,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['season','teamIds','leagueIds','leagueListId','sportId','gameType','startDate','endDate','venueIds','orgType','includeChildren','fields']
+                                                    'query_params': ['season','teamIds','leagueIds','leagueListId','sportId','gameType','startDate','endDate','venueIds','orgType','includeChildren','fields'],
+                                                    'required_params': [['season']]
                                                 },
                 'highLow':                      {
                                                     'url': BASE_URL + '{ver}/highLow/{orgType}',
@@ -396,7 +418,9 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['statGroup','sortStat','season','gameType','teamId','leagueId','sportIds','limit','fields']
+                                                    'query_params': ['statGroup','sortStat','season','gameType','teamId','leagueId','sportIds','limit','fields'],
+                                                    'required_params': [['sortStat','season']],
+                                                    'note': 'Valid values for orgType parameter: player, team, division, league, sport, types.'
                                                 },
                 'homeRunDerby':                 {
                                                     'url': BASE_URL + '{ver}/honeRunDerby/{gamePk}{bracket}{pool}',
@@ -434,7 +458,8 @@ ENDPOINTS = {
                                                                                         'required': False
                                                                                     }
                                                                     },
-                                                    'query_params': ['fields']
+                                                    'query_params': ['fields'],
+                                                    'required_params': [[]]
                                                 },
                 'league':                       {
                                                     'url': BASE_URL + '{ver}/league',
@@ -447,7 +472,8 @@ ENDPOINTS = {
                                                                                     'required': True
                                                                                 }
                                                                     },
-                                                    'query_params': ['sportId','leagueIds','seasons','fields']
+                                                    'query_params': ['sportId','leagueIds','seasons','fields'],
+                                                    'required_params': [['sportId'],['leagueIds']]
                                                 },
                 'league_allStarBallot':         {
                                                     'url': BASE_URL + '{ver}/league/{leagueId}/allStarBallot',
@@ -467,7 +493,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','fields']
+                                                    'query_params': ['season','fields'],
+                                                    'required_params': [['season']]
                                                 },
                 'league_allStarWriteIns':       {
                                                     'url': BASE_URL + '{ver}/league/{leagueId}/allStarWriteIns',
@@ -487,7 +514,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','fields']
+                                                    'query_params': ['season','fields'],
+                                                    'required_params': [['season']]
                                                 },
                 'league_allStarFinalVote':      {
                                                     'url': BASE_URL + '{ver}/league/{leagueId}/allStarFinalVote',
@@ -507,7 +535,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','fields']
+                                                    'query_params': ['season','fields'],
+                                                    'required_params': [['season']]
                                                 },
                 'people':                       {
                                                     'url': BASE_URL + '{ver}/people',
@@ -520,7 +549,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['personIds','hydrate','fields']
+                                                    'query_params': ['personIds','hydrate','fields'],
+                                                    'required_params': [['personIds']]
                                                 },
                 'people_changes':               {
                                                     'url': BASE_URL + '{ver}/people/changes',
@@ -533,7 +563,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['updatedSince','fields']
+                                                    'query_params': ['updatedSince','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'people_freeAgents':            {
                                                     'url': BASE_URL + '{ver}/people/freeAgents',
@@ -553,7 +584,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['order','hydrate','fields']
+                                                    'query_params': ['order','hydrate','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'person':                       {
                                                     'url': BASE_URL + '{ver}/people/{personId}',
@@ -573,7 +605,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['hydrate','fields']
+                                                    'query_params': ['hydrate','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'person_stats':                 {
                                                     'url': BASE_URL + '{ver}/people/{personId}/stats/game/{gamePk}',
@@ -601,6 +634,7 @@ ENDPOINTS = {
                                                                                     }
                                                                     },
                                                     'query_params': ['fields'],
+                                                    'required_params': [[]],
                                                     'note': 'Specify "current" instead of a gamePk for a player\'s current game stats.'
                                                 },
                 'jobs':                         {
@@ -614,7 +648,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['jobType','sportId','date','fields']
+                                                    'query_params': ['jobType','sportId','date','fields'],
+                                                    'required_params': [['jobType']]
                                                 },
                 'jobs_umpires':                 {
                                                     'url': BASE_URL + '{ver}/jobs/umpires',
@@ -627,7 +662,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['sportId','date','fields']
+                                                    'query_params': ['sportId','date','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'jobs_umpire_games':            {
                                                     'url': BASE_URL + '{ver}/jobs/umpires/games/{umpireId}',
@@ -647,7 +683,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','fields']
+                                                    'query_params': ['season','fields'],
+                                                    'required_params': [['season']]
                                                 },
                 'jobs_datacasters':             {
                                                     'url': BASE_URL + '{ver}/jobs/datacasters',
@@ -660,7 +697,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['sportId','date','fields']
+                                                    'query_params': ['sportId','date','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'jobs_officialScorers':         {
                                                     'url': BASE_URL + '{ver}/jobs/officialScorers',
@@ -673,7 +711,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['timecode','fields']
+                                                    'query_params': ['timecode','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'schedule':                     {
                                                     'url': BASE_URL + '{ver}/schedule',
@@ -686,7 +725,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['scheduleType','eventTypes','hydrate','teamId','leagueId','sportId','gamePks','venueIds','gameTypes','date','startDate','endDate','opponentId','fields']
+                                                    'query_params': ['scheduleType','eventTypes','hydrate','teamId','leagueId','sportId','gamePk','gamePks','venueIds','gameTypes','date','startDate','endDate','opponentId','fields'],
+                                                    'required_params': [['sportId'],['gamePk'],['gamePks']]
                                                 },
                 'schedule_tied':                {
                                                     'url': BASE_URL + '{ver}/schedule/games/tied',
@@ -699,7 +739,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['gameTypes','season','hydrate','fields']
+                                                    'query_params': ['gameTypes','season','hydrate','fields'],
+                                                    'required_params': [['season']]
                                                 },
                 'schedule_postseason':          {
                                                     'url': BASE_URL + '{ver}/schedule/postseason',
@@ -712,7 +753,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['gameTypes','seriesNumber','teamId','sportId','season','hydrate','fields']
+                                                    'query_params': ['gameTypes','seriesNumber','teamId','sportId','season','hydrate','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'schedule_postseason_series':   {
                                                     'url': BASE_URL + '{ver}/schedule/postseason/series',
@@ -725,7 +767,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['gameTypes','seriesNumber','teamId','sportId','season','fields']
+                                                    'query_params': ['gameTypes','seriesNumber','teamId','sportId','season','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'schedule_postseason_tuneIn':   {
                                                     'url': BASE_URL + '{ver}/schedule/postseason/tuneIn',
@@ -739,9 +782,10 @@ ENDPOINTS = {
                                                                                     }
                                                                     },
                                                     'query_params': ['teamId','sportId','season','hydrate','fields'],
+                                                    'required_params': [[]],
                                                     'note': 'The schedule_postseason_tuneIn endpoint appears to return no data.'
                                                 },
-                'season':                       {
+                'seasons':                       {
                                                     'url': BASE_URL + '{ver}/seasons{all}',
                                                     'path_params':  {
                                                                         'ver':      {
@@ -762,7 +806,29 @@ ENDPOINTS = {
                                                                                     }
                                                                     },
                                                     'query_params': ['sportId','divisionId','leagueId','fields'],
+                                                    'required_params': [['sportId'],['divisionId'],['leagueId']],
                                                     'note': 'Include "all" parameter with value of True to query all seasons. The divisionId and leagueId parameters are supported when "all" is used.'
+                                                },
+                'season':                       {
+                                                    'url': BASE_URL + '{ver}/seasons/{seasonId}',
+                                                    'path_params':  {
+                                                                        'ver':      {
+                                                                                        'type': 'str',
+                                                                                        'default': 'v1',
+                                                                                        'leading_slash': False,
+                                                                                        'trailing_slash': False,
+                                                                                        'required': True
+                                                                                    },
+                                                                        'seasonId':      {
+                                                                                        'type': 'str',
+                                                                                        'default': False,
+                                                                                        'leading_slash': False,
+                                                                                        'trailing_slash': False,
+                                                                                        'required': True
+                                                                                    }
+                                                                    },
+                                                    'query_params': ['sportId','fields'],
+                                                    'required_params': [['sportId']]
                                                 },
                 'sports':                       {
                                                     'url': BASE_URL + '{ver}/sports',
@@ -775,7 +841,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['sportId','fields']
+                                                    'query_params': ['sportId','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'sports_players':               {
                                                     'url': BASE_URL + '{ver}/sports/{sportId}/players',
@@ -795,7 +862,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','gameType']
+                                                    'query_params': ['season','gameType'],
+                                                    'required_params': [['season']]
                                                 },
                 'standings':                    {
                                                     'url': BASE_URL + '{ver}/standings',
@@ -808,7 +876,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['leagueId','season','standingsTypes','date','hydrate','fields']
+                                                    'query_params': ['leagueId','season','standingsTypes','date','hydrate','fields'],
+                                                    'required_params': [['leagueId','season']]
                                                 },
                 'stats':                        {
                                                     'url': BASE_URL + '{ver}/stats',
@@ -821,7 +890,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['stats','playerPool','position','teamId','leagueId','limit','offset','group','gameType','season','sportIds','sortStat','order','hydrate','fields']
+                                                    'query_params': ['stats','playerPool','position','teamId','leagueId','limit','offset','group','gameType','season','sportIds','sortStat','order','hydrate','fields'],
+                                                    'required_params': [['stats','group']]
                                                 },
                 'stats_leaders':                {
                                                     'url': BASE_URL + '{ver}/stats/leaders',
@@ -834,7 +904,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['leaderCategories','playerPool','leaderGameTypes','statGroup','season','leagueId','sportId','hydrate','limit','fields']
+                                                    'query_params': ['leaderCategories','playerPool','leaderGameTypes','statGroup','season','leagueId','sportId','hydrate','limit','fields'],
+                                                    'required_params': [['leaderCategories','season']]
                                                 },
                 'stats_streaks':                {
                                                     'url': BASE_URL + '{ver}/stats/streaks',
@@ -847,10 +918,12 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['streakType','streakSpan','gameType','season','sportId','limit','hydrate','fields']
+                                                    'query_params': ['streakType','streakSpan','gameType','season','sportId','limit','hydrate','fields'],
+                                                    'required_params': [['streakType','streakSpan','season']],
+                                                    'note': 'Valid streakType values: "hittingStreakOverall" "hittingStreakHome" "hittingStreakAway" "onBaseOverall" "onBaseHome" "onBaseAway". Valid streakSpan values: "career" "season" "currentStreak" "currentStreakInSeason" "notable" "notableInSeason".'
                                                 },
                 'teams':                        {
-                                                    'url': BASE_URL + '{ver}/teams{teamId}',
+                                                    'url': BASE_URL + '{ver}/teams',
                                                     'path_params':  {
                                                                         'ver':      {
                                                                                         'type': 'str',
@@ -858,16 +931,10 @@ ENDPOINTS = {
                                                                                         'leading_slash': False,
                                                                                         'trailing_slash': False,
                                                                                         'required': True
-                                                                                    },
-                                                                        'teamId':   {
-                                                                                        'type': 'str',
-                                                                                        'default': None,
-                                                                                        'leading_slash': True,
-                                                                                        'trailing_slash': False,
-                                                                                        'required': False
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','activeStatus','leagueIds','sportIds','gameType','hydrate','fields']
+                                                    'query_params': ['season','activeStatus','leagueIds','sportIds','gameType','hydrate','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'teams_history':                {
                                                     'url': BASE_URL + '{ver}/teams/history',
@@ -880,7 +947,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['teamIds','startSeason','endSeason','fields']
+                                                    'query_params': ['teamIds','startSeason','endSeason','fields'],
+                                                    'required_params': [['teamIds']]
                                                 },
                 'teams_stats':                  {
                                                     'url': BASE_URL + '{ver}/teams/stats',
@@ -893,7 +961,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','sportIds','statGroup','gameType','stats','order','sortStat','fields']
+                                                    'query_params': ['season','sportIds','statGroup','gameType','stats','order','sortStat','fields'],
+                                                    'required_params': [['season','statGroup']]
                                                 },
                 'teams_affiliates':             {
                                                     'url': BASE_URL + '{ver}/teams/affiliates',
@@ -906,7 +975,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['teamIds','sportId','season','hydrate','fields']
+                                                    'query_params': ['teamIds','sportId','season','hydrate','fields'],
+                                                    'required_params': [['teamIds']]
                                                 },
                 'team':                         {
                                                     'url': BASE_URL + '{ver}/teams/{teamId}',
@@ -926,7 +996,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','sportId','hydrate','fields']
+                                                    'query_params': ['season','sportId','hydrate','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'team_alumni':                  {
                                                     'url': BASE_URL + '{ver}/teams/{teamId}/alumni',
@@ -946,7 +1017,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','group','hydrate','fields']
+                                                    'query_params': ['season','group','hydrate','fields'],
+                                                    'required_params': [['season','group']]
                                                 },
                 'team_choaches':                {
                                                     'url': BASE_URL + '{ver}/teams/{teamId}/coaches',
@@ -966,7 +1038,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','date','fields']
+                                                    'query_params': ['season','date','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'team_personnel':               {
                                                     'url': BASE_URL + '{ver}/teams/{teamId}/personnel',
@@ -986,7 +1059,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['date','fields']
+                                                    'query_params': ['date','fields'],
+                                                    'required_params': [[]]
                                                 },
                 'team_leaders':                  {
                                                     'url': BASE_URL + '{ver}/teams/{teamId}/leaders',
@@ -1006,7 +1080,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['leaderCategories','season','leaderGameTypes','hydrate','limit','fields']
+                                                    'query_params': ['leaderCategories','season','leaderGameTypes','hydrate','limit','fields'],
+                                                    'required_params': [['leaderCategories','season']]
                                                 },
                 'team_roster':                  {
                                                     'url': BASE_URL + '{ver}/teams/{teamId}/roster',
@@ -1026,7 +1101,8 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['rosterType','season','date','hydrate','fields']
+                                                    'query_params': ['rosterType','season','date','hydrate','fields'],
+                                                    'required_params': [['rosterType','season']]
                                                 },
                 'venue':                        {
                                                     'url': BASE_URL + '{ver}/venues',
@@ -1039,35 +1115,55 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['venueIds','season','hydrate','fields']
+                                                    'query_params': ['venueIds','season','hydrate','fields'],
+                                                    'required_params': [['venueIds']]
                                                 }
                 #v1/analytics - requires authentication
                 #v1/game/{gamePk}/guids - statcast data - requires authentication
             }
 
 def api_call(endpoint,params):
+    """Call MLB StatsAPI and return JSON data.
+    
+    This function is for advanced querying of the MLB StatsAPI, 
+    and is used by the functions in this library.
+    
+    endpoint is one of the keys in the ENDPOINT dict
+    params is a dict of parameters, as defined in the ENDPOINT dict for each endpoint
+    
+    statsapi.api_call('team',{'teamId':143}) will call the team endpoint for teamId=143 (Phillies)
+    """
+
+    """Lookup endpoint from input parameter"""
     ep = ENDPOINTS.get(endpoint)
     if not ep: raise ValueError('Invalid endpoint ('+str(endpoint)+').')
-
     url = ep['url']
     print("URL:",url) #debug
 
     path_params = {}
     query_params = {}
 
+    """Parse parameters into path and query parameters, and discard invalid parameters"""
     for p,pv in params.items():
         if ep['path_params'].get(p):
             print ("Found path param:",p) #debug
-            path_params.update({p: str(params[p])})
+            if ep['path_params'][p].get('type') == 'bool':
+                if str(pv).lower() == 'false':
+                    path_params.update({p: ep['path_params'][p].get('False','')})
+                elif str(pv).lower() == 'true':
+                    path_params.update({p: ep['path_params'][p].get('True','')})
+            else:
+                path_params.update({p: str(pv)})
         elif p in ep['query_params']:
             print ("Found query param:",p) #debug
-            query_params.update({p: str(params[p])})
+            query_params.update({p: str(pv)})
         else:
             print("Found invalid param:",p) #debug
 
     print ("path_params:",path_params) #debug
     print ("query_params:",query_params) #debug
 
+    """Replace path parameters with their values"""
     for k,v in path_params.items():
         print("Replacing {",k,"}",sep="") #debug
         url = url.replace('{'+k+'}',v)
@@ -1084,7 +1180,7 @@ def api_call(endpoint,params):
             print("Removing optional param {",param,"}",sep="") #debug
             url = url.replace('{'+param+'}','')
         print("URL:",url) #debug
-
+    """Add query parameters to the URL"""
     if len(query_params) > 0:
         for k,v in query_params.items():
             print("Adding query parameter ",k,"=",v,sep="")
@@ -1092,7 +1188,23 @@ def api_call(endpoint,params):
             url += sep + k + "=" + v
             print("URL:",url) #debug
 
-    #make the request
+    """Make sure required parameters are present"""
+    satisfied = False
+    missing_params = []
+    for x in ep.get('required_params',[]):
+        if len(x) == 0: satisfied = True
+        else:
+            missing_params.extend([a for a in x if a not in query_params])
+            if len(missing_params) == 0:
+                satisfied = True
+                break
+    if not satisfied:
+        if ep.get('note'):
+            note = '\n--Endpoint note: ' + ep.get('note')
+        else: note = ''
+        raise ValueError("Missing required parameter(s): " + ', '.join(missing_params) + ".\n--Required parameters for the " + endpoint + " endpoint: " + str(ep.get('required_params',[])) + ". \n--Note: If there are multiple sets in the required parameter list, you can choose any of the sets."+note)
+
+    """Make the request"""
     r = requests.get(url)
     if r.status_code not in [200,201]:
         raise ValueError('Request failed. Status Code: ' + str(r.status_code) + '.')
