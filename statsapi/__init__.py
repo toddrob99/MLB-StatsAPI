@@ -4,6 +4,7 @@ __version__ = version.VERSION
 
 DEBUG = False
 """To enable debug: statsapi.DEBUG=True"""
+DEBUG = True #TODO: Remove before committing
 
 from . import endpoints
 BASE_URL = endpoints.BASE_URL
@@ -12,13 +13,19 @@ ENDPOINTS = endpoints.ENDPOINTS
 import requests
 from datetime import datetime
 
-def schedule(start_date=None, end_date=None, team='', opponent_team='', hydrate='', sportId=1):
-    if not start_date: start_date = datetime.today().strftime('%Y-%m-%d')
-    if not end_date: end_date = datetime.today().strftime('%Y-%m-%d')
+def schedule(date=None, start_date=None, end_date=None, team='', opponent='', hydrate='', sportId=1):
+    """ Get list of games for a given date/range or team/opponent.
+    """
+    if end_date and not start_date:
+        date = end_date
+        end_date = None
+    if start_date and not end_date:
+        date = start_date
+        start_date = None
 
     params = {}
 
-    if start_date == end_date: params.update({'date':start_date})
+    if date: params.update({'date':date})
     elif start_date and end_date: params.update({'startDate':start_date, 'endDate':end_date})
 
     if hydrate != '': params.update({'hydrate':str(hydrate)})
@@ -26,12 +33,55 @@ def schedule(start_date=None, end_date=None, team='', opponent_team='', hydrate=
     if team != '':
         params.update({'teamId':str(team)})
 
-    if opponent_team != '':
-        params.update({'opponentId':str(opponent_team)})
+    if opponent != '':
+        params.update({'opponentId':str(opponent)})
 
     params.update({'sportId':str(sportId)})
 
-    return get('schedule',params)
+    r = get('schedule',params)
+
+    games = []
+    if r.get('totalItems') == 0:
+        return games #TODO: ValueError('No games to parse from schedule object.') instead?
+    else:
+        for date in r.get('dates'):
+            for game in date.get('games'):
+                game_info = {
+                                'game_datetime': game['gameDate'],
+                                'game_type': game['gameType'],
+                                'status': game['status']['detailedState'],
+                                'away': game['teams']['away']['team']['name'],
+                                'home': game['teams']['home']['team']['name'],
+                                'away_id': game['teams']['away']['team']['id'],
+                                'home_id': game['teams']['home']['team']['id'],
+                                'doubleheader': game['doubleHeader'],
+                                'game_num': game['gameNumber']
+                            }
+                if game_info['status'] == 'Final':
+                    game_info.update({
+                                        'away_score': game['teams']['away']['score'],
+                                        'home_score': game['teams']['home']['score']
+                                    })
+                    if game['isTie']:
+                        game_info.update({
+                                            'away_score': game['teams']['away']['score'],
+                                            'home_score': game['teams']['home']['score'],
+                                            'winner': 'Tie'
+                                        })
+                    else:
+                        game_info.update({
+                                            'winner': game['teams']['away']['team']['name'] if game['teams']['away']['isWinner'] else game['teams']['home']['team']['name'],
+                                            'loser': game['teams']['home']['team']['name'] if game['teams']['away']['isWinner'] else game['teams']['away']['team']['name'],
+                                        })
+                    summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' (' + str(game['teams']['away']['score']) + ') @ ' + game['teams']['home']['team']['name'] + ' (' + str(game['teams']['home']['score']) + ')'
+                    game_info.update({'summary': summary})
+                else:
+                    summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' @ ' + game['teams']['home']['team']['name'] + ' (' + game['status']['detailedState'] + ')'
+                    game_info.update({'summary': summary})
+                        
+                games.append(game_info)
+
+        return games
 
 def get(endpoint,params):
     """Call MLB StatsAPI and return JSON data.
