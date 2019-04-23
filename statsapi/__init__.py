@@ -36,7 +36,7 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', hy
     if opponent != '':
         params.update({'opponentId':str(opponent)})
 
-    params.update({'sportId':str(sportId)})
+    params.update({'sportId':str(sportId), 'hydrate':'decisions'})
 
     r = get('schedule',params)
 
@@ -72,6 +72,9 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', hy
                         game_info.update({
                                             'winner': game['teams']['away']['team']['name'] if game['teams']['away']['isWinner'] else game['teams']['home']['team']['name'],
                                             'loser': game['teams']['home']['team']['name'] if game['teams']['away']['isWinner'] else game['teams']['away']['team']['name'],
+                                            'winning_pitcher': game['decisions']['winner']['fullName'],
+                                            'losing_pitcher': game['decisions']['loser']['fullName'],
+                                            'save_pitcher': game['decisions'].get('save',{}).get('fullName')
                                         })
                     summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' (' + str(game['teams']['away']['score']) + ') @ ' + game['teams']['home']['team']['name'] + ' (' + str(game['teams']['home']['score']) + ')'
                     game_info.update({'summary': summary})
