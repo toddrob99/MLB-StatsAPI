@@ -1114,6 +1114,28 @@ ENDPOINTS = {
                                                                     },
                                                     'query_params': ['venueIds','season','hydrate','fields'],
                                                     'required_params': [['venueIds']]
+                                                },
+                'meta':                         {
+                                                    'url': BASE_URL + '{ver}/{type}',
+                                                    'path_params':  {
+                                                                        'ver':      {
+                                                                                        'type': 'str',
+                                                                                        'default': 'v1',
+                                                                                        'leading_slash': False,
+                                                                                        'trailing_slash': False,
+                                                                                        'required': True
+                                                                                    },
+                                                                        'type':   {
+                                                                                        'type': 'str',
+                                                                                        'default': None,
+                                                                                        'leading_slash': False,
+                                                                                        'trailing_slash': False,
+                                                                                        'required': True
+                                                                                    }
+                                                                    },
+                                                    'query_params': [[]],
+                                                    'required_params': [[]],
+                                                    'note': 'The meta endpoint is used to retrieve values to be used within other API calls. Available types: awards, baseballStats, eventTypes, gameStatus, gameTypes, hitTrajectories, jobTypes, languages, leagueLeaderTypes, logicalEvents, metrics, pitchCodes, pitchTypes, platforms, positions, reviewReasons, rosterTypes, scheduleEventTypes, situationCodes, sky, standingsTypes, statGroups, statTypes, windDirection.'
                                                 }
                 #v1/analytics - requires authentication
                 #v1/game/{gamePk}/guids - statcast data - requires authentication

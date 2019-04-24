@@ -4,7 +4,6 @@ __version__ = version.VERSION
 
 DEBUG = False
 """To enable debug: statsapi.DEBUG=True"""
-DEBUG = True #TODO: Remove before committing
 
 from . import endpoints
 BASE_URL = endpoints.BASE_URL
@@ -13,8 +12,60 @@ ENDPOINTS = endpoints.ENDPOINTS
 import requests
 from datetime import datetime
 
-def schedule(date=None, start_date=None, end_date=None, team='', opponent='', hydrate='', sportId=1):
-    """ Get list of games for a given date/range or team/opponent.
+def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sportId=1):
+    """Get list of games for a given date/range and/or team/opponent.
+
+    Output will be a list containing a dict for each game. Fields in the dict:
+
+    'game_datetime': date and timestamp in UTC (be careful if you truncate the time--the date may be the next day for a late game)
+    'game_date': date of game (YYYY-MM-DD)
+    'game_type': Preseason, Regular season, Postseason, etc. Look up possible values using the meta endpoint with type=gameTypes
+    'status': Scheduled, Warmup, In Progress, Final, etc. Look up possible values using the meta endpoint with type=gameStatus
+    'away': team name for the away team (e.g. Philadelphia Phillies)
+    'home': team name for the home team (e.g. Philadelphia Phillies)
+    'away_id': team id for the away team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143
+    'home_id': team id for the home team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143
+    'doubleheader': indicates if the game is part of a straight doubleheader (Y), a split doubleheader (S), or not part of a doubleheader
+    'game_num': game sequence (1, 2) if part of a doubleheader (will be 1 when not part of a doubleheader)
+    'away_score': runs scored by the away team (even when game is in progress)
+    'home_score': runs scored by the home team (even when game is in progress)
+    'winning_team': team name for the winning team, if the game is final (e.g. Philadelphia Phillies)
+    'losing_team': team name for the losing team, if the game is final (e.g. Philadelphia Phillies)
+    'winning_pitcher': full name of the winning pitcher, if the game is final and has a winner (not postponed/tied)
+    'losing_pitcher': full name of the losing pitcher, if the game is final and has a winner (not postponed/tied)
+    'save_pitcher': full name of the pitcher credited with a save, if the game is final and has a winner (not postponed/tied)
+    'summary':  if the game is final, the summary will include "<Date> - <Away Team Name> (<Away Score>) @ <Home Team Name> (<Home Score>)"
+                if the game is not final, the summary will include "<Date> - <Away Team Name> @ <Home Team Name> (<Game Status>)"
+
+    Example use:
+
+    Games between Phillies and Mets in July 2018):
+
+    games = statsapi.schedule(start_date='07/01/2018',end_date='07/31/2018',team=143,opponent=121)
+
+    Print a list of those games with final score or game status:
+
+    for x in games:
+        print(x['summary'])
+
+    Output:
+
+    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4)
+    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1)
+    2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3)
+    2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3)
+
+    Print a list of decisions for those games:
+
+    for x in games:
+        print("%s Game %s - WP: %s, LP: %s" % (x['game_date'],x['game_num'],x['winning_pitcher'],x['losing_pitcher']))
+
+    Output:
+
+    2018-07-09 Game 1 - WP: Tim Peterson, LP: Victor Arano
+    2018-07-09 Game 2 - WP: Aaron Nola, LP: Corey Oswalt
+    2018-07-10 Game 1 - WP: Enyel De Los Santos, LP: Drew Gagnon
+    2018-07-11 Game 1 - WP: Robert Gsellman, LP: Mark Leiter Jr.
     """
     if end_date and not start_date:
         date = end_date
@@ -27,8 +78,6 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', hy
 
     if date: params.update({'date':date})
     elif start_date and end_date: params.update({'startDate':start_date, 'endDate':end_date})
-
-    if hydrate != '': params.update({'hydrate':str(hydrate)})
 
     if team != '':
         params.update({'teamId':str(team)})
@@ -48,6 +97,7 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', hy
             for game in date.get('games'):
                 game_info = {
                                 'game_datetime': game['gameDate'],
+                                'game_date': date['date'],
                                 'game_type': game['gameType'],
                                 'status': game['status']['detailedState'],
                                 'away': game['teams']['away']['team']['name'],
@@ -66,12 +116,13 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', hy
                         game_info.update({
                                             'away_score': game['teams']['away']['score'],
                                             'home_score': game['teams']['home']['score'],
-                                            'winner': 'Tie'
+                                            'winning_team': 'Tie',
+                                            'losing_Team': 'Tie'
                                         })
                     else:
                         game_info.update({
-                                            'winner': game['teams']['away']['team']['name'] if game['teams']['away']['isWinner'] else game['teams']['home']['team']['name'],
-                                            'loser': game['teams']['home']['team']['name'] if game['teams']['away']['isWinner'] else game['teams']['away']['team']['name'],
+                                            'winning_team': game['teams']['away']['team']['name'] if game['teams']['away']['isWinner'] else game['teams']['home']['team']['name'],
+                                            'losing_team': game['teams']['home']['team']['name'] if game['teams']['away']['isWinner'] else game['teams']['away']['team']['name'],
                                             'winning_pitcher': game['decisions']['winner']['fullName'],
                                             'losing_pitcher': game['decisions']['loser']['fullName'],
                                             'save_pitcher': game['decisions'].get('save',{}).get('fullName')
@@ -86,16 +137,55 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', hy
 
         return games
 
+def notes(endpoint):
+    """Get notes for a given endpoint. 
+    Will include a list of required parameters, as well as hints for some endpoints.
+    If the specified endpoint has more than one distinct parameter requirement, 
+    for example one of teamId, leagueId, or leagueListId must be included for the attendance endpoint, 
+    the required query parameters list will contain separate sublists for each independent set of requirements:
+    'required_params': [['teamId'],['leagueId'],['leagueListid']]
+
+    Path parameters are part of the URL itself, for example the teamId parameter in the team endpoint (143 in the example):
+    https://statsapi.mlb.com/api/v1/teams/143
+
+    Query parameters are appended on to the URL after the question mark (hydrate in the example):
+    https://statsapi.mlb.com/api/v1/teams/143?hydrate=league
+
+    There is no difference in the way path and query parameters are passed into statsapi.get().
+    """
+    msg = ""
+    if not endpoint: msg = 'No endpoint specified.'
+    else:
+        if not ENDPOINTS.get(endpoint): msg = 'Invalid endpoint specified.'
+        else:
+            msg += "Endpoint: " + endpoint + " \n"
+            path_params = [k for k,v in ENDPOINTS[endpoint]['path_params'].items()]
+            required_path_params = [k for k,v in ENDPOINTS[endpoint]['path_params'].items() if v['required']]
+            if required_path_params == []: required_path_params = "None"
+            
+            query_params = ENDPOINTS[endpoint]['query_params']
+            required_query_params = ENDPOINTS[endpoint]['required_params']
+            if required_query_params == [[]]: required_query_params = "None"
+            msg += "All path parameters: %s. \n" % path_params
+            msg += "Required path parameters (note: ver will be included by default): %s. \n" % required_path_params
+            msg += "All query parameters: %s. \n" % query_params
+            msg += "Required query parameters: %s. \n" % required_query_params
+            if ENDPOINTS[endpoint].get('note'): msg += "Developer notes: %s" % ENDPOINTS[endpoint].get('note')
+
+    return msg
+
 def get(endpoint,params):
     """Call MLB StatsAPI and return JSON data.
-    
+
     This function is for advanced querying of the MLB StatsAPI, 
     and is used by the functions in this library.
-    
+
     endpoint is one of the keys in the ENDPOINT dict
     params is a dict of parameters, as defined in the ENDPOINT dict for each endpoint
-    
+
     statsapi.get('team',{'teamId':143}) will call the team endpoint for teamId=143 (Phillies)
+
+    return value will be the raw response from MLB Stats API in json format
     """
 
     """Lookup endpoint from input parameter"""
