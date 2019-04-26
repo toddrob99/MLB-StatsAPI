@@ -139,19 +139,111 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
 
         return games
 
-def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingBox=True,pitchingInfo=True,gameInfo=True,timeCode=None):
-    """Get boxscore for a given game.
+def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingBox=True,gameInfo=True,timecode=None):
+    """Get a formatted boxscore for a given game.
 
     Note: This function uses the game endpoint instead of game_box,
     because game_box does not contain the players' names as they should be 
     displayed in the box score (e.g. Last name only or Last, F)
+
+    It is possible to get the boxscore as it existed at a specific time by including the timestamp in the timecode parameter.
+    The timecode should be in the format YYYYMMDD_HHMMSS, and in the UTC timezone
+    For example, 4/24/19 10:32:40 EDT (-4) would be: 20190425_012240
+    A list of timestamps for game events can be found through the game_timestamps endpoint:
+    statsapi.get('game_timestamps',{'gamePk':565997})
+
+    Example use:
+
+    Print the full box score for Phillies @ Mets game on 4/24/2019 (gamePk=565997):
+
+    print( statsapi.boxscore(565997) )
+
+    Output:
+
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    Phillies Batters                         AB   R   H  RBI BB   K  LOB AVG   OPS  | Mets Batters                             AB   R   H  RBI BB   K  LOB AVG   OPS
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    1 McCutchen  LF                           5   0   1   0   0   1   3  .250 .830  | 1 McNeil  LF                              4   0   1   0   0   0   1  .363 .928
+    2 Realmuto  C                             3   1   1   0   1   1   2  .282 .786  | 2 Conforto  RF                            3   0   0   0   1   1   1  .292 .986
+    3 Harper  RF                              4   1   1   1   1   3   4  .261 .909  | 3 Canó  2B                                3   0   3   0   1   0   0  .272 .758
+    4 Hoskins  1B                             4   2   2   2   1   1   3  .273 .982  | 4 Ramos, W  C                             4   0   0   0   0   3   6  .278 .687
+    5 Franco  3B                              5   1   1   1   0   0   3  .271 .905  | 5 Smith, Do  1B                           2   0   0   0   1   1   2  .400 .996
+    6 Hernández, C  2B                        5   1   1   0   0   1   2  .267 .730  |     c-Alonso, P  1B                       1   0   0   0   0   1   1  .306 1.086
+    7 Rodríguez, S  SS                        4   0   1   0   0   1   1  .250 .750  | 6 Frazier, T  3B                          3   0   0   0   0   0   4  .182 .705
+    8 Velasquez  P                            1   0   0   0   0   0   0  .167 .453  | 7 Rosario, A  SS                          4   0   1   0   0   0   1  .261 .676
+        a-Williams, N  PH                     1   0   0   0   0   0   1  .150 .427  | 8 Lagares  CF                             2   0   0   0   0   1   1  .244 .653
+        Neshek  P                             0   0   0   0   0   0   0  .000 .000  |     a-Nimmo  CF                           2   0   0   0   0   0   1  .203 .714
+        Domínguez  P                          0   0   0   0   0   0   0  .000 .000  | 9 Vargas  P                               2   0   0   0   0   1   1  .000 .000
+        b-Gosselin  PH                        1   0   1   1   0   0   0  .211 .474  |     Lugo, S  P                            0   0   0   0   0   0   0  .000 .000
+        Morgan  P                             0   0   0   0   0   0   0  .000 .000  |     Zamora  P                             0   0   0   0   0   0   0  .000 .000
+        c-Knapp  PH                           1   0   0   0   0   1   1  .222 .750  |     b-Guillorme  PH                       1   0   1   0   0   0   0  .167 .378
+        Nicasio  P                            0   0   0   0   0   0   0  .000 .000  |     Gsellman  P                           0   0   0   0   0   0   0  .000 .000
+    9 Quinn  CF                               4   0   1   1   0   1   1  .120 .305  |     Rhame  P                              0   0   0   0   0   0   0  .000 .000
+        1-Altherr  CF                         0   0   0   0   0   0   0  .042 .163  |     d-Davis, J  PH                        1   0   0   0   0   1   0  .276 .865
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    Totals                                   38   6  10   6   3  10  21             | Totals                                   32   0   6   0   3   9  19
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    a-Popped out for Velasquez in the 6th.                                          | a-Flied out for Lagares in the 6th.
+    b-Singled for Domínguez in the 8th.                                             | b-Singled for Zamora in the 7th.
+    c-Struck out for Morgan in the 9th.                                             | c-Struck out for Smith, Do in the 8th.
+    1-Ran for Quinn in the 8th.                                                     | d-Struck out for Rhame in the 9th.
+                                                                                    |
+    BATTING                                                                         | BATTING
+    2B: Harper (7, Vargas); Rodríguez, S (1, Rhame); Realmuto (4, Vargas).          | TB: Canó 3; Guillorme; McNeil; Rosario, A.
+    3B: Hoskins (1, Gsellman).                                                      | Runners left in scoring position, 2 out: Frazier, T 2; Vargas; Smith, Do 2.
+    HR: Hoskins (7, 9th inning off Rhame, 1 on, 0 out).                             | GIDP: McNeil.
+    TB: Franco; Gosselin; Harper 2; Hernández, C; Hoskins 7; McCutchen; Quinn;      | Team RISP: 0-for-6.
+        Realmuto 2; Rodríguez, S 2.                                                 | Team LOB: 9.
+    RBI: Franco (19); Gosselin (4); Harper (15); Hoskins 2 (20); Quinn (1).         |
+    Runners left in scoring position, 2 out: Hoskins; Hernández, C; Knapp; Realmuto | FIELDING
+        2; McCutchen.                                                               | E: Canó (3, fielding); Rosario, A 2 (7, throw, throw).
+    SAC: Rodríguez, S; Velasquez.                                                   |
+    Team RISP: 4-for-13.                                                            |
+    Team LOB: 11.                                                                   |
+                                                                                    |
+    FIELDING                                                                        |
+    DP: (Hernández, C-Rodríguez, S-Hoskins).                                        |
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    Phillies Pitchers                            IP   H   R  ER  BB   K  HR   ERA   | Mets Pitchers                                IP   H   R  ER  BB   K  HR   ERA
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    Velasquez  (W, 1-0)                         5.0   3   0   0   3   6   0   1.99  | Vargas  (L, 1-1)                            4.2   3   1   1   2   4   0   7.20
+    Neshek  (H, 2)                              1.0   1   0   0   0   0   0   2.70  | Lugo, S                                     2.0   0   0   0   0   2   0   4.60
+    Domínguez  (H, 3)                           1.0   1   0   0   0   0   0   4.32  | Zamora                                      0.1   0   0   0   0   1   0   0.00
+    Morgan                                      1.0   1   0   0   0   2   0   0.00  | Gsellman                                    1.0   5   3   3   0   1   0   4.20
+    Nicasio                                     1.0   0   0   0   0   1   0   5.84  | Rhame                                       1.0   2   2   2   1   2   1   8.10
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    Totals                                      9.0   6   0   0   3   9   0         | Totals                                      9.0  10   6   6   3  10   1
+    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
+    WP: Velasquez; Gsellman.
+    HBP: Realmuto (by Vargas); Frazier, T (by Velasquez).
+    Pitches-strikes: Velasquez 97-53; Neshek 13-8; Domínguez 9-6; Morgan 14-10; Nicasio 15-10; Vargas 89-53; Lugo, S 32-23; Zamora 5-3; Gsellman 25-17; Rhame 19-12.
+    Groundouts-flyouts: Velasquez 6-3; Neshek 1-2; Domínguez 1-1; Morgan 1-0; Nicasio 2-0; Vargas 8-3; Lugo, S 3-2; Zamora 0-0; Gsellman 1-1; Rhame 0-0.
+    Batters faced: Velasquez 22; Neshek 4; Domínguez 3; Morgan 4; Nicasio 3; Vargas 21; Lugo, S 8; Zamora; Gsellman 8; Rhame 6.
+    Inherited runners-scored: Lugo, S 2-0; Zamora 1-0.
+    Umpires: HP: Brian Gorman. 1B: Jansen Visconti. 2B: Mark Carlson. 3B: Scott Barry.
+    Weather: 66 degrees, Clear.
+    Wind: 12 mph, L To R.
+    First pitch: 7:11 PM.
+    T: 3:21.
+    Att: 27,685.
+    Venue: Citi Field.
+    April 24, 2019
+    -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    Which sections are included can be customized using the battingBox, battingInfo, pitchingBox, and gameInfo parameters
+    All default to True; set to False to exclude from the results
+    For example, to retrieve only the batting box: statsapi.boxscore(565997,battingInfo=False,fieldingInfo=False,pitchingBox=False,gameInfo=False)
     """
-    rowlen = 79
+
+    """rowLen is the total width of each side of the box score, excluding the " | " separator; fullRowLen is the full table length"""
+    rowLen = 79
+    fullRowLen = rowLen * 2 + 3
+    """boxscore will hold the string to be returned"""
     boxscore = ''
-    params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,battingOrder,info,title,fieldList,note,label,value'}
-    if timeCode: params.update({'timeCode':timeCode})
+    params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,era,battingOrder,info,title,fieldList,note,label,value'}
+    if timecode: params.update({'timecode':timecode})
     r = get('game',params)
-    if DEBUG: print(r) #debug
 
     teamInfo = r['gameData']['teams']
     playerInfo = r['gameData']['players']
@@ -159,6 +251,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
     home = r['liveData']['boxscore']['teams']['home']
 
     if battingBox:
+        """Add away column headers"""
         awayBatters = [{'namefield':teamInfo['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
         for batterId_int in away['batters']:
             batterId = str(batterId_int)
@@ -179,7 +272,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             awayBatters.append(batter)
 
-        """get away team totals"""
+        """Get away team totals"""
         awayBatters.append  ({
                                 'namefield':'Totals',
                                 'ab':str(away['teamStats']['batting']['atBats']),
@@ -190,9 +283,10 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                                 'k':str(away['teamStats']['batting']['strikeOuts']),
                                 'lob':str(away['teamStats']['batting']['leftOnBase']),
                                 'avg':'',
-                                'ops':'',
+                                'ops':''
                             })
 
+        """Add home column headers"""
         homeBatters = [{'namefield':teamInfo['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
         for batterId_int in home['batters']:
             batterId = str(batterId_int)
@@ -213,6 +307,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             homeBatters.append(batter)
 
+        """Get home team totals"""
         homeBatters.append  ({
                                 'namefield':'Totals',
                                 'ab':str(home['teamStats']['batting']['atBats']),
@@ -223,23 +318,23 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                                 'k':str(home['teamStats']['batting']['strikeOuts']),
                                 'lob':str(home['teamStats']['batting']['leftOnBase']),
                                 'avg':'',
-                                'ops':'',
+                                'ops':''
                             })
 
         """Make sure the home and away batter lists are the same length"""
         while len(awayBatters) > len(homeBatters):
-            homeBatters.append(['','','','','','','','','',''])
+            homeBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
         while len(awayBatters) < len(homeBatters):
-            awayBatters.append(['','','','','','','','','',''])
+            awayBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
 
         """Build the batting box!"""
         for i in range(0,len(awayBatters)):
             if i==0 or i==len(awayBatters)-1:
-                boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
+                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
             boxscore += '{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5} | '.format(**awayBatters[i])
             boxscore += '{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5}\n'.format(**homeBatters[i])
             if i==0 or i==len(awayBatters)-1:
-                boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
+                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
 
         """Get batting notes"""
         awayBattingNotes = {}
@@ -257,10 +352,8 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
         for i in range(0,len(awayBattingNotes)):
             boxscore += '{:<79} | '.format(awayBattingNotes[i])
             boxscore += '{:<79}\n'.format(homeBattingNotes[i])
-            #if i==len(awayBattingNotes)-1:
-            #    boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
 
-        boxscore += ' '*rowlen + ' | ' + ' '*rowlen + '\n'
+        boxscore += ' '*rowLen + ' | ' + ' '*rowLen + '\n'
 
     """Get batting and fielding info"""
     awayBoxInfo = {}
@@ -270,12 +363,12 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
             for z in (x for x in away['info'] if x.get('title')==infoType):
                 awayBoxInfo.update({len(awayBoxInfo): z['title']})
                 for x in z['fieldList']:
-                    if len(x['label'] + ': ' + x.get('value','')) > rowlen:
+                    if len(x['label'] + ': ' + x.get('value','')) > rowLen:
                         words = iter((x['label'] + ': ' + x.get('value','')).split())
                         check = ''
                         lines = []
                         for word in words:
-                            if len(check) + 1 + len(word) <= rowlen:
+                            if len(check) + 1 + len(word) <= rowLen:
                                 if check=='': check = word
                                 else: check += ' ' + word
                             else:
@@ -291,12 +384,12 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
             for z in (x for x in home['info'] if x.get('title')==infoType):
                 homeBoxInfo.update({len(homeBoxInfo): z['title']})
                 for x in z['fieldList']:
-                    if len(x['label'] + ': ' + x.get('value','')) > rowlen:
+                    if len(x['label'] + ': ' + x.get('value','')) > rowLen:
                         words = iter((x['label'] + ': ' + x.get('value','')).split())
                         check = ''
                         lines = []
                         for word in words:
-                            if len(check) + 1 + len(word) <= rowlen:
+                            if len(check) + 1 + len(word) <= rowLen:
                                 if check=='': check = word
                                 else: check += ' ' + word
                             else:
@@ -319,31 +412,202 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
         while len(awayBoxInfo) < len(homeBoxInfo):
             awayBoxInfo.update({len(awayBoxInfo) : ''})
 
+        """Build info box"""
         for i in range(0,len(awayBoxInfo)):
-            boxscore += ('{:<%s} | '%rowlen).format(awayBoxInfo[i])
-            boxscore += ('{:<%s}\n'%rowlen).format(homeBoxInfo[i])
+            boxscore += ('{:<%s} | '%rowLen).format(awayBoxInfo[i])
+            boxscore += ('{:<%s}\n'%rowLen).format(homeBoxInfo[i])
             if i==len(awayBoxInfo)-1:
-                boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
+                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
 
     """Get pitching box"""
-    
+    if pitchingBox:
+        """Add away column headers"""
+        awayPitchers = [{'namefield':teamInfo['away']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA'}]
+        for pitcherId_int in away['pitchers']:
+            pitcherId = str(pitcherId_int)
+            namefield = playerInfo['ID'+pitcherId]['boxscoreName']
+            namefield += '  ' + away['players']['ID'+pitcherId]['stats']['pitching'].get('note','') if away['players']['ID'+pitcherId]['stats']['pitching'].get('note') else ''
+            pitcher =    {
+                            'namefield':namefield,
+                            'ip':str(away['players']['ID'+pitcherId]['stats']['pitching']['inningsPitched']),
+                            'h':str(away['players']['ID'+pitcherId]['stats']['pitching']['hits']),
+                            'r':str(away['players']['ID'+pitcherId]['stats']['pitching']['runs']),
+                            'er':str(away['players']['ID'+pitcherId]['stats']['pitching']['earnedRuns']),
+                            'bb':str(away['players']['ID'+pitcherId]['stats']['pitching']['baseOnBalls']),
+                            'k':str(away['players']['ID'+pitcherId]['stats']['pitching']['strikeOuts']),
+                            'hr':str(away['players']['ID'+pitcherId]['stats']['pitching']['homeRuns']),
+                            'era':str(away['players']['ID'+pitcherId]['seasonStats']['pitching']['era'])
+                        }
+            awayPitchers.append(pitcher)
 
+        """Get away team totals"""
+        awayPitchers.append  ({
+                                'namefield':'Totals',
+                                'ip':str(away['teamStats']['pitching']['inningsPitched']),
+                                'h':str(away['teamStats']['pitching']['hits']),
+                                'r':str(away['teamStats']['pitching']['runs']),
+                                'er':str(away['teamStats']['pitching']['earnedRuns']),
+                                'bb':str(away['teamStats']['pitching']['baseOnBalls']),
+                                'k':str(away['teamStats']['pitching']['strikeOuts']),
+                                'hr':str(away['teamStats']['pitching']['homeRuns']),
+                                'era':''
+                            })
+
+        """Add home column headers"""
+        homePitchers = [{'namefield':teamInfo['home']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA'}]
+        for pitcherId_int in home['pitchers']:
+            pitcherId = str(pitcherId_int)
+            namefield = playerInfo['ID'+pitcherId]['boxscoreName']
+            namefield += '  ' + home['players']['ID'+pitcherId]['stats']['pitching'].get('note','') if home['players']['ID'+pitcherId]['stats']['pitching'].get('note') else ''
+            pitcher =    {
+                            'namefield':namefield,
+                            'ip':str(home['players']['ID'+pitcherId]['stats']['pitching']['inningsPitched']),
+                            'h':str(home['players']['ID'+pitcherId]['stats']['pitching']['hits']),
+                            'r':str(home['players']['ID'+pitcherId]['stats']['pitching']['runs']),
+                            'er':str(home['players']['ID'+pitcherId]['stats']['pitching']['earnedRuns']),
+                            'bb':str(home['players']['ID'+pitcherId]['stats']['pitching']['baseOnBalls']),
+                            'k':str(home['players']['ID'+pitcherId]['stats']['pitching']['strikeOuts']),
+                            'hr':str(home['players']['ID'+pitcherId]['stats']['pitching']['homeRuns']),
+                            'era':str(home['players']['ID'+pitcherId]['seasonStats']['pitching']['era'])
+                        }
+            homePitchers.append(pitcher)
+
+        """Get home team totals"""
+        homePitchers.append  ({
+                                'namefield':'Totals',
+                                'ip':str(home['teamStats']['pitching']['inningsPitched']),
+                                'h':str(home['teamStats']['pitching']['hits']),
+                                'r':str(home['teamStats']['pitching']['runs']),
+                                'er':str(home['teamStats']['pitching']['earnedRuns']),
+                                'bb':str(home['teamStats']['pitching']['baseOnBalls']),
+                                'k':str(home['teamStats']['pitching']['strikeOuts']),
+                                'hr':str(home['teamStats']['pitching']['homeRuns']),
+                                'era':''
+                            })
+
+        """Make sure the home and away pitcher lists are the same length"""
+        while len(awayPitchers) > len(homePitchers):
+            homePitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
+        while len(awayPitchers) < len(homePitchers):
+            awayPitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
+
+        """Build the pitching box!"""
+        for i in range(0,len(awayPitchers)):
+            if i==0 or i==len(awayPitchers)-1:
+                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
+            boxscore += '{namefield:<43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6} | '.format(**awayPitchers[i])
+            boxscore += '{namefield:<43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6}\n'.format(**homePitchers[i])
+            if i==0 or i==len(awayPitchers)-1:
+                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
+
+    """Get game info"""
+    if gameInfo:
+        z = r['liveData']['boxscore'].get('info',[])
+        gameBoxInfo = {}
+        for x in z:
+            if len(x['label'] + (': ' if x.get('value') else '') + x.get('value','')) > fullRowLen:
+                words = iter((x['label'] + (': ' if x.get('value') else '') + x.get('value','')).split())
+                check = ''
+                lines = []
+                for word in words:
+                    if len(check) + 1 + len(word) <= fullRowLen:
+                        if check=='': check = word
+                        else: check += ' ' + word
+                    else:
+                        lines.append(check)
+                        check = '    ' + word
+                if len(check): lines.append(check)
+                for i in range(0,len(lines)):
+                    gameBoxInfo.update({len(gameBoxInfo): lines[i] })
+                    
+            else:
+                gameBoxInfo.update({len(gameBoxInfo): x['label'] + (': ' if x.get('value') else '') + x.get('value','') })
+
+        """Build the game info box"""
+        for i in range(0,len(gameBoxInfo)):
+            boxscore += ('{:<%s}'%fullRowLen + '\n').format(gameBoxInfo[i])
+            if i==len(gameBoxInfo)-1:
+                boxscore += '-'*fullRowLen + '\n'
+    
     if DEBUG: print(boxscore) #debug
     return boxscore
 
-def linescore(gamePk):
-    """Get linescore for a given game.
+def linescore(gamePk,timecode=None):
+    """Get formatted linescore for a given game.
+
+    Note: This function uses the game endpoint instead of game_linescore,
+    because game_linescore does not contain the team names or game status
+    and it's better to make one call instead of two.
+
+    It is possible to get the linescore as it existed at a specific time by including the timestamp in the timecode parameter.
+    The timecode should be in the format YYYYMMDD_HHMMSS, and in the UTC timezone
+    For example, 4/24/19 10:32:40 EDT (-4) would be: 20190425_012240
+    A list of timestamps for game events can be found through the game_timestamps endpoint:
+    statsapi.get('game_timestamps',{'gamePk':565997})
+
+    Example use:
+
+    Print the linescore for the Phillies/Mets game on 4/25:
+
+    print( statsapi.linescore(565997) )
+
+    Output:
+
+    Final    1 2 3 4 5 6 7 8 9  R   H   E
+    Phillies 1 0 0 0 0 0 0 3 2  6   10  0
+    Mets     0 0 0 0 0 0 0 0 0  0   6   3
+
     """
-    line = get('game_linescore',{'gamePk':gamePk})
+    linescore = ''
+    params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,status,abstractGameState,liveData,linescore,innings,num,home,away,runs,hits,errors'}
+    if timecode: params.update({'timecode':timecode})
+    r = get('game',params)
 
-    
+    header_name = r['gameData']['status']['abstractGameState']
+    away_name = r['gameData']['teams']['away']['teamName']
+    home_name = r['gameData']['teams']['home']['teamName']
+    header_row = []
+    away = []
+    home = []
 
-    return
+    for x in r['liveData']['linescore']['innings']:
+        header_row.append(str(x.get('num','')))
+        away.append(str(x.get('away',{}).get('runs',0)))
+        home.append(str(x.get('home',{}).get('runs',0)))
+
+    if len(r['liveData']['linescore']['innings']) < 9:
+        for i in range(len(r['liveData']['linescore']['innings']) + 1, 10):
+            header_row.append(str(i))
+            away.append('0')
+            home.append('0')
+
+    header_row.extend(['R','H','E'])
+    away.extend([
+                    str(r['liveData']['linescore'].get('teams',{}).get('away',{}).get('runs',0)),
+                    str(r['liveData']['linescore'].get('teams',{}).get('away',{}).get('hits',0)),
+                    str(r['liveData']['linescore'].get('teams',{}).get('away',{}).get('errors',0))
+                ])
+    home.extend([
+                    str(r['liveData']['linescore'].get('teams',{}).get('home',{}).get('runs',0)),
+                    str(r['liveData']['linescore'].get('teams',{}).get('home',{}).get('hits',0)),
+                    str(r['liveData']['linescore'].get('teams',{}).get('home',{}).get('errors',0))
+                ])
+
+    """Build the linescore"""
+    for k in [[header_name,header_row],[away_name,away],[home_name,home]]:
+        linescore += ('{:<%s}' % str(len(max([header_name,away_name,home_name],key=len)) + 1)).format(k[0])
+        linescore += ('{:^2}' * (len(k[1])-3)).format(*k[1])
+        linescore += ('{:^4}' * 3).format(*k[1][-3:])
+        linescore += '\n'
+    linescore = linescore[:-1] #strip the extra line break
+
+    if DEBUG: print(linescore) #debug
+    return linescore
 
 def player_stats(personId):
     """Get stats for a given player.
     """
-    player = get('person',{'personId':personId})
+    r = get('person',{'personId':personId})
 
     
 
@@ -357,7 +621,7 @@ def team_leaders(leaderCategories,teamId=None,season=None):
     params = {'leaderCategories':leaderCategories,'season': season}
     if teamId: params.update({'teamId':teamId})
 
-    leaders = get('team_leaders',params)
+    r = get('team_leaders',params)
 
     
 
@@ -371,7 +635,7 @@ def league_leaders(leaderCategories,leagueId=None,season=None):
     params = {'leaderCategories':leaderCategories,'season':season}
     if leagueId: params.update({'leagueId':leagueId})
 
-    leaders = get('stats_leaders',params)
+    r = get('stats_leaders',params)
 
     
 
