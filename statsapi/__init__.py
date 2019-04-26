@@ -270,8 +270,8 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
             for z in (x for x in away['info'] if x.get('title')==infoType):
                 awayBoxInfo.update({len(awayBoxInfo): z['title']})
                 for x in z['fieldList']:
-                    if len(x['label'] + ': ' + x['value']) > rowlen:
-                        words = iter((x['label'] + ': ' + x['value']).split())
+                    if len(x['label'] + ': ' + x.get('value','')) > rowlen:
+                        words = iter((x['label'] + ': ' + x.get('value','')).split())
                         check = ''
                         lines = []
                         for word in words:
@@ -286,13 +286,13 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                             awayBoxInfo.update({len(awayBoxInfo): lines[i] })
                             
                     else:
-                        awayBoxInfo.update({len(awayBoxInfo): x['label'] + ': ' + x['value'] })
+                        awayBoxInfo.update({len(awayBoxInfo): x['label'] + ': ' + x.get('value','') })
 
             for z in (x for x in home['info'] if x.get('title')==infoType):
                 homeBoxInfo.update({len(homeBoxInfo): z['title']})
                 for x in z['fieldList']:
-                    if len(x['label'] + ': ' + x['value']) > rowlen:
-                        words = iter((x['label'] + ': ' + x['value']).split())
+                    if len(x['label'] + ': ' + x.get('value','')) > rowlen:
+                        words = iter((x['label'] + ': ' + x.get('value','')).split())
                         check = ''
                         lines = []
                         for word in words:
@@ -306,7 +306,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         for i in range(0,len(lines)):
                             homeBoxInfo.update({len(homeBoxInfo): lines[i] })
                     else:
-                        homeBoxInfo.update({len(homeBoxInfo): x['label'] + ': ' + x['value'] })
+                        homeBoxInfo.update({len(homeBoxInfo): x['label'] + ': ' + x.get('value','') })
 
             if len(awayBoxInfo) and infoType == 'BATTING':
                 awayBoxInfo.update({len(awayBoxInfo) : ' '})
@@ -320,8 +320,8 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
             awayBoxInfo.update({len(awayBoxInfo) : ''})
 
         for i in range(0,len(awayBoxInfo)):
-            boxscore += '{:<79} | '.format(awayBoxInfo[i])
-            boxscore += '{:<79}\n'.format(homeBoxInfo[i])
+            boxscore += ('{:<%s} | '%rowlen).format(awayBoxInfo[i])
+            boxscore += ('{:<%s}\n'%rowlen).format(homeBoxInfo[i])
             if i==len(awayBoxInfo)-1:
                 boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
 
