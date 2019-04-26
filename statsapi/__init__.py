@@ -1,3 +1,8 @@
+# encoding: utf-8
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 from . import version
 __version__ = version.VERSION
 """Installed version of MLB-StatsAPI"""
@@ -737,25 +742,25 @@ def get(endpoint,params):
 
     """Replace path parameters with their values"""
     for k,v in path_params.items():
-        if DEBUG: print("Replacing {",k,"}",sep="") #debug
+        if DEBUG: print("Replacing {%s}" % k) #debug
         url = url.replace('{'+k+'}',v)
         if DEBUG: print("URL:",url) #debug
     while url.find('{') != -1 and url.find('}') > url.find('{'):
         param = url[url.find('{')+1:url.find('}')]
         if ep.get('path_params',{}).get(param,{}).get('required'): 
             if ep['path_params'][param]['default'] and ep['path_params'][param]['default'] != '':
-                if DEBUG: print("Replacing {",param,"} with default: ",ep['path_params'][param]['default'],sep="") #debug
+                if DEBUG: print("Replacing {%s} with default: %s." % (param, ep['path_params'][param]['default'])) #debug
                 url = url.replace('{'+param+'}',ep['path_params'][param]['default'])
             else:
                 raise ValueError('Missing required path parameter {'+str(param)+'}')
         else:
-            if DEBUG: print("Removing optional param {",param,"}",sep="") #debug
+            if DEBUG: print("Removing optional param {%s}" % param) #debug
             url = url.replace('{'+param+'}','')
         if DEBUG: print("URL:",url) #debug
     """Add query parameters to the URL"""
     if len(query_params) > 0:
         for k,v in query_params.items():
-            if DEBUG: print("Adding query parameter ",k,"=",v,sep="")
+            if DEBUG: print("Adding query parameter %s=%s" % (k,v))
             sep = '?' if url.find('?') == -1 else '&'
             url += sep + k + "=" + v
             if DEBUG: print("URL:",url) #debug
