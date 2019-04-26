@@ -1,7 +1,9 @@
-# encoding: utf-8
+# encoding=utf-8
 import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
+if sys.version_info.major < 3:
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+"""Trying to support Python 2.7"""
 
 from . import version
 __version__ = version.VERSION
