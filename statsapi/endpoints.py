@@ -1017,7 +1017,7 @@ ENDPOINTS = {
                                                     'query_params': ['season','group','hydrate','fields'],
                                                     'required_params': [['season','group']]
                                                 },
-                'team_choaches':                {
+                'team_coaches':                 {
                                                     'url': BASE_URL + '{ver}/teams/{teamId}/coaches',
                                                     'path_params':  {
                                                                         'ver':      {

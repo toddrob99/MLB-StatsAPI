@@ -16,6 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/toddrob99/MLB-StatsAPI",
     packages=setuptools.find_packages(),
+    install_requires=['requests'],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",

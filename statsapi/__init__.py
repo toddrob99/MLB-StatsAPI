@@ -648,6 +648,38 @@ def league_leaders(leaderCategories,leagueId=None,season=None):
 
     return "This function is not yet available."
 
+def standings(leagueId=None,season=None,standingsTypes=None):
+    """Get standings for a given league and season
+    """
+    if not leagueId: leagueId = '103,104'
+    if not season: season = datetime.now().year
+    if not standingsTypes: standingsTypes = 'regularSeason'
+    params = {'leagueId':leagueId,'season':season}
+    if leagueId: params.update({'leagueId':leagueId})
+
+    r = get('standings',params)
+
+    
+
+    return "This function is not yet available."
+
+def roster(teamId,rosterType=None,season=None,date=None):
+    """Get the roster for a given team.
+    Get a list of available rosterTypes by calling the meta endpoint with type=rosterTypes.
+    Default rosterType=active
+    Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
+    """
+    if not season: season = datetime.now().year
+    if not rosterType: rosterType='active'
+    params = {'rosterType':rosterType,'season':season,'teamId':teamId}
+    if date: params.update({'date':date})
+
+    r = get('team_roster',params)
+
+    
+
+    return "This function is not yet available."
+
 def meta(type,fields=None):
     """Get available values from StatsAPI for use in other queries,
     or look up descriptions for values found in API results.
