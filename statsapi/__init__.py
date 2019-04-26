@@ -40,7 +40,7 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
 
     Example use:
 
-    Games between Phillies and Mets in July 2018):
+    Games between Phillies and Mets in July 2018:
 
     games = statsapi.schedule(start_date='07/01/2018',end_date='07/31/2018',team=143,opponent=121)
 
