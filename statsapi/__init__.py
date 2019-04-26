@@ -17,6 +17,7 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
 
     Output will be a list containing a dict for each game. Fields in the dict:
 
+    'game_id': unique MLB game id (primary key, or gamePk)
     'game_datetime': date and timestamp in UTC (be careful if you truncate the time--the date may be the next day for a late game)
     'game_date': date of game (YYYY-MM-DD)
     'game_type': Preseason, Regular season, Postseason, etc. Look up possible values using the meta endpoint with type=gameTypes
@@ -96,6 +97,7 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
         for date in r.get('dates'):
             for game in date.get('games'):
                 game_info = {
+                                'game_id': game['gamePk'],
                                 'game_datetime': game['gameDate'],
                                 'game_date': date['date'],
                                 'game_type': game['gameType'],
@@ -137,6 +139,257 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
 
         return games
 
+def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingBox=True,pitchingInfo=True,gameInfo=True,timeCode=None):
+    """Get boxscore for a given game.
+
+    Note: This function uses the game endpoint instead of game_box,
+    because game_box does not contain the players' names as they should be 
+    displayed in the box score (e.g. Last name only or Last, F)
+    """
+    rowlen = 79
+    boxscore = ''
+    params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,battingOrder,info,title,fieldList,note,label,value'}
+    if timeCode: params.update({'timeCode':timeCode})
+    r = get('game',params)
+    if DEBUG: print(r) #debug
+
+    teamInfo = r['gameData']['teams']
+    playerInfo = r['gameData']['players']
+    away = r['liveData']['boxscore']['teams']['away']
+    home = r['liveData']['boxscore']['teams']['home']
+
+    if battingBox:
+        awayBatters = [{'namefield':teamInfo['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
+        for batterId_int in away['batters']:
+            batterId = str(batterId_int)
+            namefield = str(away['players']['ID'+batterId]['battingOrder'])[0] if str(away['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
+            namefield += " " + away['players']['ID'+batterId]['stats']['batting'].get('note','')
+            namefield += playerInfo['ID'+batterId]['boxscoreName'] + "  " + away['players']['ID'+batterId]['position']['abbreviation']
+            batter =    {
+                            'namefield':namefield,
+                            'ab':str(away['players']['ID'+batterId]['stats']['batting']['atBats']),
+                            'r':str(away['players']['ID'+batterId]['stats']['batting']['runs']),
+                            'h':str(away['players']['ID'+batterId]['stats']['batting']['hits']),
+                            'rbi':str(away['players']['ID'+batterId]['stats']['batting']['rbi']),
+                            'bb':str(away['players']['ID'+batterId]['stats']['batting']['baseOnBalls']),
+                            'k':str(away['players']['ID'+batterId]['stats']['batting']['strikeOuts']),
+                            'lob':str(away['players']['ID'+batterId]['stats']['batting']['leftOnBase']),
+                            'avg':str(away['players']['ID'+batterId]['seasonStats']['batting']['avg']),
+                            'ops':str(away['players']['ID'+batterId]['seasonStats']['batting']['ops'])
+                        }
+            awayBatters.append(batter)
+
+        """get away team totals"""
+        awayBatters.append  ({
+                                'namefield':'Totals',
+                                'ab':str(away['teamStats']['batting']['atBats']),
+                                'r':str(away['teamStats']['batting']['runs']),
+                                'h':str(away['teamStats']['batting']['hits']),
+                                'rbi':str(away['teamStats']['batting']['rbi']),
+                                'bb':str(away['teamStats']['batting']['baseOnBalls']),
+                                'k':str(away['teamStats']['batting']['strikeOuts']),
+                                'lob':str(away['teamStats']['batting']['leftOnBase']),
+                                'avg':'',
+                                'ops':'',
+                            })
+
+        homeBatters = [{'namefield':teamInfo['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
+        for batterId_int in home['batters']:
+            batterId = str(batterId_int)
+            namefield = str(home['players']['ID'+batterId]['battingOrder'])[0] if str(home['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
+            namefield += " " + home['players']['ID'+batterId]['stats']['batting'].get('note','')
+            namefield += playerInfo['ID'+batterId]['boxscoreName'] + "  " + home['players']['ID'+batterId]['position']['abbreviation']
+            batter =    {
+                            'namefield':namefield,
+                            'ab':str(home['players']['ID'+batterId]['stats']['batting']['atBats']),
+                            'r':str(home['players']['ID'+batterId]['stats']['batting']['runs']),
+                            'h':str(home['players']['ID'+batterId]['stats']['batting']['hits']),
+                            'rbi':str(home['players']['ID'+batterId]['stats']['batting']['rbi']),
+                            'bb':str(home['players']['ID'+batterId]['stats']['batting']['baseOnBalls']),
+                            'k':str(home['players']['ID'+batterId]['stats']['batting']['strikeOuts']),
+                            'lob':str(home['players']['ID'+batterId]['stats']['batting']['leftOnBase']),
+                            'avg':str(home['players']['ID'+batterId]['seasonStats']['batting']['avg']),
+                            'ops':str(home['players']['ID'+batterId]['seasonStats']['batting']['ops'])
+                        }
+            homeBatters.append(batter)
+
+        homeBatters.append  ({
+                                'namefield':'Totals',
+                                'ab':str(home['teamStats']['batting']['atBats']),
+                                'r':str(home['teamStats']['batting']['runs']),
+                                'h':str(home['teamStats']['batting']['hits']),
+                                'rbi':str(home['teamStats']['batting']['rbi']),
+                                'bb':str(home['teamStats']['batting']['baseOnBalls']),
+                                'k':str(home['teamStats']['batting']['strikeOuts']),
+                                'lob':str(home['teamStats']['batting']['leftOnBase']),
+                                'avg':'',
+                                'ops':'',
+                            })
+
+        """Make sure the home and away batter lists are the same length"""
+        while len(awayBatters) > len(homeBatters):
+            homeBatters.append(['','','','','','','','','',''])
+        while len(awayBatters) < len(homeBatters):
+            awayBatters.append(['','','','','','','','','',''])
+
+        """Build the batting box!"""
+        for i in range(0,len(awayBatters)):
+            if i==0 or i==len(awayBatters)-1:
+                boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
+            boxscore += '{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5} | '.format(**awayBatters[i])
+            boxscore += '{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5}\n'.format(**homeBatters[i])
+            if i==0 or i==len(awayBatters)-1:
+                boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
+
+        """Get batting notes"""
+        awayBattingNotes = {}
+        for n in away['note']:
+            awayBattingNotes.update({len(awayBattingNotes) : n['label'] + '-' + n['value']})
+        homeBattingNotes = {}
+        for n in home['note']:
+            homeBattingNotes.update({len(homeBattingNotes) : n['label'] + '-' + n['value']})
+
+        while len(awayBattingNotes) > len(homeBattingNotes):
+            homeBattingNotes.update({len(homeBattingNotes) : ''})
+        while len(awayBattingNotes) < len(homeBattingNotes):
+            awayBattingNotes.update({len(awayBattingNotes) : ''})
+
+        for i in range(0,len(awayBattingNotes)):
+            boxscore += '{:<79} | '.format(awayBattingNotes[i])
+            boxscore += '{:<79}\n'.format(homeBattingNotes[i])
+            #if i==len(awayBattingNotes)-1:
+            #    boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
+
+        boxscore += ' '*rowlen + ' | ' + ' '*rowlen + '\n'
+
+    """Get batting and fielding info"""
+    awayBoxInfo = {}
+    homeBoxInfo = {}
+    for infoType in ['BATTING','FIELDING']:
+        if (infoType=='BATTING' and battingInfo) or (infoType=='FIELDING' and fieldingInfo):
+            for z in (x for x in away['info'] if x.get('title')==infoType):
+                awayBoxInfo.update({len(awayBoxInfo): z['title']})
+                for x in z['fieldList']:
+                    if len(x['label'] + ': ' + x['value']) > rowlen:
+                        words = iter((x['label'] + ': ' + x['value']).split())
+                        check = ''
+                        lines = []
+                        for word in words:
+                            if len(check) + 1 + len(word) <= rowlen:
+                                if check=='': check = word
+                                else: check += ' ' + word
+                            else:
+                                lines.append(check)
+                                check = '    ' + word
+                        if len(check): lines.append(check)
+                        for i in range(0,len(lines)):
+                            awayBoxInfo.update({len(awayBoxInfo): lines[i] })
+                            
+                    else:
+                        awayBoxInfo.update({len(awayBoxInfo): x['label'] + ': ' + x['value'] })
+
+            for z in (x for x in home['info'] if x.get('title')==infoType):
+                homeBoxInfo.update({len(homeBoxInfo): z['title']})
+                for x in z['fieldList']:
+                    if len(x['label'] + ': ' + x['value']) > rowlen:
+                        words = iter((x['label'] + ': ' + x['value']).split())
+                        check = ''
+                        lines = []
+                        for word in words:
+                            if len(check) + 1 + len(word) <= rowlen:
+                                if check=='': check = word
+                                else: check += ' ' + word
+                            else:
+                                lines.append(check)
+                                check = '    ' + word
+                        if len(check): lines.append(check)
+                        for i in range(0,len(lines)):
+                            homeBoxInfo.update({len(homeBoxInfo): lines[i] })
+                    else:
+                        homeBoxInfo.update({len(homeBoxInfo): x['label'] + ': ' + x['value'] })
+
+            if len(awayBoxInfo) and infoType == 'BATTING':
+                awayBoxInfo.update({len(awayBoxInfo) : ' '})
+            if len(homeBoxInfo) and infoType == 'BATTING':
+                homeBoxInfo.update({len(homeBoxInfo) : ' '})
+
+    if len(awayBoxInfo) > 0:
+        while len(awayBoxInfo) > len(homeBoxInfo):
+            homeBoxInfo.update({len(homeBoxInfo) : ''})
+        while len(awayBoxInfo) < len(homeBoxInfo):
+            awayBoxInfo.update({len(awayBoxInfo) : ''})
+
+        for i in range(0,len(awayBoxInfo)):
+            boxscore += '{:<79} | '.format(awayBoxInfo[i])
+            boxscore += '{:<79}\n'.format(homeBoxInfo[i])
+            if i==len(awayBoxInfo)-1:
+                boxscore += '-'*rowlen + ' | ' + '-'*rowlen + '\n'
+
+    """Get pitching box"""
+    
+
+    if DEBUG: print(boxscore) #debug
+    return boxscore
+
+def linescore(gamePk):
+    """Get linescore for a given game.
+    """
+    line = get('game_linescore',{'gamePk':gamePk})
+
+    
+
+    return
+
+def player_stats(personId):
+    """Get stats for a given player.
+    """
+    player = get('person',{'personId':personId})
+
+    
+
+    return
+
+def team_leaders(leaderCategories,teamId=None,season=None):
+    """Get stat leaders for a given team.
+    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
+    """
+    if not season: season = datetime.now().year
+    params = {'leaderCategories':leaderCategories,'season': season}
+    if teamId: params.update({'teamId':teamId})
+
+    leaders = get('team_leaders',params)
+
+    
+
+    return
+
+def league_leaders(leaderCategories,leagueId=None,season=None):
+    """Get stat leaders for a given team.
+    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
+    """
+    if not season: season = datetime.now().year
+    params = {'leaderCategories':leaderCategories,'season':season}
+    if leagueId: params.update({'leagueId':leagueId})
+
+    leaders = get('stats_leaders',params)
+
+    
+
+    return
+
+def meta(type,fields=None):
+    """Get available values from StatsAPI for use in other queries,
+    or look up descriptions for values found in API results.
+
+    For example, to get a list of leader categories to use when calling team_leaders():
+    statsapi.meta('leagueLeaderTypes')
+    """
+    types = ['awards', 'baseballStats', 'eventTypes', 'gameStatus', 'gameTypes', 'hitTrajectories', 'jobTypes', 'languages', 'leagueLeaderTypes', 'logicalEvents', 'metrics', 'pitchCodes', 'pitchTypes', 'platforms', 'positions', 'reviewReasons', 'rosterTypes', 'scheduleEventTypes', 'situationCodes', 'sky', 'standingsTypes', 'statGroups', 'statTypes', 'windDirection']
+    if type not in types:
+        raise ValueError("Invalid meta type. Available meta types: %s." % types)
+
+    return get('meta',{'type':type})
+
 def notes(endpoint):
     """Get notes for a given endpoint. 
     Will include a list of required parameters, as well as hints for some endpoints.
@@ -170,6 +423,7 @@ def notes(endpoint):
             msg += "Required path parameters (note: ver will be included by default): %s. \n" % required_path_params
             msg += "All query parameters: %s. \n" % query_params
             msg += "Required query parameters: %s. \n" % required_query_params
+            if 'hydrate' in query_params: msg += "The hydrate function is supported by this endpoint. Call the endpoint with {'hydrate':'hydrations'} in the parameters to return a list of available hydrations. For example, statsapi.get('schedule',{'sportId':1,'hydrate':'hydrations','fields':'hydrations'})\n"
             if ENDPOINTS[endpoint].get('note'): msg += "Developer notes: %s" % ENDPOINTS[endpoint].get('note')
 
     return msg
