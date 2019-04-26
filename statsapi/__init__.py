@@ -611,7 +611,7 @@ def player_stats(personId):
 
     
 
-    return
+    return "This function is not yet available."
 
 def team_leaders(leaderCategories,teamId=None,season=None):
     """Get stat leaders for a given team.
@@ -625,7 +625,7 @@ def team_leaders(leaderCategories,teamId=None,season=None):
 
     
 
-    return
+    return "This function is not yet available."
 
 def league_leaders(leaderCategories,leagueId=None,season=None):
     """Get stat leaders for a given team.
@@ -639,7 +639,7 @@ def league_leaders(leaderCategories,leagueId=None,season=None):
 
     
 
-    return
+    return "This function is not yet available."
 
 def meta(type,fields=None):
     """Get available values from StatsAPI for use in other queries,
