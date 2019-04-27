@@ -34,14 +34,15 @@ If you install manually, be sure to also install requests.
 
 ## Example Use
 
-###Print the number of games won by the Oakland Athletics in 2018
+### Print the number of games won by the Oakland Athletics in 2018
 
 Use `statsapi.schedule()` to retrieve all A's games for 2018,
 and use `sum()` to count records in the resultset where the A's were the winning_team.
 
-```print('The A\'s won %s games in 2018.' % sum(1 for x in statsapi.schedule(team=133,start_date='01/01/2018',end_date='12/31/2018') if x.get('winning_team','')=='Oakland Athletics'))```
+```print('The A\'s won %s games in 2018.' % sum(1 for x in statsapi.schedule(team=133,start_date='01/01/2018',end_date='12/31/2018') if x.get('winning_team','')=='Oakland Athletics'))
+```
 
-###Print the linescore for all games the Phillies won in July 2008
+### Print the linescore for all games the Phillies won in July 2008
 
 Use `statsapi.schedule()` to retrieve all games for July 2018,
 run the resulting dict through a list comprehension
@@ -49,20 +50,23 @@ to iterate over the records where the Phillies are the winning team,
 and feed the `game_id` into `statsapi_linescore()`.
 
 ```for x in [y for y in statsapi.schedule(team=143,start_date='07/01/2008',end_date='07/31/2008') if y.get('winning_team','')=='Philadelphia Phillies']:
-    print('%s\nWinner: %s, Loser: %s\n%s\n\n' % (x['game_date'], x['winning_team'], x['losing_team'], statsapi.linescore(x['game_id'])))```
+    print('%s\nWinner: %s, Loser: %s\n%s\n\n' % (x['game_date'], x['winning_team'], x['losing_team'], statsapi.linescore(x['game_id'])))
+```
 
-###Print the Phillies 40-man Roster on opening day of the 2018 season
+### Print the Phillies 40-man Roster on opening day of the 2018 season
 
 Use `statsapi.get('season')` to retrieve the dates for the 2018 season,
 feed the opening day date into `statsapi.roster()`.
 
-```print('Phillies 40-man roster on opening day of the 2018 season:\n%s' % statsapi.roster(143,'40Man',date=statsapi.get('season',{'seasonId':2018,'sportId':1})['seasons'][0]['regularSeasonStartDate']))```
+```print('Phillies 40-man roster on opening day of the 2018 season:\n%s' % statsapi.roster(143,'40Man',date=statsapi.get('season',{'seasonId':2018,'sportId':1})['seasons'][0]['regularSeasonStartDate']))
+```
 
-###Print the boxscore and linescore from the A's most recent game (which may be in progress)
+###P rint the boxscore and linescore from the A's most recent game (which may be in progress)
 
 Use `statsapi.get('schedule')` with the `team(previousSchedule)` hydration to retrieve the most recent A's game
 and feed the gamePk into `statsapi.boxscore()` and `statsapi.linescore()`.
 
 ```most_recent_game = statsapi.get('schedule',{'teamId':133,'sportId':1,'hydration':'team(previousSchedule)'})['dates'][0]['games'][0]['gamePk']
 print(statsapi.boxscore(most_recent_game))
-print(statsapi.linescore(most_recent_game))```
+print(statsapi.linescore(most_recent_game))
+```
