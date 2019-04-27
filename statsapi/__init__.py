@@ -260,7 +260,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
     if battingBox:
         """Add away column headers"""
         awayBatters = [{'namefield':teamInfo['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
-        for batterId_int in away['batters']:
+        for batterId_int in [x for x in away['batters'] if away['players']['ID'+str(x)].get('battingOrder')]:
             batterId = str(batterId_int)
             namefield = str(away['players']['ID'+batterId]['battingOrder'])[0] if str(away['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
             namefield += " " + away['players']['ID'+batterId]['stats']['batting'].get('note','')
@@ -295,7 +295,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
 
         """Add home column headers"""
         homeBatters = [{'namefield':teamInfo['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
-        for batterId_int in home['batters']:
+        for batterId_int in [x for x in home['batters'] if home['players']['ID'+str(x)].get('battingOrder')]:
             batterId = str(batterId_int)
             namefield = str(home['players']['ID'+batterId]['battingOrder'])[0] if str(home['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
             namefield += " " + home['players']['ID'+batterId]['stats']['batting'].get('note','')
@@ -536,7 +536,6 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
             if i==len(gameBoxInfo)-1:
                 boxscore += '-'*fullRowLen + '\n'
     
-    if DEBUG: print(boxscore) #debug
     return boxscore
 
 def linescore(gamePk,timecode=None):
@@ -585,8 +584,8 @@ def linescore(gamePk,timecode=None):
     if len(r['liveData']['linescore']['innings']) < 9:
         for i in range(len(r['liveData']['linescore']['innings']) + 1, 10):
             header_row.append(str(i))
-            away.append('0')
-            home.append('0')
+            away.append(' ')
+            home.append(' ')
 
     header_row.extend(['R','H','E'])
     away.extend([
@@ -608,7 +607,6 @@ def linescore(gamePk,timecode=None):
         linescore += '\n'
     linescore = linescore[:-1] #strip the extra line break
 
-    if DEBUG: print(linescore) #debug
     return linescore
 
 def player_stats(personId):
