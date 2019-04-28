@@ -24,7 +24,9 @@ DEBUG = False
 
 from . import endpoints
 BASE_URL = endpoints.BASE_URL
+"""Base MLB Stats API URL"""
 ENDPOINTS = endpoints.ENDPOINTS
+"""MLB Stats API endpoint configuration"""
 
 import requests
 from datetime import datetime
@@ -290,20 +292,6 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             awayBatters.append(batter)
 
-        #Get away team totals
-        awayBatters.append  ({
-                                'namefield':'Totals',
-                                'ab':str(away['teamStats']['batting']['atBats']),
-                                'r':str(away['teamStats']['batting']['runs']),
-                                'h':str(away['teamStats']['batting']['hits']),
-                                'rbi':str(away['teamStats']['batting']['rbi']),
-                                'bb':str(away['teamStats']['batting']['baseOnBalls']),
-                                'k':str(away['teamStats']['batting']['strikeOuts']),
-                                'lob':str(away['teamStats']['batting']['leftOnBase']),
-                                'avg':'',
-                                'ops':''
-                            })
-
         #Add home column headers
         homeBatters = [{'namefield':teamInfo['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
         for batterId_int in [x for x in home['batters'] if home['players']['ID'+str(x)].get('battingOrder')]:
@@ -325,7 +313,26 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             homeBatters.append(batter)
 
-        #Get home team totals
+        #Make sure the home and away batter lists are the same length
+        while len(awayBatters) > len(homeBatters):
+            homeBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
+        while len(awayBatters) < len(homeBatters):
+            awayBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
+
+        #Add away team totals
+        awayBatters.append  ({
+                                'namefield':'Totals',
+                                'ab':str(away['teamStats']['batting']['atBats']),
+                                'r':str(away['teamStats']['batting']['runs']),
+                                'h':str(away['teamStats']['batting']['hits']),
+                                'rbi':str(away['teamStats']['batting']['rbi']),
+                                'bb':str(away['teamStats']['batting']['baseOnBalls']),
+                                'k':str(away['teamStats']['batting']['strikeOuts']),
+                                'lob':str(away['teamStats']['batting']['leftOnBase']),
+                                'avg':'',
+                                'ops':''
+                            })
+        #Add home team totals
         homeBatters.append  ({
                                 'namefield':'Totals',
                                 'ab':str(home['teamStats']['batting']['atBats']),
@@ -338,12 +345,6 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                                 'avg':'',
                                 'ops':''
                             })
-
-        #Make sure the home and away batter lists are the same length
-        while len(awayBatters) > len(homeBatters):
-            homeBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
-        while len(awayBatters) < len(homeBatters):
-            awayBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
 
         #Build the batting box!
         for i in range(0,len(awayBatters)):
@@ -458,19 +459,6 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             awayPitchers.append(pitcher)
 
-        #Get away team totals
-        awayPitchers.append  ({
-                                'namefield':'Totals',
-                                'ip':str(away['teamStats']['pitching']['inningsPitched']),
-                                'h':str(away['teamStats']['pitching']['hits']),
-                                'r':str(away['teamStats']['pitching']['runs']),
-                                'er':str(away['teamStats']['pitching']['earnedRuns']),
-                                'bb':str(away['teamStats']['pitching']['baseOnBalls']),
-                                'k':str(away['teamStats']['pitching']['strikeOuts']),
-                                'hr':str(away['teamStats']['pitching']['homeRuns']),
-                                'era':''
-                            })
-
         #Add home column headers
         homePitchers = [{'namefield':teamInfo['home']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA'}]
         for pitcherId_int in home['pitchers']:
@@ -490,6 +478,25 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             homePitchers.append(pitcher)
 
+        #Make sure the home and away pitcher lists are the same length
+        while len(awayPitchers) > len(homePitchers):
+            homePitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
+        while len(awayPitchers) < len(homePitchers):
+            awayPitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
+
+        #Get away team totals
+        awayPitchers.append  ({
+                                'namefield':'Totals',
+                                'ip':str(away['teamStats']['pitching']['inningsPitched']),
+                                'h':str(away['teamStats']['pitching']['hits']),
+                                'r':str(away['teamStats']['pitching']['runs']),
+                                'er':str(away['teamStats']['pitching']['earnedRuns']),
+                                'bb':str(away['teamStats']['pitching']['baseOnBalls']),
+                                'k':str(away['teamStats']['pitching']['strikeOuts']),
+                                'hr':str(away['teamStats']['pitching']['homeRuns']),
+                                'era':''
+                            })
+
         #Get home team totals
         homePitchers.append  ({
                                 'namefield':'Totals',
@@ -502,12 +509,6 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                                 'hr':str(home['teamStats']['pitching']['homeRuns']),
                                 'era':''
                             })
-
-        #Make sure the home and away pitcher lists are the same length
-        while len(awayPitchers) > len(homePitchers):
-            homePitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
-        while len(awayPitchers) < len(homePitchers):
-            awayPitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
 
         #Build the pitching box!
         for i in range(0,len(awayPitchers)):
