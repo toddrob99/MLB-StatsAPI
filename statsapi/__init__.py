@@ -769,7 +769,7 @@ def notes(endpoint):
 
     return msg
 
-def get(endpoint,params):
+def get(endpoint,params,force=False):
     """Call MLB StatsAPI and return JSON data.
 
     This function is for advanced querying of the MLB StatsAPI, 
@@ -777,6 +777,9 @@ def get(endpoint,params):
 
     endpoint is one of the keys in the ENDPOINT dict
     params is a dict of parameters, as defined in the ENDPOINT dict for each endpoint
+
+    force=True will force unrecognized parameters into the query string, and ignore parameter requirements
+    Please note results from Stats API may not be as expected when forcing.
 
     statsapi.get('team',{'teamId':143}) will call the team endpoint for teamId=143 (Phillies)
 
@@ -807,7 +810,11 @@ def get(endpoint,params):
             if DEBUG: print ("Found query param:",p) #debug
             query_params.update({p: str(pv)})
         else:
-            if DEBUG: print("Found invalid param:",p) #debug
+            if force:
+                if DEBUG: print("Found invalid param, forcing into query parameters per force flag:",p) #debug
+                query_params.update({p: str(pv)})
+            else:
+                if DEBUG: print("Found invalid param, ignoring:",p) #debug
 
     if DEBUG: print ("path_params:",path_params) #debug
     if DEBUG: print ("query_params:",query_params) #debug
@@ -824,7 +831,10 @@ def get(endpoint,params):
                 if DEBUG: print("Replacing {%s} with default: %s." % (param, ep['path_params'][param]['default'])) #debug
                 url = url.replace('{'+param+'}',ep['path_params'][param]['default'])
             else:
-                raise ValueError('Missing required path parameter {'+str(param)+'}')
+                if force:
+                    if DEBUG: print('Missing required path parameter {'+str(param)+'}, proceeding anyway per force flag...')
+                else:
+                    raise ValueError('Missing required path parameter {'+str(param)+'}')
         else:
             if DEBUG: print("Removing optional param {%s}" % param) #debug
             url = url.replace('{'+param+'}','')
