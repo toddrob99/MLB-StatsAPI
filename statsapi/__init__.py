@@ -658,20 +658,54 @@ def league_leaders(leaderCategories,leagueId=None,season=None):
 
     return "This function is not yet available."
 
-def standings(leagueId=None,season=None,standingsTypes=None):
-    """Get standings for a given league and season
+def standings(leagueId=None,season=None,standingsTypes=None,date=None):
+    """Get standings for a given league and season.
+    
+    Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
     """
     if not leagueId: leagueId = '103,104'
-    if not season: season = datetime.now().year
+    params = {'leagueId':leagueId}
+    if date: params.update({'date':date})
+    if not season:
+        if date:
+            season = date[-4:]
+        else:
+            season = datetime.now().year
     if not standingsTypes: standingsTypes = 'regularSeason'
-    params = {'leagueId':leagueId,'season':season}
+    params.update({'season':season,'standingsTypes':standingsTypes})
     if leagueId: params.update({'leagueId':leagueId})
+    params.update({'hydrate':'team(division)','fields':'records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses'})
 
     r = get('standings',params)
 
-    
+    standings = ''
+    divisions = {}
 
-    return "This function is not yet available."
+    for y in r['records']:
+        for x in y['teamRecords']:
+            if x['team']['division']['id'] not in divisions.keys():
+                divisions.update({x['team']['division']['id']:{'div_name':x['team']['division']['name'],'teams':[]}})
+            team =  {
+                        'name' : x['team']['name'],
+                        'div_rank' : x['divisionRank'],
+                        'w' : x['wins'],
+                        'l' : x['losses'],
+                        'gb' : x['gamesBack'],
+                        'wc_rank' : x.get('wildCardRank','-'),
+                        'wc_gb' : x.get('wildCardGamesBack','-'),
+                        'wc_elim_num' : x.get('wildCardEliminationNumber','-'),
+                        'elim_num' : x['eliminationNumber']
+                    }
+            divisions[x['team']['division']['id']]['teams'].append(team)
+
+    for div_id,div in divisions.items():
+        standings += div['div_name'] + '\n'
+        standings += '{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n'.format(*['Rank','Team','W','L','GB','(E#)','WC Rank','WC GB','(E#)'])
+        for t in div['teams']:
+            standings += '{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}\n'.format(**t)
+        standings += '\n'
+
+    return standings
 
 def roster(teamId,rosterType=None,season=None,date=None):
     """Get the roster for a given team.

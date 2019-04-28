@@ -74,3 +74,13 @@ most_recent_game = statsapi.get('schedule',{'teamId':133,'sportId':1,'hydration'
 print(statsapi.boxscore(most_recent_game))
 print(statsapi.linescore(most_recent_game))
 ```
+
+### Find the team with the longest name
+
+Use `statsapi.get('teams')` to retrieve all active team names,
+then feed into max() to find the longest value and its length
+
+```
+longest_team_name = max([x['name'] for x in statsapi.get('teams',{'sportIds':1,'activeStatus':'Yes','fields':'teams,name'})['teams']],key=len)
+print('The team with the longest name is %s, at %s characters.' % (longest_team_name, len(longest_team_name)))
+```
