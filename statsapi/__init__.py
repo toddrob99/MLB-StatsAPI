@@ -1,9 +1,19 @@
+"""# MLB-StatsAPI
+
+Python wrapper for MLB Stats API
+
+Created by Todd Roberts
+
+https://pypi.org/project/MLB-StatsAPI/
+
+https://github.com/toddrob99/MLB-StatsAPI
+"""
 # encoding=utf-8
 import sys
 if sys.version_info.major < 3:
     reload(sys)
     sys.setdefaultencoding('utf8')
-"""Trying to support Python 2.7"""
+# Trying to support Python 2.7
 
 from . import version
 __version__ = version.VERSION
@@ -243,11 +253,12 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
     For example, to retrieve only the batting box: statsapi.boxscore(565997,battingInfo=False,fieldingInfo=False,pitchingBox=False,gameInfo=False)
     """
 
-    """rowLen is the total width of each side of the box score, excluding the " | " separator; fullRowLen is the full table length"""
     rowLen = 79
+    """rowLen is the total width of each side of the box score, excluding the " | " separator"""
     fullRowLen = rowLen * 2 + 3
-    """boxscore will hold the string to be returned"""
+    """fullRowLen is the full table width"""
     boxscore = ''
+    """boxscore will hold the string to be returned"""
     params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,era,battingOrder,info,title,fieldList,note,label,value'}
     if timecode: params.update({'timecode':timecode})
     r = get('game',params)
@@ -258,7 +269,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
     home = r['liveData']['boxscore']['teams']['home']
 
     if battingBox:
-        """Add away column headers"""
+        #Add away column headers
         awayBatters = [{'namefield':teamInfo['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
         for batterId_int in [x for x in away['batters'] if away['players']['ID'+str(x)].get('battingOrder')]:
             batterId = str(batterId_int)
@@ -279,7 +290,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             awayBatters.append(batter)
 
-        """Get away team totals"""
+        #Get away team totals
         awayBatters.append  ({
                                 'namefield':'Totals',
                                 'ab':str(away['teamStats']['batting']['atBats']),
@@ -293,7 +304,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                                 'ops':''
                             })
 
-        """Add home column headers"""
+        #Add home column headers
         homeBatters = [{'namefield':teamInfo['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
         for batterId_int in [x for x in home['batters'] if home['players']['ID'+str(x)].get('battingOrder')]:
             batterId = str(batterId_int)
@@ -314,7 +325,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             homeBatters.append(batter)
 
-        """Get home team totals"""
+        #Get home team totals
         homeBatters.append  ({
                                 'namefield':'Totals',
                                 'ab':str(home['teamStats']['batting']['atBats']),
@@ -328,13 +339,13 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                                 'ops':''
                             })
 
-        """Make sure the home and away batter lists are the same length"""
+        #Make sure the home and away batter lists are the same length
         while len(awayBatters) > len(homeBatters):
             homeBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
         while len(awayBatters) < len(homeBatters):
             awayBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
 
-        """Build the batting box!"""
+        #Build the batting box!
         for i in range(0,len(awayBatters)):
             if i==0 or i==len(awayBatters)-1:
                 boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
@@ -343,7 +354,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
             if i==0 or i==len(awayBatters)-1:
                 boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
 
-        """Get batting notes"""
+        #Get batting notes
         awayBattingNotes = {}
         for n in away['note']:
             awayBattingNotes.update({len(awayBattingNotes) : n['label'] + '-' + n['value']})
@@ -362,7 +373,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
 
         boxscore += ' '*rowLen + ' | ' + ' '*rowLen + '\n'
 
-    """Get batting and fielding info"""
+    #Get batting and fielding info
     awayBoxInfo = {}
     homeBoxInfo = {}
     for infoType in ['BATTING','FIELDING']:
@@ -419,16 +430,16 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
         while len(awayBoxInfo) < len(homeBoxInfo):
             awayBoxInfo.update({len(awayBoxInfo) : ''})
 
-        """Build info box"""
+        #Build info box
         for i in range(0,len(awayBoxInfo)):
             boxscore += ('{:<%s} | '%rowLen).format(awayBoxInfo[i])
             boxscore += ('{:<%s}\n'%rowLen).format(homeBoxInfo[i])
             if i==len(awayBoxInfo)-1:
                 boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
 
-    """Get pitching box"""
+    #Get pitching box
     if pitchingBox:
-        """Add away column headers"""
+        #Add away column headers
         awayPitchers = [{'namefield':teamInfo['away']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA'}]
         for pitcherId_int in away['pitchers']:
             pitcherId = str(pitcherId_int)
@@ -447,7 +458,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             awayPitchers.append(pitcher)
 
-        """Get away team totals"""
+        #Get away team totals
         awayPitchers.append  ({
                                 'namefield':'Totals',
                                 'ip':str(away['teamStats']['pitching']['inningsPitched']),
@@ -460,7 +471,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                                 'era':''
                             })
 
-        """Add home column headers"""
+        #Add home column headers
         homePitchers = [{'namefield':teamInfo['home']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA'}]
         for pitcherId_int in home['pitchers']:
             pitcherId = str(pitcherId_int)
@@ -479,7 +490,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                         }
             homePitchers.append(pitcher)
 
-        """Get home team totals"""
+        #Get home team totals
         homePitchers.append  ({
                                 'namefield':'Totals',
                                 'ip':str(home['teamStats']['pitching']['inningsPitched']),
@@ -492,13 +503,13 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
                                 'era':''
                             })
 
-        """Make sure the home and away pitcher lists are the same length"""
+        #Make sure the home and away pitcher lists are the same length
         while len(awayPitchers) > len(homePitchers):
             homePitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
         while len(awayPitchers) < len(homePitchers):
             awayPitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
 
-        """Build the pitching box!"""
+        #Build the pitching box!
         for i in range(0,len(awayPitchers)):
             if i==0 or i==len(awayPitchers)-1:
                 boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
@@ -507,7 +518,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
             if i==0 or i==len(awayPitchers)-1:
                 boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
 
-    """Get game info"""
+    #Get game info
     if gameInfo:
         z = r['liveData']['boxscore'].get('info',[])
         gameBoxInfo = {}
@@ -530,7 +541,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
             else:
                 gameBoxInfo.update({len(gameBoxInfo): x['label'] + (': ' if x.get('value') else '') + x.get('value','') })
 
-        """Build the game info box"""
+        #Build the game info box
         for i in range(0,len(gameBoxInfo)):
             boxscore += ('{:<%s}'%fullRowLen + '\n').format(gameBoxInfo[i])
             if i==len(gameBoxInfo)-1:
@@ -599,7 +610,7 @@ def linescore(gamePk,timecode=None):
                     str(r['liveData']['linescore'].get('teams',{}).get('home',{}).get('errors',0))
                 ])
 
-    """Build the linescore"""
+    #Build the linescore
     for k in [[header_name,header_row],[away_name,away],[home_name,home]]:
         linescore += ('{:<%s}' % str(len(max([header_name,away_name,home_name],key=len)) + 1)).format(k[0])
         linescore += ('{:^2}' * (len(k[1])-3)).format(*k[1])
@@ -786,7 +797,7 @@ def get(endpoint,params,force=False):
     return value will be the raw response from MLB Stats API in json format
     """
 
-    """Lookup endpoint from input parameter"""
+    #Lookup endpoint from input parameter
     ep = ENDPOINTS.get(endpoint)
     if not ep: raise ValueError('Invalid endpoint ('+str(endpoint)+').')
     url = ep['url']
@@ -795,7 +806,7 @@ def get(endpoint,params,force=False):
     path_params = {}
     query_params = {}
 
-    """Parse parameters into path and query parameters, and discard invalid parameters"""
+    #Parse parameters into path and query parameters, and discard invalid parameters
     for p,pv in params.items():
         if ep['path_params'].get(p):
             if DEBUG: print ("Found path param:",p) #debug
@@ -819,7 +830,7 @@ def get(endpoint,params,force=False):
     if DEBUG: print ("path_params:",path_params) #debug
     if DEBUG: print ("query_params:",query_params) #debug
 
-    """Replace path parameters with their values"""
+    #Replace path parameters with their values
     for k,v in path_params.items():
         if DEBUG: print("Replacing {%s}" % k) #debug
         url = url.replace('{'+k+'}',v)
@@ -839,7 +850,7 @@ def get(endpoint,params,force=False):
             if DEBUG: print("Removing optional param {%s}" % param) #debug
             url = url.replace('{'+param+'}','')
         if DEBUG: print("URL:",url) #debug
-    """Add query parameters to the URL"""
+    #Add query parameters to the URL
     if len(query_params) > 0:
         for k,v in query_params.items():
             if DEBUG: print("Adding query parameter %s=%s" % (k,v))
@@ -847,7 +858,7 @@ def get(endpoint,params,force=False):
             url += sep + k + "=" + v
             if DEBUG: print("URL:",url) #debug
 
-    """Make sure required parameters are present"""
+    #Make sure required parameters are present
     satisfied = False
     missing_params = []
     for x in ep.get('required_params',[]):
@@ -863,7 +874,7 @@ def get(endpoint,params,force=False):
         else: note = ''
         raise ValueError("Missing required parameter(s): " + ', '.join(missing_params) + ".\n--Required parameters for the " + endpoint + " endpoint: " + str(ep.get('required_params',[])) + ". \n--Note: If there are multiple sets in the required parameter list, you can choose any of the sets."+note)
 
-    """Make the request"""
+    #Make the request
     r = requests.get(url)
     if r.status_code not in [200,201]:
         raise ValueError('Request failed. Status Code: ' + str(r.status_code) + '.')
