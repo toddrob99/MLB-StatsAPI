@@ -34,6 +34,10 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.standings()` - generate a formatted list of standings for a given league/date
 
+* `statsapi.team_leaders()` - generate a list of a team's leaders for a given stat
+
+* `statsapi.league_leaders()` - generate a list of stat leaders for all-time (single season) or a given season
+
 ## Example Use
 
 ### Print the number of games won by the Oakland Athletics in 2018
@@ -93,4 +97,16 @@ Use `statsapi.standings()` with the `date` parameters
 
 ```
 print(statsapi.standings(date='07/04/2018'))
+```
+
+### Print the top 5 team leaders in walks for the 2008 Phillies
+
+```
+print(statsapi.team_leaders(143,'walks',limit=5,season=2008))
+```
+
+### Print the top 10 all time single season leaders in doubles
+
+```
+print(statsapi.league_leaders('doubles',statGroup='hitting',limit=10))
 ```

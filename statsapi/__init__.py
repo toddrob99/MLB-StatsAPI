@@ -761,7 +761,7 @@ def league_leaders(leaderCategories,season=None,limit=10,statGroup=None,leagueId
     if playerPool: params.update({'playerPool':playerPool})
     params.update({'fields' : 'leagueLeaders,leaders,rank,value,team,name,league,name,person,fullName'})
 
-    r = get('league_leaders',params)
+    r = get('stats_leaders',params)
 
     leaders = ''
     lines = []
