@@ -630,33 +630,149 @@ def player_stats(personId):
 
     return "This function is not yet available."
 
-def team_leaders(leaderCategories,teamId=None,season=None):
+def team_leaders(teamId,leaderCategories,season=datetime.now().year,leaderGameTypes='R',limit=10):
     """Get stat leaders for a given team.
+
     Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
+
+    Example use:
+
+    Print the top 5 team leaders in walks for the 2008 Phillies
+
+    print(statsapi.team_leaders(143,'walks',limit=5,season=2008))
+
+    Output:
+
+    Rank Name                 Value
+     1   Pat Burrell           102
+     2   Ryan Howard           81
+     3   Chase Utley           64
+     4   Jimmy Rollins         58
+     5   Jayson Werth          57
     """
-    if not season: season = datetime.now().year
-    params = {'leaderCategories':leaderCategories,'season': season}
-    if teamId: params.update({'teamId':teamId})
+    params = {'leaderCategories':leaderCategories,'season':season,'teamId':teamId,'leaderGameTypes':leaderGameTypes,'limit':limit}
+    params.update({'fields' : 'teamLeaders,leaders,rank,value,person,fullName'})
 
     r = get('team_leaders',params)
 
-    
+    leaders = ''
+    lines = []
+    for player in [x for x in r['teamLeaders'][0]['leaders']]:
+        lines.append([player['rank'],player['person']['fullName'],player['value']])
 
-    return "This function is not yet available."
+    leaders += '{:<4} {:<20} {:<5}\n'.format(*['Rank','Name','Value'])
+    for a in lines:
+        leaders += '{:^4} {:<20} {:^5}\n'.format(*a)
 
-def league_leaders(leaderCategories,leagueId=None,season=None):
-    """Get stat leaders for a given team.
+    return leaders
+
+def league_leaders(leaderCategories,season=None,limit=10,statGroup=None,leagueId=None,gameTypes=None,playerPool=None,sportId=1):
+    """Get stat leaders overall or for a given league (103=AL, 104=NL).
+
     Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
+
+    Get a list of available statGroups by calling the meta endpoint with type=statGroups
+    Note that excluding statGroup may return unexpected results. For example leaderCategories='earnedRunAverage'
+    will return different results with statGroup='pitching' and statGroup='catching'.
+
+    Get a list of available gameTypes by calling the meta endpoint with type=gameTypes
+
+    Available playerPool values: ['all','qualified','rookies'] (default is qualified)
+
+    Example use:
+
+    Print a list of the top 10 pitchers by earned run average
+
+    print( statsapi.league_leaders('earnedRunAverage',statGroup='pitching',limit=10) )
+
+    Output:
+
+    Rank Name                 Team                   Value
+     1   Luis Castillo        Cincinnati Reds        1.23
+     2   Marcus Stroman       Toronto Blue Jays      1.43
+     3   Matt Shoemaker       Toronto Blue Jays      1.57
+     4   Chris Paddack        San Diego Padres       1.67
+     5   Tyler Glasnow        Tampa Bay Rays         1.75
+     6   Trevor Bauer         Cleveland Indians      1.99
+     7   Joe Musgrove         Pittsburgh Pirates     2.06
+     8   Caleb Smith          Miami Marlins          2.17
+     9   Max Fried            Atlanta Braves         2.30
+     10  Aaron Sanchez        Toronto Blue Jays      2.32
+
+
+    Print a list of the top 5 batters by OPS
+
+    print( statsapi.league_leaders('onBasePlusSlugging',statGroup='hitting',limit=5) )
+
+    Output:
+
+    Rank Name                 Team                   Value
+     1   Cody Bellinger       Los Angeles Dodgers    1.390
+     2   Christian Yelich     Milwaukee Brewers      1.264
+     3   Anthony Rendon       Washington Nationals   1.182
+     4   Hunter Dozier        Kansas City Royals     1.143
+     5   Pete Alonso          New York Mets          1.082
+
+
+    Print a list of the 10 American League players with the most errors in 2017
+
+    print( statsapi.league_leaders('errors',statGroup='fielding',limit=10,season=2017,leagueId=103) )
+
+    Output:
+
+    Rank Name                 Team                   Value
+     1   Tim Anderson         Chicago White Sox       28
+     2   Rougned Odor         Texas Rangers           19
+     3   Tim Beckham          Baltimore Orioles       18
+     3   Nicholas Castellanos Detroit Tigers          18
+     3   Jorge Polanco        Minnesota Twins         18
+     6   Elvis Andrus         Texas Rangers           17
+     6   Xander Bogaerts      Boston Red Sox          17
+     6   Jean Segura          Seattle Mariners        17
+     9   Alcides Escobar      Kansas City Royals      15
+     9   Jonathan Schoop      Baltimore Orioles       15
+
+
+    Print a list of top 10 all time single season leader in triples
+
+    print( statsapi.league_leaders('triples',statGroup='hitting',limit=10,sportId=1) )
+
+    Rank Name                 Team                    Value
+     1   Chief Wilson         Pittsburgh Pirates       36
+     2   Jimmy Williams       Pittsburgh Pirates       27
+     3   Sam Crawford         Detroit Tigers           26
+     3   Kiki Cuyler          Pittsburgh Pirates       26
+     3   Joe Jackson          Cleveland Naps           26
+     6   Sam Crawford         Detroit Tigers           25
+     6   Larry Doyle          New York Giants          25
+     6   Buck Freeman         Washington Senators      25
+     6   Tom Long             St. Louis Cardinals      25
+     10  Ty Cobb              Detroit Tigers           24
+     10  Ty Cobb              Detroit Tigers           24
     """
-    if not season: season = datetime.now().year
-    params = {'leaderCategories':leaderCategories,'season':season}
+    params = {'leaderCategories':leaderCategories,'sportId':sportId,'limit':limit}
+    if season: params.update({'season':season})
+    else: params.update({'statType':'statsSingleSeason'}) #won't get any results for all-time leaders unless type is single season
+    if statGroup:
+        if statGroup == 'batting': statGroup = 'hitting'
+        params.update({'statGroup':statGroup})
+    if gameTypes: params.update({'leaderGameTypes':gameTypes})
     if leagueId: params.update({'leagueId':leagueId})
+    if playerPool: params.update({'playerPool':playerPool})
+    params.update({'fields' : 'leagueLeaders,leaders,rank,value,team,name,league,name,person,fullName'})
 
-    r = get('stats_leaders',params)
+    r = get('league_leaders',params)
 
-    
+    leaders = ''
+    lines = []
+    for player in [x for x in r['leagueLeaders'][0]['leaders']]:
+        lines.append([player['rank'],player['person']['fullName'],player['team'].get('name',''),player['value']])
 
-    return "This function is not yet available."
+    leaders += '{:<4} {:<20} {:<23} {:<5}\n'.format(*['Rank','Name','Team','Value'])
+    for a in lines:
+        leaders += '{:^4} {:<20} {:<23} {:^5}\n'.format(*a)
+
+    return leaders
 
 def standings(leagueId=None,season=None,standingsTypes=None,date=None):
     """Get formatted standings for a given league and season.
@@ -742,7 +858,7 @@ def standings(leagueId=None,season=None,standingsTypes=None,date=None):
 
     return standings
 
-def roster(teamId,rosterType=None,season=None,date=None):
+def roster(teamId,rosterType=None,season=datetime.now().year,date=None):
     """Get the roster for a given team.
     Get a list of available rosterTypes by calling the meta endpoint with type=rosterTypes.
     Default rosterType=active
@@ -782,7 +898,6 @@ def roster(teamId,rosterType=None,season=None,date=None):
     #21  P   Vince Velasquez
     #56  P   Zach Eflin
     """
-    if not season: season = datetime.now().year
     if not rosterType: rosterType='active'
     params = {'rosterType':rosterType,'season':season,'teamId':teamId}
     if date: params.update({'date':date})
@@ -938,7 +1053,7 @@ def get(endpoint,params,force=False):
             if len(missing_params) == 0:
                 satisfied = True
                 break
-    if not satisfied:
+    if not satisfied and not force:
         if ep.get('note'):
             note = '\n--Endpoint note: ' + ep.get('note')
         else: note = ''

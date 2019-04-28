@@ -901,8 +901,9 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['leaderCategories','playerPool','leaderGameTypes','statGroup','season','leagueId','sportId','hydrate','limit','fields'],
-                                                    'required_params': [['leaderCategories','season']]
+                                                    'query_params': ['leaderCategories','playerPool','leaderGameTypes','statGroup','season','leagueId','sportId','hydrate','limit','fields','statType'],
+                                                    'required_params': [['leaderCategories']],
+                                                    'note': 'If excluding season parameter to get all time leaders, include statType=statsSingleSeason or you will likely not get any results.'
                                                 },
                 'stats_streaks':                {
                                                     'url': BASE_URL + '{ver}/stats/streaks',
