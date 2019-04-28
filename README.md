@@ -101,11 +101,15 @@ print(statsapi.standings(date='07/04/2018'))
 
 ### Print the top 5 team leaders in walks for the 2008 Phillies
 
+Use `statsapi.team_leaders()`
+
 ```
 print(statsapi.team_leaders(143,'walks',limit=5,season=2008))
 ```
 
 ### Print the top 10 all time single season leaders in doubles
+
+use `statsapi.league_leaders()`
 
 ```
 print(statsapi.league_leaders('doubles',statGroup='hitting',limit=10))
