@@ -32,6 +32,8 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.roster()` - generate a list of players on a team's roster
 
+* `statsapi.standings()` - generate a formatted list of standings for a given league/date
+
 ## Example Use
 
 ### Print the number of games won by the Oakland Athletics in 2018
@@ -83,4 +85,12 @@ then feed into max() to find the longest value and its length
 ```
 longest_team_name = max([x['name'] for x in statsapi.get('teams',{'sportIds':1,'activeStatus':'Yes','fields':'teams,name'})['teams']],key=len)
 print('The team with the longest name is %s, at %s characters.' % (longest_team_name, len(longest_team_name)))
+```
+
+### Print the standings from July 4, 2018
+
+Use `statsapi.standings()` with the `date` parameters
+
+```
+print(statsapi.standings(date='07/04/2018'))
 ```
