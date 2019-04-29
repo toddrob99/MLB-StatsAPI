@@ -114,3 +114,11 @@ use `statsapi.league_leaders()`
 ```
 print(statsapi.league_leaders('doubles',statGroup='hitting',limit=10))
 ```
+
+### Print Chase Utley's career hitting stats
+
+use `statsapi.get()` to call the sports_players endpoint for the 2008 World Series,
+lookup Chase Utley's person id from the results, and pass it into `statsapi.player_stats()`
+using `type='hitting'` and `group='career'`
+
+print( statsapi.player_stats(next(x['id'] for x in statsapi.get('sports_players',{'season':2008,'gameType':'W'})['people'] if x['fullName']=='Chase Utley'), 'hitting', 'career') )

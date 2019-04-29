@@ -621,14 +621,103 @@ def linescore(gamePk,timecode=None):
 
     return linescore
 
-def player_stats(personId):
-    """Get stats for a given player.
+def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
+    """Get current season or career stats for a given player.
+
+    For group use 'hitting', 'pitching', or 'fielding'.
+    Include multiple groups in the following format (this is a string, not actually a list):
+    group='[hitting,pitching]'
+
+    For type use 'career' or 'season'.
+    Include multiple types in the following format (this is a string, not actually a list):
+    group='[career,season]'
+
+    Example use:
+
+    Print Chase Utley's career hitting stats (using sports_players endpoint to look up person id)
+
+    print( statsapi.player_stats(next(x['id'] for x in statsapi.get('sports_players',{'season':2008,'gameType':'W'})['people'] if x['fullName']=='Chase Utley'), 'hitting', 'career') )
+
+    Output:
+
+    Chase "Silver Fox" Utley, 2B (2003-2018)
+
+    Career Hitting
+    gamesPlayed: 1937
+    groundOuts: 1792
+    runs: 1103
+    doubles: 411
+    triples: 58
+    homeRuns: 259
+    strikeOuts: 1193
+    baseOnBalls: 724
+    intentionalWalks: 62
+    hits: 1885
+    hitByPitch: 204
+    avg: .275
+    atBats: 6857
+    obp: .358
+    slg: .465
+    ops: .823
+    caughtStealing: 22
+    stolenBases: 154
+    groundIntoDoublePlay: 93
+    numberOfPitches: 31043
+    plateAppearances: 7863
+    totalBases: 3189
+    rbi: 1025
+    leftOnBase: 2780
+    sacBunts: 6
+    sacFlies: 72
+    babip: .297
+    groundOutsToAirouts: 0.84
     """
-    r = get('person',{'personId':personId})
+    params = {'personId':personId,'hydrate':'stats(group='+group+',type='+type+'),currentTeam'}
+    r = get('person',params)
 
-    
+    stats = ''
+    stat_groups = []
 
-    return "This function is not yet available."
+    bio =   {
+                'id' : r['people'][0]['id'],
+                'first_name' : r['people'][0]['useName'],
+                'last_name' : r['people'][0]['lastName'],
+                'active' : r['people'][0]['active'],
+                'current_team' : r['people'][0]['currentTeam']['name'],
+                'position' : r['people'][0]['primaryPosition']['abbreviation'],
+                'nickname' : r['people'][0].get('nickName'),
+                'active' : r['people'][0]['active'],
+                'last_played' : r['people'][0].get('lastPlayedDate'),
+                'mlb_debut' : r['people'][0]['mlbDebutDate'],
+                'bat_side' : r['people'][0]['batSide']['description'],
+                'pitch_hand' : r['people'][0]['pitchHand']['description']
+            }
+
+    for s in r['people'][0].get('stats',[]):
+        stat_group =    {
+                            'type' : s['type']['displayName'],
+                            'group' : s['group']['displayName'],
+                            'stats' : s['splits'][0]['stat'] #there should only be one item in the list for career stats
+                        }
+        stat_groups.append(stat_group)
+
+    if len(stat_groups)==0:
+        raise ValueError('No stats found for given player, type, and group.')
+
+    stats += bio['first_name']
+    if bio['nickname']: stats += ' "{nickname}"'.format(**bio)
+    stats += ' {last_name}, {position} ({mlb_debut:.4}-'.format(**bio)
+    if not bio['active']: stats += '{last_played:.4}'.format(**bio)
+    stats += ')\n\n'
+
+    for x in stat_groups:
+        stats += x['type'][0:1].upper() + x['type'][1:] + ' ' + x['group'][0:1].upper() + x['group'][1:] + '\n'
+        for y in x['stats'].keys():
+            if y=='position': continue
+            stats += '{}: {}\n'.format(y,x['stats'][y])
+        stats += '\n'
+
+    return stats
 
 def team_leaders(teamId,leaderCategories,season=datetime.now().year,leaderGameTypes='R',limit=10):
     """Get stat leaders for a given team.
