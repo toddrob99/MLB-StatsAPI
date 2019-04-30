@@ -38,6 +38,16 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.league_leaders()` - generate a list of stat leaders for all-time (single season) or a given season
 
+* `statsapi.player_stats()` - get a list of a player's career or season stats
+
+* `statsapi.last_game()` - get the game id for the given team's most recent game
+
+* `statsapi.next_game()` - get the game id for the given team's next game
+
+* `statsapi.game_highlights()` - generate a list of highlights with video links for a given game
+
+* `statsapi.game_pace()` - get information about pace of game for a given season (back to 1999)
+
 ## Example Use
 
 ### Print the number of games won by the Oakland Athletics in 2018
@@ -72,13 +82,13 @@ print('Phillies 40-man roster on opening day of the 2018 season:\n%s' % statsapi
 
 ### Print the boxscore and linescore from the A's most recent game (which may be in progress)
 
-Use `statsapi.get('schedule')` with the `team(previousSchedule)` hydration to retrieve the most recent A's game
+Use `statsapi.last_game()` to retrieve the most recent A's game
 and feed the gamePk into `statsapi.boxscore()` and `statsapi.linescore()`.
 
 ```
-most_recent_game = statsapi.get('schedule',{'teamId':133,'sportId':1,'hydration':'team(previousSchedule)'})['dates'][0]['games'][0]['gamePk']
-print(statsapi.boxscore(most_recent_game))
-print(statsapi.linescore(most_recent_game))
+most_recent_game_id = statsapi.last_game(133)
+print(statsapi.boxscore(most_recent_game_id))
+print(statsapi.linescore(most_recent_game_id))
 ```
 
 ### Find the team with the longest name

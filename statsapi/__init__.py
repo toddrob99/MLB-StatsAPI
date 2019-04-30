@@ -621,6 +621,137 @@ def linescore(gamePk,timecode=None):
 
     return linescore
 
+def last_game(teamId):
+    """Get the gamePk for the given team's most recent game.
+    Note: Sometimes Stats API will actually return the next game in the previousSchedule hydration
+    """
+    return get('team',{'teamId':teamId,'hydrate':'previousSchedule','fields':'teams,id,teamName,previousGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name'})['teams'][0]['previousGameSchedule']['dates'][0]['games'][0]['gamePk']
+
+def next_game(teamId):
+    """Get the gamePk for the given team's next game.
+    Note: Sometimes Stats API will actually return the next game in the previousSchedule hydration
+    """
+    return get('team',{'teamId':teamId,'hydrate':'nextSchedule','fields':'teams,id,teamName,nextGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name'})['teams'][0]['nextGameSchedule']['dates'][0]['games'][0]['gamePk']
+
+def game(gamePk):
+    """Get the lineups and player stats for a given game
+    """
+    
+
+    return
+
+def game_highlights(gamePk):
+    """Get the highlight video links for a given game
+
+    Example use:
+
+    Print the highlight links for the most recent Phillies game
+
+    print( statsapi.game_highlights( statsapi.last_game(143) ) )
+
+    Output (truncated to only include the first two highlights):
+
+    Hoskins' RBI double (00:00:16)
+    Rhys Hoskins belts a double off the left-center-field wall to score Bryce Harper and give the Phillies a 1-0 lead in the bottom of the 1st
+    https://cuts.diamond.mlb.com/FORGE/2019/2019-04/28/b1117503-3df11d8d-6df0dd65-csvm-diamondx64-asset_1280x720_59_4000K.mp4
+
+    Phanatic has birthday party (00:01:15)
+    Kids and fellow mascots were at Citizens Bank Park to celebrate the Phillie Phanatic's birthday before the game against the Marlins
+    https://cuts.diamond.mlb.com/FORGE/2019/2019-04/28/7d978385-db13f22d-f68c304f-csvm-diamondx64-asset_1280x720_59_4000K.mp4
+    """
+    r = get('schedule',{'sportId':1,'gamePk':gamePk,'hydrate':'game(content(highlights(highlights)))','fields':'dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url'})
+    if not len(r['dates'][0]['games'][0]['content']['highlights']['highlights']['items']): return ''
+    items = r['dates'][0]['games'][0]['content']['highlights']['highlights']['items']
+
+    highlights = ''
+    unorderedHighlights = {}
+    for v in (x for x in items if isinstance(x,dict) and x['type']=='video'):
+        unorderedHighlights.update({v['date'] : v})
+    sortedHighlights = []
+    for x in sorted(unorderedHighlights):
+        sortedHighlights.append(unorderedHighlights[x])
+    for a in sortedHighlights:
+        #if sum(1 for t in a['keywordsAll'] if t['type']=='team_id') == 1:
+        #    highlights += next(t['displayName'] for t in a['keywordsAll'] if t['type']=='team_id') + '\n'
+        highlights += '{} ({})\n{}\n{}\n\n'.format(a.get('title',a.get('headline','')), a['duration'], a.get('description',''), next(s['url'] for s in a['playbacks'] if s['name']=='mp4Avc'))
+
+    return highlights
+
+def game_pace(season=datetime.now().year,sportId=1):
+    """Get information about pace of game for a given season (back to 1999).
+
+    Example use:
+
+    Print the pace of game stats for 2008, in order to determine the number and average time of extra inning games
+
+    print(statsapi.game_pace(2008))
+
+    Output:
+
+    2008 Game Pace Stats
+    hitsPer9Inn: 18.26
+    runsPer9Inn: 9.38
+    pitchesPer9Inn: 297.72
+    plateAppearancesPer9Inn: 77.89
+    hitsPerGame: 18.11
+    runsPerGame: 9.3
+    inningsPlayedPerGame: 8.96
+    pitchesPerGame: 295.36
+    pitchersPerGame: 7.83
+    plateAppearancesPerGame: 77.28
+    totalGameTime: 7086:06:00
+    totalInningsPlayed: 21748.0
+    totalHits: 43972
+    totalRuns: 22585
+    totalPlateAppearances: 187630
+    totalPitchers: 19012
+    totalPitches: 717131
+    totalGames: 2428
+    total9InnGames: 2428
+    totalExtraInnGames: 208
+    timePerGame: 02:55:07
+    timePerPitch: 00:00:36
+    timePerHit: 00:09:40
+    timePerRun: 00:18:50
+    timePerPlateAppearance: 00:02:16
+    timePer9Inn: 02:56:30
+    timePer77PlateAppearances: 02:54:29
+    totalExtraInnTime: 775:10:00
+    timePer7InnGameWithoutExtraInn: 00:00:00
+    total9InnGamesCompletedEarly: 3
+    total9InnGamesWithoutExtraInn: 2217
+    total9InnGamesScheduled: 2428
+    hitsPerRun: 1.947
+    pitchesPerPitcher: 37.72
+    total7InnGames: 3
+    total9InnGames: 2217
+    totalExtraInnGames: 208
+    timePer7InnGame: 01:54:40
+    timePer9InnGame: 02:50:38
+    timePerExtraInnGame: 03:43:36
+    """
+    params = {}
+    if season: params.update({'season':season})
+    if sportId: params.update({'sportId':sportId})
+
+    r = get('gamePace',params)
+
+    if not len(r['sports']):
+        raise ValueError('No game pace info found for the {} season. Game pace data appears to begin in 1999.'.format(season))
+
+    pace = ''
+
+    pace += '{} Game Pace Stats\n'.format(season)
+    for s in r['sports']:
+        for k in s.keys():
+            if k in ['season','sport']: continue
+            if k == 'prPortalCalculatedFields':
+                for x in s[k].keys():
+                    pace += '{}: {}\n'.format(x,s[k][x])
+            else: pace += '{}: {}\n'.format(k,s[k])
+
+    return pace
+
 def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
     """Get current season or career stats for a given player.
 
