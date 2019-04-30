@@ -48,6 +48,8 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.game_pace()` - get information about pace of game for a given season (back to 1999)
 
+* `statsapi.game_scoring_plays()` - get a list of scoring plays for a given game
+
 ## Example Use
 
 ### Print the number of games won by the Oakland Athletics in 2018
@@ -132,3 +134,9 @@ lookup Chase Utley's person id from the results, and pass it into `statsapi.play
 using `type='hitting'` and `group='career'`
 
 print( statsapi.player_stats(next(x['id'] for x in statsapi.get('sports_players',{'season':2008,'gameType':'W'})['people'] if x['fullName']=='Chase Utley'), 'hitting', 'career') )
+
+### Print a list of scoring plays from the 4/28/2019 Marlins @ Phillies game
+
+```
+print( statsapi.game_scoring_plays(567074) )
+```

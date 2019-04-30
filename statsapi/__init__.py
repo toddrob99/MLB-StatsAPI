@@ -617,7 +617,7 @@ def linescore(gamePk,timecode=None):
         linescore += ('{:^2}' * (len(k[1])-3)).format(*k[1])
         linescore += ('{:^4}' * 3).format(*k[1][-3:])
         linescore += '\n'
-    linescore = linescore[:-1] #strip the extra line break
+    if len(linescore)>1: linescore = linescore[:-1] #strip the extra line break
 
     return linescore
 
@@ -633,12 +633,42 @@ def next_game(teamId):
     """
     return get('team',{'teamId':teamId,'hydrate':'nextSchedule','fields':'teams,id,teamName,nextGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name'})['teams'][0]['nextGameSchedule']['dates'][0]['games'][0]['gamePk']
 
-def game(gamePk):
-    """Get the lineups and player stats for a given game
-    """
-    
+def game_scoring_plays(gamePk):
+    """Get a list of scoring plays for a given game
 
-    return
+    Example use:
+
+    Print a list of scoring plays from the 4/28/2019 Marlins @ Phillies game
+
+    print( statsapi.game_scoring_plays(567074) )
+
+    Output (truncated to show only the first and last records):
+
+    Rhys Hoskins doubles (6) on a sharp line drive to left fielder Isaac Galloway.   Bryce Harper scores.
+    Bottom 1 - Miami Marlins: 0, Philadelphia Phillies: 1
+
+    Rhys Hoskins walks.   Andrew McCutchen scores.    Jean Segura to 3rd.  Wild pitch by pitcher Tayron Guerrero.
+    Bottom 8 - Miami Marlins: 1, Philadelphia Phillies: 5
+    """
+    r = get('schedule',{'sportId':1,'gamePk':gamePk,'hydrate':'scoringplays','fields':'dates,date,games,teams,away,team,name,scoringPlays,result,description,awayScore,homeScore,about,halfInning,inning,endTime'})
+    if not len(r['dates'][0]['games'][0]['scoringPlays']): return ''
+
+    items = r['dates'][0]['games'][0]['scoringPlays']
+    home_team = r['dates'][0]['games'][0]['teams']['home']['team']['name']
+    away_team = r['dates'][0]['games'][0]['teams']['away']['team']['name']
+
+    scoring_plays = ''
+    unorderedPlays = {}
+    for v in items:
+        unorderedPlays.update({v['about']['endTime'] : v})
+    sortedPlays = []
+    for x in sorted(unorderedPlays):
+        sortedPlays.append(unorderedPlays[x])
+    for a in sortedPlays:
+        scoring_plays += '{}\n{} {} - {}: {}, {}: {}\n\n'.format(a['result']['description'], a['about']['halfInning'][0:1].upper() + a['about']['halfInning'][1:], a['about']['inning'], away_team, a['result']['awayScore'], home_team, a['result']['homeScore'])
+    if len(scoring_plays)>1: scoring_plays = scoring_plays[:-2] #strip the extra line break
+
+    return scoring_plays
 
 def game_highlights(gamePk):
     """Get the highlight video links for a given game
