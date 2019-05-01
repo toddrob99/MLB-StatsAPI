@@ -1,3 +1,4 @@
+# encoding=utf-8
 """# MLB-StatsAPI
 
 Python wrapper for MLB Stats API
@@ -8,7 +9,6 @@ https://pypi.org/project/MLB-StatsAPI/
 
 https://github.com/toddrob99/MLB-StatsAPI
 """
-# encoding=utf-8
 import sys
 if sys.version_info.major < 3:
     reload(sys)
