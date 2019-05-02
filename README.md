@@ -15,14 +15,15 @@ If you install manually, be sure to also install requests.
 
 ## Available Functions
 
-* `statsapi.get()` - make calls directly to MLB StatsAPI endpoints;
-  supports the most flexibility in request parameters, and returns raw json data
+* `statsapi.get()` - make calls directly to MLB StatsAPI endpoints; supports the most flexibility in request parameters, and returns raw json data
 
-* `statsapi.meta()` - retrieve available values from StatsAPI for use in other queries,
-  or look up descriptions for values found in API results
+* `statsapi.meta()` - retrieve available values from StatsAPI for use in other queries, or look up descriptions for values found in API results
 
-* `statsapi.notes()` - retrieve notes for a given endpoint, 
-  including a list of required parameters, as well as hints for some endpoints
+* `statsapi.notes()` - retrieve notes for a given endpoint, including a list of required parameters, as well as hints for some endpoints
+
+* `statsapi.lookup_player()` - get a list of player data based on first, last, or full name, jersey number, current team Id, position, etc.
+
+* `statsapi.lookup_team()` - get a lsit of teams info based on the team name, city, abbreviation, or file code
 
 * `statsapi.schedule()` - retrieve a list of games on a given date/range and/or team/opponent
 
@@ -30,25 +31,25 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.linescore()` - generate a formatted linescore for a given game
 
-* `statsapi.roster()` - generate a list of players on a team's roster
+* `statsapi.roster()` - generate a formatted list of players on a team's roster
 
 * `statsapi.standings()` - generate a formatted list of standings for a given league/date
 
-* `statsapi.team_leaders()` - generate a list of a team's leaders for a given stat
+* `statsapi.team_leaders()` - generate a formatted list of a team's leaders for a given stat
 
-* `statsapi.league_leaders()` - generate a list of stat leaders for all-time (single season) or a given season
+* `statsapi.league_leaders()` - generate a formatted list of stat leaders for all-time (single season) or a given season
 
-* `statsapi.player_stats()` - get a list of a player's career or season stats
+* `statsapi.player_stats()` - generate a formatted list of a player's career or season stats
 
 * `statsapi.last_game()` - get the game id for the given team's most recent game
 
 * `statsapi.next_game()` - get the game id for the given team's next game
 
-* `statsapi.game_highlights()` - generate a list of highlights with video links for a given game
+* `statsapi.game_highlights()` - generate a formatted list of highlights with video links for a given game
 
-* `statsapi.game_pace()` - get information about pace of game for a given season (back to 1999)
+* `statsapi.game_pace()` - generate a formatted list of pace of game information for a given season (back to 1999)
 
-* `statsapi.game_scoring_plays()` - get a list of scoring plays for a given game
+* `statsapi.game_scoring_plays()` - generate a formatted list of scoring plays for a given game
 
 ## Example Use
 
@@ -133,7 +134,9 @@ use `statsapi.get()` to call the sports_players endpoint for the 2008 World Seri
 lookup Chase Utley's person id from the results, and pass it into `statsapi.player_stats()`
 using `type='hitting'` and `group='career'`
 
+```
 print( statsapi.player_stats(next(x['id'] for x in statsapi.get('sports_players',{'season':2008,'gameType':'W'})['people'] if x['fullName']=='Chase Utley'), 'hitting', 'career') )
+```
 
 ### Print a list of scoring plays from the 4/28/2019 Marlins @ Phillies game
 

@@ -855,12 +855,13 @@ def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
             }
 
     for s in r['people'][0].get('stats',[]):
-        stat_group =    {
-                            'type' : s['type']['displayName'],
-                            'group' : s['group']['displayName'],
-                            'stats' : s['splits'][0]['stat'] #there should only be one item in the list for career stats
-                        }
-        stat_groups.append(stat_group)
+        for i in range(0,len(s['splits'])):
+            stat_group =    {
+                                'type' : s['type']['displayName'],
+                                'group' : s['group']['displayName'],
+                                'stats' : s['splits'][i]['stat']
+                            }
+            stat_groups.append(stat_group)
 
     if len(stat_groups)==0:
         raise ValueError('No stats found for given player, type, and group.')
@@ -872,13 +873,96 @@ def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
     stats += ')\n\n'
 
     for x in stat_groups:
-        stats += x['type'][0:1].upper() + x['type'][1:] + ' ' + x['group'][0:1].upper() + x['group'][1:] + '\n'
+        stats += x['type'][0:1].upper() + x['type'][1:] + ' ' + x['group'][0:1].upper() + x['group'][1:]
+        if x['stats'].get('position'): stats += ' ({})'.format(x['stats']['position']['abbreviation'])
+        stats += '\n'
         for y in x['stats'].keys():
             if y=='position': continue
             stats += '{}: {}\n'.format(y,x['stats'][y])
         stats += '\n'
 
     return stats
+
+def lookup_player(lookup_value,gameType='R',season=datetime.now().year,sportId=1):
+    """Get data about players based on first, last, or full name.
+
+    Example use:
+
+    Look up player id for Aaron Nola
+    Note: if using a full last name as the lookup_value and that last name could be part of another player's lastname,
+    e.g. 'Nola' is part of 'Nolan', include a comma on the end of the last name in order to match on the 'initLastName'
+    field which looks like 'Nola, A'
+
+    player = statsapi.lookup_player('nola,')
+    print(player[0]['id']) #assume only 1 record returned for demo purposes
+
+    Output:
+
+    605400
+
+
+    Print full name and position for all players named Harper
+
+    for player in statsapi.lookup_player('Harper'):
+        print('Full name: {}, Position: {}'.format(player['fullName'], player['primaryPosition']['abbreviation']))
+
+    Output:
+
+    Full name: Bryce Harper, Position: RF
+    Full name: Ryne Harper, Position: P
+    """
+    params = {'gameType':gameType, 'season':season, 'sportId':sportId, 'fields':'people,id,fullName,firstName,lastName,primaryNumber,currentTeam,id,primaryPosition,code,abbreviation,useName,boxscoreName,nickName,mlbDebutDate,nameFirstLast,firstLastName,lastFirstName,lastInitName,initLastName,fullFMLName,fullLFMName'}
+    r = get('sports_players',params)
+
+    players = []
+    for player in r['people']:
+        for v in player.values():
+            if str(lookup_value).lower() in str(v).lower():
+                players.append(player)
+                break
+
+    return players
+
+def lookup_team(lookup_value,activeStatus='Y',season=datetime.now().year,sportIds=1):
+    """Get a info about a team based on the team name, city, abbreviation, or file code.
+
+    Values for activeStatus: Y, N, B (Both)
+
+    Return value will be a list of teams matching the lookup_value. 
+    If no matches are found, an empty list will be returned.
+
+    Example use:
+
+    Get teamId for team with code cwa
+
+    team = statsapi.lookup_team('chn')
+    print(team[0]['id']) #assume only 1 record returned for demo purposes
+
+    Output:
+
+    112
+
+
+    Get info about all teams from NY
+
+    for team in statsapi.lookup_team('ny'):
+        print(team)
+
+    Output:
+
+    {'id': 147, 'name': 'New York Yankees', 'teamCode': 'nya', 'fileCode': 'nyy', 'teamName': 'Yankees', 'locationName': 'Bronx', 'shortName': 'NY Yankees'}
+    {'id': 121, 'name': 'New York Mets', 'teamCode': 'nyn', 'fileCode': 'nym', 'teamName': 'Mets', 'locationName': 'New York', 'shortName': 'NY Mets'}
+    """
+    params = {'activeStatus':activeStatus, 'season':season, 'sportIds':sportIds, 'fields':'teams,id,name,teamCode,fileCode,teamName,locationName,shortName'}
+    r = get('teams',params)
+
+    teams = []
+    for team in r['teams']:
+        for v in team.values():
+            if str(lookup_value).lower() in str(v).lower():
+                teams.append(team)
+                break
+    return teams
 
 def team_leaders(teamId,leaderCategories,season=datetime.now().year,leaderGameTypes='R',limit=10):
     """Get stat leaders for a given team.
