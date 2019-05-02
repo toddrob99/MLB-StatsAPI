@@ -6,6 +6,8 @@ Created by Todd Roberts
 
 https://github.com/toddrob99/MLB-StatsAPI
 
+Documentation: https://toddrob99.github.io/MLB-StatsAPI/
+
 ## Installation
 MLB-StatsAPI is listed on the [Python Package Index](https://pypi.org/project/MLB-StatsAPI/), 
 and the preferred installation method is pip for all platforms. 
