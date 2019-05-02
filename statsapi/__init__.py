@@ -855,12 +855,13 @@ def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
             }
 
     for s in r['people'][0].get('stats',[]):
-        stat_group =    {
-                            'type' : s['type']['displayName'],
-                            'group' : s['group']['displayName'],
-                            'stats' : s['splits'][0]['stat'] #there should only be one item in the list for career stats
-                        }
-        stat_groups.append(stat_group)
+        for i in range(0,len(s['splits'])):
+            stat_group =    {
+                                'type' : s['type']['displayName'],
+                                'group' : s['group']['displayName'],
+                                'stats' : s['splits'][i]['stat']
+                            }
+            stat_groups.append(stat_group)
 
     if len(stat_groups)==0:
         raise ValueError('No stats found for given player, type, and group.')
@@ -872,7 +873,9 @@ def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
     stats += ')\n\n'
 
     for x in stat_groups:
-        stats += x['type'][0:1].upper() + x['type'][1:] + ' ' + x['group'][0:1].upper() + x['group'][1:] + '\n'
+        stats += x['type'][0:1].upper() + x['type'][1:] + ' ' + x['group'][0:1].upper() + x['group'][1:]
+        if x['stats'].get('position'): stats += ' ({})'.format(x['stats']['position']['abbreviation'])
+        stats += '\n'
         for y in x['stats'].keys():
             if y=='position': continue
             stats += '{}: {}\n'.format(y,x['stats'][y])
