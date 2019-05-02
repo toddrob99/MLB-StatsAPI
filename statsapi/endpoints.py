@@ -859,7 +859,7 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','gameType'],
+                                                    'query_params': ['season','gameType','fields'],
                                                     'required_params': [['season']]
                                                 },
                 'standings':                    {
