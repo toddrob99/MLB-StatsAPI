@@ -25,7 +25,7 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.lookup_player()` - get a list of player data based on first, last, or full name, jersey number, current team Id, position, etc.
 
-* `statsapi.lookup_team()` - get a lsit of teams info based on the team name, city, abbreviation, or file code
+* `statsapi.lookup_team()` - get a list of teams' info based on the team name, city, abbreviation, or file code
 
 * `statsapi.schedule()` - retrieve a list of games on a given date/range and/or team/opponent
 
