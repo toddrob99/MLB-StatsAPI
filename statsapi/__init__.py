@@ -41,8 +41,8 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
     'game_date': date of game (YYYY-MM-DD)
     'game_type': Preseason, Regular season, Postseason, etc. Look up possible values using the meta endpoint with type=gameTypes
     'status': Scheduled, Warmup, In Progress, Final, etc. Look up possible values using the meta endpoint with type=gameStatus
-    'away': team name for the away team (e.g. Philadelphia Phillies)
-    'home': team name for the home team (e.g. Philadelphia Phillies)
+    'away_name': team name for the away team (e.g. Philadelphia Phillies)
+    'home_name': team name for the home team (e.g. Philadelphia Phillies)
     'away_id': team id for the away team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143
     'home_id': team id for the home team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143
     'doubleheader': indicates if the game is part of a straight doubleheader (Y), a split doubleheader (S), or not part of a doubleheader
@@ -54,6 +54,10 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
     'winning_pitcher': full name of the winning pitcher, if the game is final and has a winner (not postponed/tied)
     'losing_pitcher': full name of the losing pitcher, if the game is final and has a winner (not postponed/tied)
     'save_pitcher': full name of the pitcher credited with a save, if the game is final and has a winner (not postponed/tied)
+    'home_probable_pitcher': full name of the probable pitcher for the home team, if available
+    'away_probable_pitcher': full name of the probable pitcher for the away team, if available
+    'home_pitcher_note': pitching report for the home team probable pitcher, if available
+    'away_pitcher_note': pitching report for the away team probable pitcher, if available
     'summary':  if the game is final, the summary will include "<Date> - <Away Team Name> (<Away Score>) @ <Home Team Name> (<Home Score>)"
                 if the game is not final, the summary will include "<Date> - <Away Team Name> @ <Home Team Name> (<Game Status>)"
 
@@ -105,7 +109,7 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
     if opponent != '':
         params.update({'opponentId':str(opponent)})
 
-    params.update({'sportId':str(sportId), 'hydrate':'decisions'})
+    params.update({'sportId':str(sportId), 'hydrate':'decisions,probablePitcher(note)'})
 
     r = get('schedule',params)
 
@@ -121,12 +125,16 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
                                 'game_date': date['date'],
                                 'game_type': game['gameType'],
                                 'status': game['status']['detailedState'],
-                                'away': game['teams']['away']['team']['name'],
-                                'home': game['teams']['home']['team']['name'],
+                                'away_name': game['teams']['away']['team']['name'],
+                                'home_name': game['teams']['home']['team']['name'],
                                 'away_id': game['teams']['away']['team']['id'],
                                 'home_id': game['teams']['home']['team']['id'],
                                 'doubleheader': game['doubleHeader'],
-                                'game_num': game['gameNumber']
+                                'game_num': game['gameNumber'],
+                                'home_probable_pitcher': game['teams']['home'].get('probablePitcher',{}).get('fullName',''),
+                                'away_probable_pitcher': game['teams']['away'].get('probablePitcher',{}).get('fullName',''),
+                                'home_pitcher_note': game['teams']['home'].get('probablePitcher').get('note',''),
+                                'away_pitcher_note': game['teams']['away'].get('probablePitcher').get('note','')
                             }
                 if game_info['status'] == 'Final':
                     game_info.update({
