@@ -4,6 +4,8 @@ Python wrapper for MLB Stats API
 
 Created by Todd Roberts
 
+https://pypi.org/project/MLB-StatsAPI/
+
 https://github.com/toddrob99/MLB-StatsAPI
 
 Documentation: https://toddrob99.github.io/MLB-StatsAPI/
