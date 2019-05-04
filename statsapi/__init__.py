@@ -33,8 +33,10 @@ ENDPOINTS = endpoints.ENDPOINTS
 import requests
 from datetime import datetime
 
-def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sportId=1):
+def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sportId=1, game_id=None):
     """Get list of games for a given date/range and/or team/opponent.
+
+    Include a game_id to get data for that game.
 
     Output will be a list containing a dict for each game. Fields in the dict:
 
@@ -60,8 +62,10 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
     'away_probable_pitcher': full name of the probable pitcher for the away team, if available
     'home_pitcher_note': pitching report for the home team probable pitcher, if available
     'away_pitcher_note': pitching report for the away team probable pitcher, if available
-    'summary':  if the game is final, the summary will include "<Date> - <Away Team Name> (<Away Score>) @ <Home Team Name> (<Home Score>)"
-                if the game is not final, the summary will include "<Date> - <Away Team Name> @ <Home Team Name> (<Game Status>)"
+    'current_inning': current inning (applies best to in-progress games)
+    'inning_state': state of current inning: top, middle, bottom, end (applies best to in-progress games)
+    'summary':  if the game is final or in progress, the summary will include "<Date> - <Away Team Name> (<Away Score>) @ <Home Team Name> (<Home Score>) (<Game Status>)"
+                if the game has not started yet, the summary will include "<Date> - <Away Team Name> @ <Home Team Name> (<Game Status>)"
 
     Example use:
 
@@ -76,10 +80,10 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
 
     Output:
 
-    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4)
-    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1)
-    2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3)
-    2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3)
+    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4) (Final)
+    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1) (Final)
+    2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3) (Final)
+    2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3) (Final)
 
     Print a list of decisions for those games:
 
@@ -111,7 +115,9 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
     if opponent != '':
         params.update({'opponentId':str(opponent)})
 
-    params.update({'sportId':str(sportId), 'hydrate':'decisions,probablePitcher(note)'})
+    if game_id: params.update({'gamePks':game_id})
+
+    params.update({'sportId':str(sportId), 'hydrate':'decisions,probablePitcher(note),linescore'})
 
     r = get('schedule',params)
 
@@ -136,17 +142,15 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
                                 'home_probable_pitcher': game['teams']['home'].get('probablePitcher',{}).get('fullName',''),
                                 'away_probable_pitcher': game['teams']['away'].get('probablePitcher',{}).get('fullName',''),
                                 'home_pitcher_note': game['teams']['home'].get('probablePitcher').get('note',''),
-                                'away_pitcher_note': game['teams']['away'].get('probablePitcher').get('note','')
+                                'away_pitcher_note': game['teams']['away'].get('probablePitcher').get('note',''),
+                                'away_score': game['teams']['away'].get('score','0'),
+                                'home_score': game['teams']['home'].get('score','0'),
+                                'current_inning': game['linescore'].get('currentInning',''),
+                                'inning_state': game['linescore'].get('inningState','')
                             }
-                if game_info['status'] == 'Final':
-                    game_info.update({
-                                        'away_score': game['teams']['away']['score'],
-                                        'home_score': game['teams']['home']['score']
-                                    })
+                if game_info['status'] in ['Final','Game Over']:
                     if game.get('isTie'):
                         game_info.update({
-                                            'away_score': game['teams']['away']['score'],
-                                            'home_score': game['teams']['home']['score'],
                                             'winning_team': 'Tie',
                                             'losing_Team': 'Tie'
                                         })
@@ -158,8 +162,12 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
                                             'losing_pitcher': game['decisions'].get('loser',{}).get('fullName',''),
                                             'save_pitcher': game['decisions'].get('save',{}).get('fullName')
                                         })
-                    summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' (' + str(game['teams']['away']['score']) + ') @ ' + game['teams']['home']['team']['name'] + ' (' + str(game['teams']['home']['score']) + ')'
+                    summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' (' + str(game['teams']['away']['score']) + ') @ ' + game['teams']['home']['team']['name'] + ' (' + str(game['teams']['home']['score']) + ') (' + game['status']['detailedState'] + ')'
                     game_info.update({'summary': summary})
+                elif game_info['status'] == 'In Progress':
+                    game_info.update({
+                                        'summary': date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' (' + str(game['teams']['away']['score']) + ') @ ' + game['teams']['home']['team']['name'] + ' (' + str(game['teams']['home']['score']) + ') (' + game['linescore']['inningState'] + ' of the ' + game['linescore']['currentInningOrdinal'] + ')'
+                                    })
                 else:
                     summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' @ ' + game['teams']['home']['team']['name'] + ' (' + game['status']['detailedState'] + ')'
                     game_info.update({'summary': summary})
@@ -1118,9 +1126,12 @@ def league_leaders(leaderCategories,season=None,limit=10,statGroup=None,leagueId
 
     return leaders
 
-def standings(leagueId=None,season=None,standingsTypes=None,date=None):
-    """Get formatted standings for a given league and season.
-    Will include division and wildcard standings 
+def standings(leagueId='103,104',division='all',include_wildcard=True,season=None,standingsTypes=None,date=None):
+    """Get formatted standings for a given league/division and season.
+
+    Using both leagueId and divisionId is fine, as long as the division belongs to the specified league
+
+    Return value will be a formatted table including division and wildcard standings, unless include_wildcard=False
     
     Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
 
@@ -1158,7 +1169,6 @@ def standings(leagueId=None,season=None,standingsTypes=None,date=None):
      5   Washington Nationals  59  101 31.5  E     13    29.5   E
     
     """
-    if not leagueId: leagueId = '103,104'
     params = {'leagueId':leagueId}
     if date: params.update({'date':date})
     if not season:
@@ -1168,7 +1178,6 @@ def standings(leagueId=None,season=None,standingsTypes=None,date=None):
             season = datetime.now().year
     if not standingsTypes: standingsTypes = 'regularSeason'
     params.update({'season':season,'standingsTypes':standingsTypes})
-    if leagueId: params.update({'leagueId':leagueId})
     params.update({'hydrate':'team(division)','fields':'records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses'})
 
     r = get('standings',params)
@@ -1177,7 +1186,7 @@ def standings(leagueId=None,season=None,standingsTypes=None,date=None):
     divisions = {}
 
     for y in r['records']:
-        for x in y['teamRecords']:
+        for x in (x for x in y['teamRecords'] if division.lower()=='all' or division.lower()==x['team']['division']['abbreviation'].lower()):
             if x['team']['division']['id'] not in divisions.keys():
                 divisions.update({x['team']['division']['id']:{'div_name':x['team']['division']['name'],'teams':[]}})
             team =  {
@@ -1195,9 +1204,14 @@ def standings(leagueId=None,season=None,standingsTypes=None,date=None):
 
     for div_id,div in divisions.items():
         standings += div['div_name'] + '\n'
-        standings += '{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n'.format(*['Rank','Team','W','L','GB','(E#)','WC Rank','WC GB','(E#)'])
-        for t in div['teams']:
-            standings += '{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}\n'.format(**t)
+        if include_wildcard:
+            standings += '{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n'.format(*['Rank','Team','W','L','GB','(E#)','WC Rank','WC GB','(E#)'])
+            for t in div['teams']:
+                standings += '{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}\n'.format(**t)
+        else:
+            standings += '{:^4} {:<21} {:^3} {:^3} {:^4} {:^4}\n'.format(*['Rank','Team','W','L','GB','(E#)'])
+            for t in div['teams']:
+                standings += '{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4}\n'.format(**t)
         standings += '\n'
 
     return standings

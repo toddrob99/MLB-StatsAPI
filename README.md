@@ -147,3 +147,7 @@ print( statsapi.player_stats(next(x['id'] for x in statsapi.get('sports_players'
 ```
 print( statsapi.game_scoring_plays(567074) )
 ```
+
+## Copyright Notice
+
+This API wrapper interfaces with MLB's Stats API. Use of MLB data is subject to the notice posted at http://gdx.mlb.com/components/copyright.txt.
