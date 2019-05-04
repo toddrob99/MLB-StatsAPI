@@ -4,6 +4,8 @@ Python wrapper for MLB Stats API
 
 Created by Todd Roberts
 
+https://pypi.org/project/MLB-StatsAPI/
+
 https://github.com/toddrob99/MLB-StatsAPI
 
 Documentation: https://toddrob99.github.io/MLB-StatsAPI/
@@ -25,7 +27,7 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.lookup_player()` - get a list of player data based on first, last, or full name, jersey number, current team Id, position, etc.
 
-* `statsapi.lookup_team()` - get a lsit of teams info based on the team name, city, abbreviation, or file code
+* `statsapi.lookup_team()` - get a list of teams' info based on the team name, city, abbreviation, or file code
 
 * `statsapi.schedule()` - retrieve a list of games on a given date/range and/or team/opponent
 
@@ -145,3 +147,7 @@ print( statsapi.player_stats(next(x['id'] for x in statsapi.get('sports_players'
 ```
 print( statsapi.game_scoring_plays(567074) )
 ```
+
+## Copyright Notice
+
+This API wrapper interfaces with MLB's Stats API. Use of MLB data is subject to the notice posted at http://gdx.mlb.com/components/copyright.txt.

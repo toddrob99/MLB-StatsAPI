@@ -234,7 +234,8 @@ ENDPOINTS = {
                                                                                 }
                                                                     },
                                                     'query_params': ['timecode','fields'],
-                                                    'required_params': [[]]
+                                                    'required_params': [[]],
+                                                    'note': 'If you only want the current win probability for each team, try the game_contextMetrics endpoint instad.'
                                                 },
                 'game_boxscore':                {
                                                     'url': BASE_URL + '{ver}/game/{gamePk}/boxscore',
