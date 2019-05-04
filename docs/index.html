@@ -1082,6 +1082,12 @@ table {
     </li>
 
 
+    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+      <ul>
+        <li class="mono"><a href="endpoints.m.html">statsapi.endpoints</a></li>
+        <li class="mono"><a href="version.m.html">statsapi.version</a></li>
+      </ul>
+    </li>
     </ul>
   </div>
 
@@ -1099,6 +1105,7 @@ table {
 <p>Created by Todd Roberts</p>
 <p>https://pypi.org/project/MLB-StatsAPI/</p>
 <p>https://github.com/toddrob99/MLB-StatsAPI</p>
+<p>Documentation: https://toddrob99.github.io/MLB-StatsAPI/</p>
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi', this);">Show source &equiv;</a></p>
   <div id="source-statsapi" class="source">
@@ -1112,6 +1119,8 @@ table {
 <span class="sd">https://pypi.org/project/MLB-StatsAPI/</span>
 
 <span class="sd">https://github.com/toddrob99/MLB-StatsAPI</span>
+
+<span class="sd">Documentation: https://toddrob99.github.io/MLB-StatsAPI/</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
@@ -1135,8 +1144,10 @@ table {
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">team</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">opponent</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">sportId</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">team</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">opponent</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">sportId</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">game_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get list of games for a given date/range and/or team/opponent.</span>
+
+<span class="sd">    Include a game_id to get data for that game.</span>
 
 <span class="sd">    Output will be a list containing a dict for each game. Fields in the dict:</span>
 
@@ -1145,8 +1156,8 @@ table {
 <span class="sd">    &#39;game_date&#39;: date of game (YYYY-MM-DD)</span>
 <span class="sd">    &#39;game_type&#39;: Preseason, Regular season, Postseason, etc. Look up possible values using the meta endpoint with type=gameTypes</span>
 <span class="sd">    &#39;status&#39;: Scheduled, Warmup, In Progress, Final, etc. Look up possible values using the meta endpoint with type=gameStatus</span>
-<span class="sd">    &#39;away&#39;: team name for the away team (e.g. Philadelphia Phillies)</span>
-<span class="sd">    &#39;home&#39;: team name for the home team (e.g. Philadelphia Phillies)</span>
+<span class="sd">    &#39;away_name&#39;: team name for the away team (e.g. Philadelphia Phillies)</span>
+<span class="sd">    &#39;home_name&#39;: team name for the home team (e.g. Philadelphia Phillies)</span>
 <span class="sd">    &#39;away_id&#39;: team id for the away team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143</span>
 <span class="sd">    &#39;home_id&#39;: team id for the home team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143</span>
 <span class="sd">    &#39;doubleheader&#39;: indicates if the game is part of a straight doubleheader (Y), a split doubleheader (S), or not part of a doubleheader</span>
@@ -1158,8 +1169,14 @@ table {
 <span class="sd">    &#39;winning_pitcher&#39;: full name of the winning pitcher, if the game is final and has a winner (not postponed/tied)</span>
 <span class="sd">    &#39;losing_pitcher&#39;: full name of the losing pitcher, if the game is final and has a winner (not postponed/tied)</span>
 <span class="sd">    &#39;save_pitcher&#39;: full name of the pitcher credited with a save, if the game is final and has a winner (not postponed/tied)</span>
-<span class="sd">    &#39;summary&#39;:  if the game is final, the summary will include &quot;&lt;Date&gt; - &lt;Away Team Name&gt; (&lt;Away Score&gt;) @ &lt;Home Team Name&gt; (&lt;Home Score&gt;)&quot;</span>
-<span class="sd">                if the game is not final, the summary will include &quot;&lt;Date&gt; - &lt;Away Team Name&gt; @ &lt;Home Team Name&gt; (&lt;Game Status&gt;)&quot;</span>
+<span class="sd">    &#39;home_probable_pitcher&#39;: full name of the probable pitcher for the home team, if available</span>
+<span class="sd">    &#39;away_probable_pitcher&#39;: full name of the probable pitcher for the away team, if available</span>
+<span class="sd">    &#39;home_pitcher_note&#39;: pitching report for the home team probable pitcher, if available</span>
+<span class="sd">    &#39;away_pitcher_note&#39;: pitching report for the away team probable pitcher, if available</span>
+<span class="sd">    &#39;current_inning&#39;: current inning (applies best to in-progress games)</span>
+<span class="sd">    &#39;inning_state&#39;: state of current inning: top, middle, bottom, end (applies best to in-progress games)</span>
+<span class="sd">    &#39;summary&#39;:  if the game is final or in progress, the summary will include &quot;&lt;Date&gt; - &lt;Away Team Name&gt; (&lt;Away Score&gt;) @ &lt;Home Team Name&gt; (&lt;Home Score&gt;) (&lt;Game Status&gt;)&quot;</span>
+<span class="sd">                if the game has not started yet, the summary will include &quot;&lt;Date&gt; - &lt;Away Team Name&gt; @ &lt;Home Team Name&gt; (&lt;Game Status&gt;)&quot;</span>
 
 <span class="sd">    Example use:</span>
 
@@ -1174,10 +1191,10 @@ table {
 
 <span class="sd">    Output:</span>
 
-<span class="sd">    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4)</span>
-<span class="sd">    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1)</span>
-<span class="sd">    2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3)</span>
-<span class="sd">    2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3)</span>
+<span class="sd">    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4) (Final)</span>
+<span class="sd">    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1) (Final)</span>
+<span class="sd">    2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3) (Final)</span>
+<span class="sd">    2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3) (Final)</span>
 
 <span class="sd">    Print a list of decisions for those games:</span>
 
@@ -1209,7 +1226,9 @@ table {
     <span class="k">if</span> <span class="n">opponent</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
         <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;opponentId&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">opponent</span><span class="p">)})</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;sportId&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">sportId</span><span class="p">),</span> <span class="s1">&#39;hydrate&#39;</span><span class="p">:</span><span class="s1">&#39;decisions&#39;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">game_id</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;gamePks&#39;</span><span class="p">:</span><span class="n">game_id</span><span class="p">})</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;sportId&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">sportId</span><span class="p">),</span> <span class="s1">&#39;hydrate&#39;</span><span class="p">:</span><span class="s1">&#39;decisions,probablePitcher(note),linescore&#39;</span><span class="p">})</span>
 
     <span class="n">r</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s1">&#39;schedule&#39;</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
 
@@ -1225,22 +1244,24 @@ table {
                                 <span class="s1">&#39;game_date&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;game_type&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;gameType&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;detailedState&#39;</span><span class="p">],</span>
-                                <span class="s1">&#39;away&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
-                                <span class="s1">&#39;home&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                                <span class="s1">&#39;away_name&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                                <span class="s1">&#39;home_name&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;away_id&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;home_id&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;doubleheader&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;doubleHeader&#39;</span><span class="p">],</span>
-                                <span class="s1">&#39;game_num&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;gameNumber&#39;</span><span class="p">]</span>
+                                <span class="s1">&#39;game_num&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;gameNumber&#39;</span><span class="p">],</span>
+                                <span class="s1">&#39;home_probable_pitcher&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probablePitcher&#39;</span><span class="p">,{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;away_probable_pitcher&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probablePitcher&#39;</span><span class="p">,{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;home_pitcher_note&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probablePitcher&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;note&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;away_pitcher_note&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probablePitcher&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;note&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;away_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">,</span><span class="s1">&#39;0&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;home_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">,</span><span class="s1">&#39;0&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;current_inning&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;linescore&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;currentInning&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;inning_state&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;linescore&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inningState&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
                             <span class="p">}</span>
-                <span class="k">if</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Final&#39;</span><span class="p">:</span>
-                    <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                                        <span class="s1">&#39;away_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">],</span>
-                                        <span class="s1">&#39;home_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">]</span>
-                                    <span class="p">})</span>
+                <span class="k">if</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Final&#39;</span><span class="p">,</span><span class="s1">&#39;Game Over&#39;</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;isTie&#39;</span><span class="p">):</span>
                         <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                                            <span class="s1">&#39;away_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">],</span>
-                                            <span class="s1">&#39;home_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">],</span>
                                             <span class="s1">&#39;winning_team&#39;</span><span class="p">:</span> <span class="s1">&#39;Tie&#39;</span><span class="p">,</span>
                                             <span class="s1">&#39;losing_Team&#39;</span><span class="p">:</span> <span class="s1">&#39;Tie&#39;</span>
                                         <span class="p">})</span>
@@ -1252,8 +1273,12 @@ table {
                                             <span class="s1">&#39;losing_pitcher&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;decisions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;loser&#39;</span><span class="p">,{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
                                             <span class="s1">&#39;save_pitcher&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;decisions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">)</span>
                                         <span class="p">})</span>
-                    <span class="n">summary</span> <span class="o">=</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) @ &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+                    <span class="n">summary</span> <span class="o">=</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) @ &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) (&#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;detailedState&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
                     <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;summary&#39;</span><span class="p">:</span> <span class="n">summary</span><span class="p">})</span>
+                <span class="k">elif</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;In Progress&#39;</span><span class="p">:</span>
+                    <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                                        <span class="s1">&#39;summary&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) @ &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) (&#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;linescore&#39;</span><span class="p">][</span><span class="s1">&#39;inningState&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; of the &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;linescore&#39;</span><span class="p">][</span><span class="s1">&#39;currentInningOrdinal&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+                                    <span class="p">})</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">summary</span> <span class="o">=</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; @ &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;detailedState&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
                     <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;summary&#39;</span><span class="p">:</span> <span class="n">summary</span><span class="p">})</span>
@@ -2212,9 +2237,12 @@ table {
 
     <span class="k">return</span> <span class="n">leaders</span>
 
-<span class="k">def</span> <span class="nf">standings</span><span class="p">(</span><span class="n">leagueId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">season</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">standingsTypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get formatted standings for a given league and season.</span>
-<span class="sd">    Will include division and wildcard standings </span>
+<span class="k">def</span> <span class="nf">standings</span><span class="p">(</span><span class="n">leagueId</span><span class="o">=</span><span class="s1">&#39;103,104&#39;</span><span class="p">,</span><span class="n">division</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span><span class="n">include_wildcard</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">season</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">standingsTypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get formatted standings for a given league/division and season.</span>
+
+<span class="sd">    Using both leagueId and divisionId is fine, as long as the division belongs to the specified league</span>
+
+<span class="sd">    Return value will be a formatted table including division and wildcard standings, unless include_wildcard=False</span>
 <span class="sd">    </span>
 <span class="sd">    Format for date = &#39;MM/DD/YYYY&#39;, e.g. &#39;04/24/2019&#39;</span>
 
@@ -2252,7 +2280,6 @@ table {
 <span class="sd">     5   Washington Nationals  59  101 31.5  E     13    29.5   E</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">leagueId</span><span class="p">:</span> <span class="n">leagueId</span> <span class="o">=</span> <span class="s1">&#39;103,104&#39;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;leagueId&#39;</span><span class="p">:</span><span class="n">leagueId</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">date</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;date&#39;</span><span class="p">:</span><span class="n">date</span><span class="p">})</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">season</span><span class="p">:</span>
@@ -2262,7 +2289,6 @@ table {
             <span class="n">season</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">standingsTypes</span><span class="p">:</span> <span class="n">standingsTypes</span> <span class="o">=</span> <span class="s1">&#39;regularSeason&#39;</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;season&#39;</span><span class="p">:</span><span class="n">season</span><span class="p">,</span><span class="s1">&#39;standingsTypes&#39;</span><span class="p">:</span><span class="n">standingsTypes</span><span class="p">})</span>
-    <span class="k">if</span> <span class="n">leagueId</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;leagueId&#39;</span><span class="p">:</span><span class="n">leagueId</span><span class="p">})</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;hydrate&#39;</span><span class="p">:</span><span class="s1">&#39;team(division)&#39;</span><span class="p">,</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span><span class="s1">&#39;records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses&#39;</span><span class="p">})</span>
 
     <span class="n">r</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s1">&#39;standings&#39;</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
@@ -2271,7 +2297,7 @@ table {
     <span class="n">divisions</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;records&#39;</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span><span class="p">[</span><span class="s1">&#39;teamRecords&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span><span class="p">[</span><span class="s1">&#39;teamRecords&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">division</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;all&#39;</span> <span class="ow">or</span> <span class="n">division</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;division&#39;</span><span class="p">][</span><span class="s1">&#39;abbreviation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;division&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">divisions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">divisions</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;division&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]:{</span><span class="s1">&#39;div_name&#39;</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;division&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="s1">&#39;teams&#39;</span><span class="p">:[]}})</span>
             <span class="n">team</span> <span class="o">=</span>  <span class="p">{</span>
@@ -2289,9 +2315,14 @@ table {
 
     <span class="k">for</span> <span class="n">div_id</span><span class="p">,</span><span class="n">div</span> <span class="ow">in</span> <span class="n">divisions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">standings</span> <span class="o">+=</span> <span class="n">div</span><span class="p">[</span><span class="s1">&#39;div_name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{:^4} {:&lt;21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="s1">&#39;Rank&#39;</span><span class="p">,</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="s1">&#39;GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">,</span><span class="s1">&#39;WC Rank&#39;</span><span class="p">,</span><span class="s1">&#39;WC GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">div</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">]:</span>
-            <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{div_rank:^4} {name:&lt;21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_wildcard</span><span class="p">:</span>
+            <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{:^4} {:&lt;21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="s1">&#39;Rank&#39;</span><span class="p">,</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="s1">&#39;GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">,</span><span class="s1">&#39;WC Rank&#39;</span><span class="p">,</span><span class="s1">&#39;WC GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">div</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">]:</span>
+                <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{div_rank:^4} {name:&lt;21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{:^4} {:&lt;21} {:^3} {:^3} {:^4} {:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="s1">&#39;Rank&#39;</span><span class="p">,</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="s1">&#39;GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">div</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">]:</span>
+                <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{div_rank:^4} {name:&lt;21} {w:^3} {l:^3} {gb:^4} {elim_num:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">t</span><span class="p">)</span>
         <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
 
     <span class="k">return</span> <span class="n">standings</span>
@@ -4300,21 +4331,22 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
       
   <div class="item">
     <div class="name def" id="statsapi.schedule">
-    <p>def <span class="ident">schedule</span>(</p><p>date=None, start_date=None, end_date=None, team=&#39;&#39;, opponent=&#39;&#39;, sportId=1)</p>
+    <p>def <span class="ident">schedule</span>(</p><p>date=None, start_date=None, end_date=None, team=&#39;&#39;, opponent=&#39;&#39;, sportId=1, game_id=None)</p>
     </div>
     
 
     
   
     <div class="desc"><p>Get list of games for a given date/range and/or team/opponent.</p>
+<p>Include a game_id to get data for that game.</p>
 <p>Output will be a list containing a dict for each game. Fields in the dict:</p>
 <p>'game_id': unique MLB game id (primary key, or gamePk)
 'game_datetime': date and timestamp in UTC (be careful if you truncate the time--the date may be the next day for a late game)
 'game_date': date of game (YYYY-MM-DD)
 'game_type': Preseason, Regular season, Postseason, etc. Look up possible values using the meta endpoint with type=gameTypes
 'status': Scheduled, Warmup, In Progress, Final, etc. Look up possible values using the meta endpoint with type=gameStatus
-'away': team name for the away team (e.g. Philadelphia Phillies)
-'home': team name for the home team (e.g. Philadelphia Phillies)
+'away_name': team name for the away team (e.g. Philadelphia Phillies)
+'home_name': team name for the home team (e.g. Philadelphia Phillies)
 'away_id': team id for the away team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143
 'home_id': team id for the home team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143
 'doubleheader': indicates if the game is part of a straight doubleheader (Y), a split doubleheader (S), or not part of a doubleheader
@@ -4326,8 +4358,14 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
 'winning_pitcher': full name of the winning pitcher, if the game is final and has a winner (not postponed/tied)
 'losing_pitcher': full name of the losing pitcher, if the game is final and has a winner (not postponed/tied)
 'save_pitcher': full name of the pitcher credited with a save, if the game is final and has a winner (not postponed/tied)
-'summary':  if the game is final, the summary will include "<Date> - <Away Team Name> (<Away Score>) @ <Home Team Name> (<Home Score>)"
-            if the game is not final, the summary will include "<Date> - <Away Team Name> @ <Home Team Name> (<Game Status>)"</p>
+'home_probable_pitcher': full name of the probable pitcher for the home team, if available
+'away_probable_pitcher': full name of the probable pitcher for the away team, if available
+'home_pitcher_note': pitching report for the home team probable pitcher, if available
+'away_pitcher_note': pitching report for the away team probable pitcher, if available
+'current_inning': current inning (applies best to in-progress games)
+'inning_state': state of current inning: top, middle, bottom, end (applies best to in-progress games)
+'summary':  if the game is final or in progress, the summary will include "<Date> - <Away Team Name> (<Away Score>) @ <Home Team Name> (<Home Score>) (<Game Status>)"
+            if the game has not started yet, the summary will include "<Date> - <Away Team Name> @ <Home Team Name> (<Game Status>)"</p>
 <p>Example use:</p>
 <p>Games between Phillies and Mets in July 2018:</p>
 <p>games = statsapi.schedule(start_date='07/01/2018',end_date='07/31/2018',team=143,opponent=121)</p>
@@ -4335,10 +4373,10 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
 <p>for x in games:
     print(x['summary'])</p>
 <p>Output:</p>
-<p>2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4)
-2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1)
-2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3)
-2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3)</p>
+<p>2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4) (Final)
+2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1) (Final)
+2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3) (Final)
+2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3) (Final)</p>
 <p>Print a list of decisions for those games:</p>
 <p>for x in games:
     print("%s Game %s - WP: %s, LP: %s" % (x['game_date'],x['game_num'],x['winning_pitcher'],x['losing_pitcher']))</p>
@@ -4350,8 +4388,10 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.schedule', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.schedule" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">team</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">opponent</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">sportId</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">team</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">opponent</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">sportId</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">game_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get list of games for a given date/range and/or team/opponent.</span>
+
+<span class="sd">    Include a game_id to get data for that game.</span>
 
 <span class="sd">    Output will be a list containing a dict for each game. Fields in the dict:</span>
 
@@ -4360,8 +4400,8 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
 <span class="sd">    &#39;game_date&#39;: date of game (YYYY-MM-DD)</span>
 <span class="sd">    &#39;game_type&#39;: Preseason, Regular season, Postseason, etc. Look up possible values using the meta endpoint with type=gameTypes</span>
 <span class="sd">    &#39;status&#39;: Scheduled, Warmup, In Progress, Final, etc. Look up possible values using the meta endpoint with type=gameStatus</span>
-<span class="sd">    &#39;away&#39;: team name for the away team (e.g. Philadelphia Phillies)</span>
-<span class="sd">    &#39;home&#39;: team name for the home team (e.g. Philadelphia Phillies)</span>
+<span class="sd">    &#39;away_name&#39;: team name for the away team (e.g. Philadelphia Phillies)</span>
+<span class="sd">    &#39;home_name&#39;: team name for the home team (e.g. Philadelphia Phillies)</span>
 <span class="sd">    &#39;away_id&#39;: team id for the away team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143</span>
 <span class="sd">    &#39;home_id&#39;: team id for the home team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143</span>
 <span class="sd">    &#39;doubleheader&#39;: indicates if the game is part of a straight doubleheader (Y), a split doubleheader (S), or not part of a doubleheader</span>
@@ -4373,8 +4413,14 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
 <span class="sd">    &#39;winning_pitcher&#39;: full name of the winning pitcher, if the game is final and has a winner (not postponed/tied)</span>
 <span class="sd">    &#39;losing_pitcher&#39;: full name of the losing pitcher, if the game is final and has a winner (not postponed/tied)</span>
 <span class="sd">    &#39;save_pitcher&#39;: full name of the pitcher credited with a save, if the game is final and has a winner (not postponed/tied)</span>
-<span class="sd">    &#39;summary&#39;:  if the game is final, the summary will include &quot;&lt;Date&gt; - &lt;Away Team Name&gt; (&lt;Away Score&gt;) @ &lt;Home Team Name&gt; (&lt;Home Score&gt;)&quot;</span>
-<span class="sd">                if the game is not final, the summary will include &quot;&lt;Date&gt; - &lt;Away Team Name&gt; @ &lt;Home Team Name&gt; (&lt;Game Status&gt;)&quot;</span>
+<span class="sd">    &#39;home_probable_pitcher&#39;: full name of the probable pitcher for the home team, if available</span>
+<span class="sd">    &#39;away_probable_pitcher&#39;: full name of the probable pitcher for the away team, if available</span>
+<span class="sd">    &#39;home_pitcher_note&#39;: pitching report for the home team probable pitcher, if available</span>
+<span class="sd">    &#39;away_pitcher_note&#39;: pitching report for the away team probable pitcher, if available</span>
+<span class="sd">    &#39;current_inning&#39;: current inning (applies best to in-progress games)</span>
+<span class="sd">    &#39;inning_state&#39;: state of current inning: top, middle, bottom, end (applies best to in-progress games)</span>
+<span class="sd">    &#39;summary&#39;:  if the game is final or in progress, the summary will include &quot;&lt;Date&gt; - &lt;Away Team Name&gt; (&lt;Away Score&gt;) @ &lt;Home Team Name&gt; (&lt;Home Score&gt;) (&lt;Game Status&gt;)&quot;</span>
+<span class="sd">                if the game has not started yet, the summary will include &quot;&lt;Date&gt; - &lt;Away Team Name&gt; @ &lt;Home Team Name&gt; (&lt;Game Status&gt;)&quot;</span>
 
 <span class="sd">    Example use:</span>
 
@@ -4389,10 +4435,10 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
 
 <span class="sd">    Output:</span>
 
-<span class="sd">    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4)</span>
-<span class="sd">    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1)</span>
-<span class="sd">    2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3)</span>
-<span class="sd">    2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3)</span>
+<span class="sd">    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4) (Final)</span>
+<span class="sd">    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1) (Final)</span>
+<span class="sd">    2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3) (Final)</span>
+<span class="sd">    2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3) (Final)</span>
 
 <span class="sd">    Print a list of decisions for those games:</span>
 
@@ -4424,7 +4470,9 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
     <span class="k">if</span> <span class="n">opponent</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
         <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;opponentId&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">opponent</span><span class="p">)})</span>
 
-    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;sportId&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">sportId</span><span class="p">),</span> <span class="s1">&#39;hydrate&#39;</span><span class="p">:</span><span class="s1">&#39;decisions&#39;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">game_id</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;gamePks&#39;</span><span class="p">:</span><span class="n">game_id</span><span class="p">})</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;sportId&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">sportId</span><span class="p">),</span> <span class="s1">&#39;hydrate&#39;</span><span class="p">:</span><span class="s1">&#39;decisions,probablePitcher(note),linescore&#39;</span><span class="p">})</span>
 
     <span class="n">r</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s1">&#39;schedule&#39;</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
 
@@ -4440,22 +4488,24 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
                                 <span class="s1">&#39;game_date&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;game_type&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;gameType&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;detailedState&#39;</span><span class="p">],</span>
-                                <span class="s1">&#39;away&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
-                                <span class="s1">&#39;home&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                                <span class="s1">&#39;away_name&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                                <span class="s1">&#39;home_name&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;away_id&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;home_id&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
                                 <span class="s1">&#39;doubleheader&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;doubleHeader&#39;</span><span class="p">],</span>
-                                <span class="s1">&#39;game_num&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;gameNumber&#39;</span><span class="p">]</span>
+                                <span class="s1">&#39;game_num&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;gameNumber&#39;</span><span class="p">],</span>
+                                <span class="s1">&#39;home_probable_pitcher&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probablePitcher&#39;</span><span class="p">,{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;away_probable_pitcher&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probablePitcher&#39;</span><span class="p">,{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;home_pitcher_note&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probablePitcher&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;note&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;away_pitcher_note&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probablePitcher&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;note&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;away_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">,</span><span class="s1">&#39;0&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;home_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">,</span><span class="s1">&#39;0&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;current_inning&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;linescore&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;currentInning&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                <span class="s1">&#39;inning_state&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;linescore&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inningState&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
                             <span class="p">}</span>
-                <span class="k">if</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Final&#39;</span><span class="p">:</span>
-                    <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                                        <span class="s1">&#39;away_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">],</span>
-                                        <span class="s1">&#39;home_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">]</span>
-                                    <span class="p">})</span>
+                <span class="k">if</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Final&#39;</span><span class="p">,</span><span class="s1">&#39;Game Over&#39;</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;isTie&#39;</span><span class="p">):</span>
                         <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                                            <span class="s1">&#39;away_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">],</span>
-                                            <span class="s1">&#39;home_score&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">],</span>
                                             <span class="s1">&#39;winning_team&#39;</span><span class="p">:</span> <span class="s1">&#39;Tie&#39;</span><span class="p">,</span>
                                             <span class="s1">&#39;losing_Team&#39;</span><span class="p">:</span> <span class="s1">&#39;Tie&#39;</span>
                                         <span class="p">})</span>
@@ -4467,8 +4517,12 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
                                             <span class="s1">&#39;losing_pitcher&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;decisions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;loser&#39;</span><span class="p">,{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
                                             <span class="s1">&#39;save_pitcher&#39;</span><span class="p">:</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;decisions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fullName&#39;</span><span class="p">)</span>
                                         <span class="p">})</span>
-                    <span class="n">summary</span> <span class="o">=</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) @ &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+                    <span class="n">summary</span> <span class="o">=</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) @ &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) (&#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;detailedState&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
                     <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;summary&#39;</span><span class="p">:</span> <span class="n">summary</span><span class="p">})</span>
+                <span class="k">elif</span> <span class="n">game_info</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;In Progress&#39;</span><span class="p">:</span>
+                    <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                                        <span class="s1">&#39;summary&#39;</span><span class="p">:</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) @ &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;) (&#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;linescore&#39;</span><span class="p">][</span><span class="s1">&#39;inningState&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; of the &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;linescore&#39;</span><span class="p">][</span><span class="s1">&#39;currentInningOrdinal&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+                                    <span class="p">})</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">summary</span> <span class="o">=</span> <span class="n">date</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;away&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; @ &#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">][</span><span class="s1">&#39;home&#39;</span><span class="p">][</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="n">game</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;detailedState&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
                     <span class="n">game_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;summary&#39;</span><span class="p">:</span> <span class="n">summary</span><span class="p">})</span>
@@ -4486,14 +4540,15 @@ Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
       
   <div class="item">
     <div class="name def" id="statsapi.standings">
-    <p>def <span class="ident">standings</span>(</p><p>leagueId=None, season=None, standingsTypes=None, date=None)</p>
+    <p>def <span class="ident">standings</span>(</p><p>leagueId=&#39;103,104&#39;, division=&#39;all&#39;, include_wildcard=True, season=None, standingsTypes=None, date=None)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Get formatted standings for a given league and season.
-Will include division and wildcard standings </p>
+    <div class="desc"><p>Get formatted standings for a given league/division and season.</p>
+<p>Using both leagueId and divisionId is fine, as long as the division belongs to the specified league</p>
+<p>Return value will be a formatted table including division and wildcard standings, unless include_wildcard=False</p>
 <p>Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p>
 <p>Example use:</p>
 <p>Print National League standings from 09/27/2008</p>
@@ -4524,9 +4579,12 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.standings', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.standings" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">standings</span><span class="p">(</span><span class="n">leagueId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">season</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">standingsTypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get formatted standings for a given league and season.</span>
-<span class="sd">    Will include division and wildcard standings </span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">standings</span><span class="p">(</span><span class="n">leagueId</span><span class="o">=</span><span class="s1">&#39;103,104&#39;</span><span class="p">,</span><span class="n">division</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span><span class="n">include_wildcard</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">season</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">standingsTypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get formatted standings for a given league/division and season.</span>
+
+<span class="sd">    Using both leagueId and divisionId is fine, as long as the division belongs to the specified league</span>
+
+<span class="sd">    Return value will be a formatted table including division and wildcard standings, unless include_wildcard=False</span>
 <span class="sd">    </span>
 <span class="sd">    Format for date = &#39;MM/DD/YYYY&#39;, e.g. &#39;04/24/2019&#39;</span>
 
@@ -4564,7 +4622,6 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
 <span class="sd">     5   Washington Nationals  59  101 31.5  E     13    29.5   E</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">leagueId</span><span class="p">:</span> <span class="n">leagueId</span> <span class="o">=</span> <span class="s1">&#39;103,104&#39;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;leagueId&#39;</span><span class="p">:</span><span class="n">leagueId</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">date</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;date&#39;</span><span class="p">:</span><span class="n">date</span><span class="p">})</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">season</span><span class="p">:</span>
@@ -4574,7 +4631,6 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
             <span class="n">season</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">standingsTypes</span><span class="p">:</span> <span class="n">standingsTypes</span> <span class="o">=</span> <span class="s1">&#39;regularSeason&#39;</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;season&#39;</span><span class="p">:</span><span class="n">season</span><span class="p">,</span><span class="s1">&#39;standingsTypes&#39;</span><span class="p">:</span><span class="n">standingsTypes</span><span class="p">})</span>
-    <span class="k">if</span> <span class="n">leagueId</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;leagueId&#39;</span><span class="p">:</span><span class="n">leagueId</span><span class="p">})</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;hydrate&#39;</span><span class="p">:</span><span class="s1">&#39;team(division)&#39;</span><span class="p">,</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span><span class="s1">&#39;records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses&#39;</span><span class="p">})</span>
 
     <span class="n">r</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s1">&#39;standings&#39;</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
@@ -4583,7 +4639,7 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
     <span class="n">divisions</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;records&#39;</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span><span class="p">[</span><span class="s1">&#39;teamRecords&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span><span class="p">[</span><span class="s1">&#39;teamRecords&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">division</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;all&#39;</span> <span class="ow">or</span> <span class="n">division</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;division&#39;</span><span class="p">][</span><span class="s1">&#39;abbreviation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;division&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">divisions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">divisions</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;division&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]:{</span><span class="s1">&#39;div_name&#39;</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;team&#39;</span><span class="p">][</span><span class="s1">&#39;division&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="s1">&#39;teams&#39;</span><span class="p">:[]}})</span>
             <span class="n">team</span> <span class="o">=</span>  <span class="p">{</span>
@@ -4601,9 +4657,14 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
 
     <span class="k">for</span> <span class="n">div_id</span><span class="p">,</span><span class="n">div</span> <span class="ow">in</span> <span class="n">divisions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">standings</span> <span class="o">+=</span> <span class="n">div</span><span class="p">[</span><span class="s1">&#39;div_name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{:^4} {:&lt;21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="s1">&#39;Rank&#39;</span><span class="p">,</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="s1">&#39;GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">,</span><span class="s1">&#39;WC Rank&#39;</span><span class="p">,</span><span class="s1">&#39;WC GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">div</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">]:</span>
-            <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{div_rank:^4} {name:&lt;21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_wildcard</span><span class="p">:</span>
+            <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{:^4} {:&lt;21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="s1">&#39;Rank&#39;</span><span class="p">,</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="s1">&#39;GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">,</span><span class="s1">&#39;WC Rank&#39;</span><span class="p">,</span><span class="s1">&#39;WC GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">div</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">]:</span>
+                <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{div_rank:^4} {name:&lt;21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{:^4} {:&lt;21} {:^3} {:^3} {:^4} {:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="s1">&#39;Rank&#39;</span><span class="p">,</span><span class="s1">&#39;Team&#39;</span><span class="p">,</span><span class="s1">&#39;W&#39;</span><span class="p">,</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="s1">&#39;GB&#39;</span><span class="p">,</span><span class="s1">&#39;(E#)&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">div</span><span class="p">[</span><span class="s1">&#39;teams&#39;</span><span class="p">]:</span>
+                <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;{div_rank:^4} {name:&lt;21} {w:^3} {l:^3} {gb:^4} {elim_num:^4}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">t</span><span class="p">)</span>
         <span class="n">standings</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
 
     <span class="k">return</span> <span class="n">standings</span>
@@ -4682,6 +4743,19 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
   
 
 
+    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+      <div class="item">
+      <p class="name"><a href="endpoints.m.html">statsapi.endpoints</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="version.m.html">statsapi.version</a></p>
+      
+  
+
+      </div>
   </section>
 
     </article>
