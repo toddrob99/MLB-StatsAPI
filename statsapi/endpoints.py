@@ -960,8 +960,9 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['season','sportIds','statGroup','gameType','stats','order','sortStat','fields'],
-                                                    'required_params': [['season','statGroup']]
+                                                    'query_params': ['season','sportIds','group','gameType','stats','order','sortStat','fields'],
+                                                    'required_params': [['season','group','stats']],
+                                                    'note': 'Use meta(\'statGroups\') to look up valid values for group, and meta(\'statTypes\') for valid values for stats.'
                                                 },
                 'teams_affiliates':             {
                                                     'url': BASE_URL + '{ver}/teams/affiliates',
