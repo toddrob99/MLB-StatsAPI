@@ -145,8 +145,8 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
                                 'away_pitcher_note': game['teams']['away'].get('probablePitcher',{}).get('note',''),
                                 'away_score': game['teams']['away'].get('score','0'),
                                 'home_score': game['teams']['home'].get('score','0'),
-                                'current_inning': game['linescore'].get('currentInning',''),
-                                'inning_state': game['linescore'].get('inningState','')
+                                'current_inning': game.get('linescore',{}).get('currentInning',''),
+                                'inning_state': game.get('linescore',{}).get('inningState','')
                             }
                 if game_info['status'] in ['Final','Game Over']:
                     if game.get('isTie'):
