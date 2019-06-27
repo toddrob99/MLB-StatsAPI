@@ -158,9 +158,9 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
                         game_info.update({
                                             'winning_team': game['teams']['away']['team']['name'] if game['teams']['away'].get('isWinner') else game['teams']['home']['team']['name'],
                                             'losing_team': game['teams']['home']['team']['name'] if game['teams']['away'].get('isWinner') else game['teams']['away']['team']['name'],
-                                            'winning_pitcher': game['decisions'].get('winner',{}).get('fullName',''),
-                                            'losing_pitcher': game['decisions'].get('loser',{}).get('fullName',''),
-                                            'save_pitcher': game['decisions'].get('save',{}).get('fullName')
+                                            'winning_pitcher': game.get('decisions',{}).get('winner',{}).get('fullName',''),
+                                            'losing_pitcher': game.get('decisions',{}).get('loser',{}).get('fullName',''),
+                                            'save_pitcher': game.get('decisions',{}).get('save',{}).get('fullName')
                                         })
                     summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' (' + str(game['teams']['away']['score']) + ') @ ' + game['teams']['home']['team']['name'] + ' (' + str(game['teams']['home']['score']) + ') (' + game['status']['detailedState'] + ')'
                     game_info.update({'summary': summary})
