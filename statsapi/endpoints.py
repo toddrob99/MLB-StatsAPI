@@ -875,7 +875,7 @@ ENDPOINTS = {
                                                                                     }
                                                                     },
                                                     'query_params': ['leagueId','season','standingsTypes','date','hydrate','fields'],
-                                                    'required_params': [['leagueId','season']]
+                                                    'required_params': [['leagueId']]
                                                 },
                 'stats':                        {
                                                     'url': BASE_URL + '{ver}/stats',
