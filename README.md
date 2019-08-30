@@ -33,17 +33,27 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.boxscore()` - generate a formatted boxscore for a given game
 
+* `statsapi.boxscore_data()` - generate a dict containing boxscore data for a given game
+
 * `statsapi.linescore()` - generate a formatted linescore for a given game
 
 * `statsapi.roster()` - generate a formatted list of players on a team's roster
 
 * `statsapi.standings()` - generate a formatted list of standings for a given league/date
 
+* `statsapi.standings_data()` - returns a python list of standings data for a given league/date
+
 * `statsapi.team_leaders()` - generate a formatted list of a team's leaders for a given stat
 
-* `statsapi.league_leaders()` - generate a formatted list of stat leaders for all-time (single season) or a given season
+* `statsapi.team_leader_data()` - returns a python list of a team's leader data for a given stat
+
+* `statsapi.league_leaders()` - generate a formatted list of stat leaders for current or specified season
+
+* `statsapi.league_leader_data()` - returns python list of stat leader data for current or specified season
 
 * `statsapi.player_stats()` - generate a formatted list of a player's career or season stats
+
+* `statsapi.player_stat_data()` - returns a python dict of a player's career or season stats, along with some biographical information
 
 * `statsapi.last_game()` - get the game id for the given team's most recent game
 
@@ -51,9 +61,15 @@ If you install manually, be sure to also install requests.
 
 * `statsapi.game_highlights()` - generate a formatted list of highlights with video links for a given game
 
+* `statsapi.game_highlight_data()` - returns a python list of highlight data, including video links, for a given game
+
 * `statsapi.game_pace()` - generate a formatted list of pace of game information for a given season (back to 1999)
 
+* `statsapi.game_pace_data()` - returns a python dict of pace of game information for a given season (back to 1999)
+
 * `statsapi.game_scoring_plays()` - generate a formatted list of scoring plays for a given game
+
+* `statsapi.game_scoring_play_data()` - returns a python dict of scoring play data for a given game
 
 ## Example Use
 
@@ -87,7 +103,7 @@ feed the opening day date into `statsapi.roster()`.
 print('Phillies 40-man roster on opening day of the 2018 season:\n%s' % statsapi.roster(143,'40Man',date=statsapi.get('season',{'seasonId':2018,'sportId':1})['seasons'][0]['regularSeasonStartDate']))
 ```
 
-### Print the boxscore and linescore from the A's most recent game (which may be in progress)
+### Print the boxscore and linescore from the A's most recent game (which may be in progress or may not have started yet based on MLB response to 'last game' request)
 
 Use `statsapi.last_game()` to retrieve the most recent A's game
 and feed the gamePk into `statsapi.boxscore()` and `statsapi.linescore()`.
@@ -124,12 +140,12 @@ Use `statsapi.team_leaders()`
 print(statsapi.team_leaders(143,'walks',limit=5,season=2008))
 ```
 
-### Print the top 10 all time single season leaders in doubles
+### Print the top 10 all time career leaders in doubles (NOTE: The extra 8949 records come back in the data from MLB)
 
 use `statsapi.league_leaders()`
 
 ```
-print(statsapi.league_leaders('doubles',statGroup='hitting',limit=10))
+print(statsapi.league_leaders('doubles',statGroup='hitting',statType='career',limit=10))
 ```
 
 ### Print Chase Utley's career hitting stats

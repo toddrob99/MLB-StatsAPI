@@ -888,7 +888,7 @@ ENDPOINTS = {
                                                                                         'required': True
                                                                                     }
                                                                     },
-                                                    'query_params': ['stats','playerPool','position','teamId','leagueId','limit','offset','group','gameType','season','sportIds','sortStat','order','hydrate','fields'],
+                                                    'query_params': ['stats','playerPool','position','teamId','leagueId','limit','offset','group','gameType','season','sportIds','sortStat','order','hydrate','fields','personId','metrics'],
                                                     'required_params': [['stats','group']]
                                                 },
                 'stats_leaders':                {
