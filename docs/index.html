@@ -1559,7 +1559,7 @@ table {
     <span class="k">return</span> <span class="n">boxscore</span>
 
 <span class="k">def</span> <span class="nf">boxscore_data</span><span class="p">(</span><span class="n">gamePk</span><span class="p">,</span><span class="n">timecode</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a python dict containing boxscore data for a given game.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a python dict containing boxscore data for a given game.</span>
 
 <span class="sd">    Note: This function uses the game endpoint instead of game_box,</span>
 <span class="sd">    because game_box does not contain the players&#39; names as they should be </span>
@@ -1853,7 +1853,7 @@ table {
     <span class="k">return</span> <span class="n">scoring_plays</span>
 
 <span class="k">def</span> <span class="nf">game_scoring_play_data</span><span class="p">(</span><span class="n">gamePk</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a python list of scoring plays for a given game.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a python list of scoring plays for a given game.</span>
 <span class="sd">    </span>
 <span class="sd">    Will return a dict containing 3 keys:</span>
 <span class="sd">    </span>
@@ -1909,7 +1909,7 @@ table {
     <span class="k">return</span> <span class="n">highlights</span>
 
 <span class="k">def</span> <span class="nf">game_highlight_data</span><span class="p">(</span><span class="n">gamePk</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a list of highlight data for a given game</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of highlight data for a given game</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s1">&#39;schedule&#39;</span><span class="p">,{</span><span class="s1">&#39;sportId&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;gamePk&#39;</span><span class="p">:</span><span class="n">gamePk</span><span class="p">,</span><span class="s1">&#39;hydrate&#39;</span><span class="p">:</span><span class="s1">&#39;game(content(highlights(highlights)))&#39;</span><span class="p">,</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span><span class="s1">&#39;dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url&#39;</span><span class="p">})</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;dates&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;games&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;content&#39;</span><span class="p">][</span><span class="s1">&#39;highlights&#39;</span><span class="p">][</span><span class="s1">&#39;highlights&#39;</span><span class="p">][</span><span class="s1">&#39;items&#39;</span><span class="p">]):</span> <span class="k">return</span> <span class="s1">&#39;&#39;</span>
@@ -1995,7 +1995,7 @@ table {
     <span class="k">return</span> <span class="n">pace</span>
 
 <span class="k">def</span> <span class="nf">game_pace_data</span><span class="p">(</span><span class="n">season</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span><span class="n">sportId</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get data about pace of game for a given season (back to 1999).</span>
+    <span class="sd">&quot;&quot;&quot;Returns data about pace of game for a given season (back to 1999).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">season</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;season&#39;</span><span class="p">:</span><span class="n">season</span><span class="p">})</span>
@@ -2080,7 +2080,7 @@ table {
     <span class="k">return</span> <span class="n">stats</span>
 
 <span class="k">def</span> <span class="nf">player_stat_data</span><span class="p">(</span><span class="n">personId</span><span class="p">,</span><span class="n">group</span><span class="o">=</span><span class="s1">&#39;[hitting,pitching,fielding]&#39;</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;season&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get current season or career stat data for a given player.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of current season or career stat data for a given player.</span>
 
 <span class="sd">    For group use &#39;hitting&#39;, &#39;pitching&#39;, or &#39;fielding&#39;.</span>
 <span class="sd">    Include multiple groups in the following format (this is a string, not actually a list):</span>
@@ -2235,24 +2235,9 @@ table {
     <span class="k">return</span> <span class="n">leaders</span>
 
 <span class="k">def</span> <span class="nf">team_leader_data</span><span class="p">(</span><span class="n">teamId</span><span class="p">,</span><span class="n">leaderCategories</span><span class="p">,</span><span class="n">season</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span><span class="n">leaderGameTypes</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get stat leaders for a given team.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a python list of stat leader data for a given team.</span>
 
 <span class="sd">    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes</span>
-
-<span class="sd">    Example use:</span>
-
-<span class="sd">    Print the top 5 team leaders in walks for the 2008 Phillies</span>
-
-<span class="sd">    print(statsapi.team_leaders(143,&#39;walks&#39;,limit=5,season=2008))</span>
-
-<span class="sd">    Output:</span>
-
-<span class="sd">    Rank Name                 Value</span>
-<span class="sd">     1   Pat Burrell           102</span>
-<span class="sd">     2   Ryan Howard           81</span>
-<span class="sd">     3   Chase Utley           64</span>
-<span class="sd">     4   Jimmy Rollins         58</span>
-<span class="sd">     5   Jayson Werth          57</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;leaderCategories&#39;</span><span class="p">:</span><span class="n">leaderCategories</span><span class="p">,</span><span class="s1">&#39;season&#39;</span><span class="p">:</span><span class="n">season</span><span class="p">,</span><span class="s1">&#39;teamId&#39;</span><span class="p">:</span><span class="n">teamId</span><span class="p">,</span><span class="s1">&#39;leaderGameTypes&#39;</span><span class="p">:</span><span class="n">leaderGameTypes</span><span class="p">,</span><span class="s1">&#39;limit&#39;</span><span class="p">:</span><span class="n">limit</span><span class="p">}</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;fields&#39;</span> <span class="p">:</span> <span class="s1">&#39;teamLeaders,leaders,rank,value,person,fullName&#39;</span><span class="p">})</span>
@@ -2369,7 +2354,7 @@ table {
 <span class="sd">    despite this appearing in the documentation as a best practice for all time leaders.</span>
 <span class="sd">    Be sure to specify a season or statType such as &#39;career&#39;, or you will get current season leaders by default.</span>
 <span class="sd">    </span>
-<span class="sd">    Get a list of stat leaders overall or for a given league (103=AL, 104=NL).</span>
+<span class="sd">    Returns a python list of stat leaders overall or for a given league (103=AL, 104=NL).</span>
 
 <span class="sd">    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes</span>
 
@@ -2465,7 +2450,7 @@ table {
     <span class="k">return</span> <span class="n">standings</span>
 
 <span class="k">def</span> <span class="nf">standings_data</span><span class="p">(</span><span class="n">leagueId</span><span class="o">=</span><span class="s1">&#39;103,104&#39;</span><span class="p">,</span><span class="n">division</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span><span class="n">include_wildcard</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">season</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">standingsTypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a dict of standings data for a given league/division and season.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a dict of standings data for a given league/division and season.</span>
 
 <span class="sd">    Using both leagueId and divisionId is fine, as long as the division belongs to the specified league</span>
 
@@ -3130,7 +3115,7 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
 
     
   
-    <div class="desc"><p>Get a python dict containing boxscore data for a given game.</p>
+    <div class="desc"><p>Returns a python dict containing boxscore data for a given game.</p>
 <p>Note: This function uses the game endpoint instead of game_box,
 because game_box does not contain the players' names as they should be 
 displayed in the box score (e.g. Last name only or Last, F)</p>
@@ -3143,7 +3128,7 @@ statsapi.get('game_timestamps',{'gamePk':565997})</p></div>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.boxscore_data', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.boxscore_data" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">boxscore_data</span><span class="p">(</span><span class="n">gamePk</span><span class="p">,</span><span class="n">timecode</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a python dict containing boxscore data for a given game.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a python dict containing boxscore data for a given game.</span>
 
 <span class="sd">    Note: This function uses the game endpoint instead of game_box,</span>
 <span class="sd">    because game_box does not contain the players&#39; names as they should be </span>
@@ -3340,12 +3325,12 @@ statsapi.get('game_timestamps',{'gamePk':565997})</p></div>
 
     
   
-    <div class="desc"><p>Get a list of highlight data for a given game</p></div>
+    <div class="desc"><p>Returns a list of highlight data for a given game</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.game_highlight_data', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.game_highlight_data" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">game_highlight_data</span><span class="p">(</span><span class="n">gamePk</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a list of highlight data for a given game</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of highlight data for a given game</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s1">&#39;schedule&#39;</span><span class="p">,{</span><span class="s1">&#39;sportId&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;gamePk&#39;</span><span class="p">:</span><span class="n">gamePk</span><span class="p">,</span><span class="s1">&#39;hydrate&#39;</span><span class="p">:</span><span class="s1">&#39;game(content(highlights(highlights)))&#39;</span><span class="p">,</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span><span class="s1">&#39;dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url&#39;</span><span class="p">})</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;dates&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;games&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;content&#39;</span><span class="p">][</span><span class="s1">&#39;highlights&#39;</span><span class="p">][</span><span class="s1">&#39;highlights&#39;</span><span class="p">][</span><span class="s1">&#39;items&#39;</span><span class="p">]):</span> <span class="k">return</span> <span class="s1">&#39;&#39;</span>
@@ -3567,12 +3552,12 @@ timePerExtraInnGame: 03:43:36</p></div>
 
     
   
-    <div class="desc"><p>Get data about pace of game for a given season (back to 1999).</p></div>
+    <div class="desc"><p>Returns data about pace of game for a given season (back to 1999).</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.game_pace_data', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.game_pace_data" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">game_pace_data</span><span class="p">(</span><span class="n">season</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span><span class="n">sportId</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get data about pace of game for a given season (back to 1999).</span>
+    <span class="sd">&quot;&quot;&quot;Returns data about pace of game for a given season (back to 1999).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">season</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;season&#39;</span><span class="p">:</span><span class="n">season</span><span class="p">})</span>
@@ -3600,7 +3585,7 @@ timePerExtraInnGame: 03:43:36</p></div>
 
     
   
-    <div class="desc"><p>Get a python list of scoring plays for a given game.</p>
+    <div class="desc"><p>Returns a python list of scoring plays for a given game.</p>
 <p>Will return a dict containing 3 keys:</p>
 <ul>
 <li>home - home team data</li>
@@ -3611,7 +3596,7 @@ timePerExtraInnGame: 03:43:36</p></div>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.game_scoring_play_data', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.game_scoring_play_data" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">game_scoring_play_data</span><span class="p">(</span><span class="n">gamePk</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a python list of scoring plays for a given game.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a python list of scoring plays for a given game.</span>
 <span class="sd">    </span>
 <span class="sd">    Will return a dict containing 3 keys:</span>
 <span class="sd">    </span>
@@ -3864,7 +3849,7 @@ Note: Sometimes Stats API will actually return the next game in the previousSche
     <div class="desc"><p>NOTE: StatsAPI does not appear to be supporting the statType=statsSingleSeason at this time,
 despite this appearing in the documentation as a best practice for all time leaders.
 Be sure to specify a season or statType such as 'career', or you will get current season leaders by default.</p>
-<p>Get a list of stat leaders overall or for a given league (103=AL, 104=NL).</p>
+<p>Returns a python list of stat leaders overall or for a given league (103=AL, 104=NL).</p>
 <p>Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes</p>
 <p>Get a list of available statGroups by calling the meta endpoint with type=statGroups
 Note that excluding statGroup may return unexpected results. For example leaderCategories='earnedRunAverage'
@@ -3880,7 +3865,7 @@ will return different results with statGroup='pitching' and statGroup='catching'
 <span class="sd">    despite this appearing in the documentation as a best practice for all time leaders.</span>
 <span class="sd">    Be sure to specify a season or statType such as &#39;career&#39;, or you will get current season leaders by default.</span>
 <span class="sd">    </span>
-<span class="sd">    Get a list of stat leaders overall or for a given league (103=AL, 104=NL).</span>
+<span class="sd">    Returns a python list of stat leaders overall or for a given league (103=AL, 104=NL).</span>
 
 <span class="sd">    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes</span>
 
@@ -4494,7 +4479,7 @@ https://statsapi.mlb.com/api/v1/teams/143?hydrate=league</p>
 
     
   
-    <div class="desc"><p>Get current season or career stat data for a given player.</p>
+    <div class="desc"><p>Returns a list of current season or career stat data for a given player.</p>
 <p>For group use 'hitting', 'pitching', or 'fielding'.
 Include multiple groups in the following format (this is a string, not actually a list):
 group='[hitting,pitching]'</p>
@@ -4505,7 +4490,7 @@ group='[career,season]'</p></div>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.player_stat_data', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.player_stat_data" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">player_stat_data</span><span class="p">(</span><span class="n">personId</span><span class="p">,</span><span class="n">group</span><span class="o">=</span><span class="s1">&#39;[hitting,pitching,fielding]&#39;</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;season&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get current season or career stat data for a given player.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of current season or career stat data for a given player.</span>
 
 <span class="sd">    For group use &#39;hitting&#39;, &#39;pitching&#39;, or &#39;fielding&#39;.</span>
 <span class="sd">    Include multiple groups in the following format (this is a string, not actually a list):</span>
@@ -5118,7 +5103,7 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
 
     
   
-    <div class="desc"><p>Get a dict of standings data for a given league/division and season.</p>
+    <div class="desc"><p>Returns a dict of standings data for a given league/division and season.</p>
 <p>Using both leagueId and divisionId is fine, as long as the division belongs to the specified league</p>
 <p>Return value will be a dict including division and wildcard standings, unless include_wildcard=False</p>
 <p>Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'</p></div>
@@ -5126,7 +5111,7 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.standings_data', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.standings_data" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">standings_data</span><span class="p">(</span><span class="n">leagueId</span><span class="o">=</span><span class="s1">&#39;103,104&#39;</span><span class="p">,</span><span class="n">division</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span><span class="n">include_wildcard</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">season</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">standingsTypes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a dict of standings data for a given league/division and season.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a dict of standings data for a given league/division and season.</span>
 
 <span class="sd">    Using both leagueId and divisionId is fine, as long as the division belongs to the specified league</span>
 
@@ -5184,40 +5169,15 @@ Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
 
     
   
-    <div class="desc"><p>Get stat leaders for a given team.</p>
-<p>Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes</p>
-<p>Example use:</p>
-<p>Print the top 5 team leaders in walks for the 2008 Phillies</p>
-<p>print(statsapi.team_leaders(143,'walks',limit=5,season=2008))</p>
-<p>Output:</p>
-<p>Rank Name                 Value
- 1   Pat Burrell           102
- 2   Ryan Howard           81
- 3   Chase Utley           64
- 4   Jimmy Rollins         58
- 5   Jayson Werth          57</p></div>
+    <div class="desc"><p>Returns a python list of stat leader data for a given team.</p>
+<p>Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-statsapi.team_leader_data', this);">Show source &equiv;</a></p>
   <div id="source-statsapi.team_leader_data" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">team_leader_data</span><span class="p">(</span><span class="n">teamId</span><span class="p">,</span><span class="n">leaderCategories</span><span class="p">,</span><span class="n">season</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span><span class="n">leaderGameTypes</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">,</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get stat leaders for a given team.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a python list of stat leader data for a given team.</span>
 
 <span class="sd">    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes</span>
-
-<span class="sd">    Example use:</span>
-
-<span class="sd">    Print the top 5 team leaders in walks for the 2008 Phillies</span>
-
-<span class="sd">    print(statsapi.team_leaders(143,&#39;walks&#39;,limit=5,season=2008))</span>
-
-<span class="sd">    Output:</span>
-
-<span class="sd">    Rank Name                 Value</span>
-<span class="sd">     1   Pat Burrell           102</span>
-<span class="sd">     2   Ryan Howard           81</span>
-<span class="sd">     3   Chase Utley           64</span>
-<span class="sd">     4   Jimmy Rollins         58</span>
-<span class="sd">     5   Jayson Werth          57</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;leaderCategories&#39;</span><span class="p">:</span><span class="n">leaderCategories</span><span class="p">,</span><span class="s1">&#39;season&#39;</span><span class="p">:</span><span class="n">season</span><span class="p">,</span><span class="s1">&#39;teamId&#39;</span><span class="p">:</span><span class="n">teamId</span><span class="p">,</span><span class="s1">&#39;leaderGameTypes&#39;</span><span class="p">:</span><span class="n">leaderGameTypes</span><span class="p">,</span><span class="s1">&#39;limit&#39;</span><span class="p">:</span><span class="n">limit</span><span class="p">}</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;fields&#39;</span> <span class="p">:</span> <span class="s1">&#39;teamLeaders,leaders,rank,value,person,fullName&#39;</span><span class="p">})</span>

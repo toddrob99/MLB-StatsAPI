@@ -440,7 +440,7 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
     return boxscore
 
 def boxscore_data(gamePk,timecode=None):
-    """Get a python dict containing boxscore data for a given game.
+    """Returns a python dict containing boxscore data for a given game.
 
     Note: This function uses the game endpoint instead of game_box,
     because game_box does not contain the players' names as they should be 
@@ -734,7 +734,7 @@ def game_scoring_plays(gamePk):
     return scoring_plays
 
 def game_scoring_play_data(gamePk):
-    """Get a python list of scoring plays for a given game.
+    """Returns a python list of scoring plays for a given game.
     
     Will return a dict containing 3 keys:
     
@@ -790,7 +790,7 @@ def game_highlights(gamePk):
     return highlights
 
 def game_highlight_data(gamePk):
-    """Get a list of highlight data for a given game
+    """Returns a list of highlight data for a given game
     """
     r = get('schedule',{'sportId':1,'gamePk':gamePk,'hydrate':'game(content(highlights(highlights)))','fields':'dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url'})
     if not len(r['dates'][0]['games'][0]['content']['highlights']['highlights']['items']): return ''
@@ -876,7 +876,7 @@ def game_pace(season=datetime.now().year,sportId=1):
     return pace
 
 def game_pace_data(season=datetime.now().year,sportId=1):
-    """Get data about pace of game for a given season (back to 1999).
+    """Returns data about pace of game for a given season (back to 1999).
     """
     params = {}
     if season: params.update({'season':season})
@@ -961,7 +961,7 @@ def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
     return stats
 
 def player_stat_data(personId,group='[hitting,pitching,fielding]',type='season'):
-    """Get current season or career stat data for a given player.
+    """Returns a list of current season or career stat data for a given player.
 
     For group use 'hitting', 'pitching', or 'fielding'.
     Include multiple groups in the following format (this is a string, not actually a list):
@@ -1116,24 +1116,9 @@ def team_leaders(teamId,leaderCategories,season=datetime.now().year,leaderGameTy
     return leaders
 
 def team_leader_data(teamId,leaderCategories,season=datetime.now().year,leaderGameTypes='R',limit=10):
-    """Get stat leaders for a given team.
+    """Returns a python list of stat leader data for a given team.
 
     Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
-
-    Example use:
-
-    Print the top 5 team leaders in walks for the 2008 Phillies
-
-    print(statsapi.team_leaders(143,'walks',limit=5,season=2008))
-
-    Output:
-
-    Rank Name                 Value
-     1   Pat Burrell           102
-     2   Ryan Howard           81
-     3   Chase Utley           64
-     4   Jimmy Rollins         58
-     5   Jayson Werth          57
     """
     params = {'leaderCategories':leaderCategories,'season':season,'teamId':teamId,'leaderGameTypes':leaderGameTypes,'limit':limit}
     params.update({'fields' : 'teamLeaders,leaders,rank,value,person,fullName'})
@@ -1250,7 +1235,7 @@ def league_leader_data(leaderCategories,season=None,limit=10,statGroup=None,leag
     despite this appearing in the documentation as a best practice for all time leaders.
     Be sure to specify a season or statType such as 'career', or you will get current season leaders by default.
     
-    Get a list of stat leaders overall or for a given league (103=AL, 104=NL).
+    Returns a python list of stat leaders overall or for a given league (103=AL, 104=NL).
 
     Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
 
@@ -1346,7 +1331,7 @@ def standings(leagueId='103,104',division='all',include_wildcard=True,season=Non
     return standings
 
 def standings_data(leagueId='103,104',division='all',include_wildcard=True,season=None,standingsTypes=None,date=None):
-    """Get a dict of standings data for a given league/division and season.
+    """Returns a dict of standings data for a given league/division and season.
 
     Using both leagueId and divisionId is fine, as long as the division belongs to the specified league
 
