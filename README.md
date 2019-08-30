@@ -103,7 +103,7 @@ feed the opening day date into `statsapi.roster()`.
 print('Phillies 40-man roster on opening day of the 2018 season:\n%s' % statsapi.roster(143,'40Man',date=statsapi.get('season',{'seasonId':2018,'sportId':1})['seasons'][0]['regularSeasonStartDate']))
 ```
 
-### Print the boxscore and linescore from the A's most recent game (which may be in progress)
+### Print the boxscore and linescore from the A's most recent game (which may be in progress or may not have started yet based on MLB response to 'last game' request)
 
 Use `statsapi.last_game()` to retrieve the most recent A's game
 and feed the gamePk into `statsapi.boxscore()` and `statsapi.linescore()`.
@@ -140,7 +140,7 @@ Use `statsapi.team_leaders()`
 print(statsapi.team_leaders(143,'walks',limit=5,season=2008))
 ```
 
-### Print the top 10 all time career leaders in doubles
+### Print the top 10 all time career leaders in doubles (NOTE: The extra 8949 records come back in the data from MLB)
 
 use `statsapi.league_leaders()`
 
