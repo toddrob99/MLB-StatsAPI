@@ -456,7 +456,7 @@ def boxscore_data(gamePk,timecode=None):
     boxData = {}
     """boxData holds the dict to be returned"""
 
-    params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,era,battingOrder,info,title,fieldList,note,label,value'}
+    params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,obp,slg,era,pitchesThrown,strikes,battingOrder,info,title,fieldList,note,label,value'}
     if timecode: params.update({'timecode':timecode})
     r = get('game',params)
 
@@ -465,7 +465,7 @@ def boxscore_data(gamePk,timecode=None):
     boxData.update({'away':r['liveData']['boxscore']['teams']['away']})
     boxData.update({'home':r['liveData']['boxscore']['teams']['home']})
     #Add away column headers
-    awayBatters = [{'namefield':boxData['teamInfo']['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
+    awayBatters = [{'namefield':boxData['teamInfo']['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['away']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG'}]
     for batterId_int in [x for x in boxData['away']['batters'] if boxData['away']['players']['ID'+str(x)].get('battingOrder')]:
         batterId = str(batterId_int)
         namefield = str(boxData['away']['players']['ID'+batterId]['battingOrder'])[0] if str(boxData['away']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
@@ -481,12 +481,20 @@ def boxscore_data(gamePk,timecode=None):
                         'k':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['strikeOuts']),
                         'lob':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['leftOnBase']),
                         'avg':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['avg']),
-                        'ops':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['ops'])
+                        'ops':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['ops']),
+                        'personId':batterId_int,
+                        'battingOrder':str(boxData['away']['players']['ID'+batterId]['battingOrder']),
+                        'substitution':False if str(boxData['away']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else True,
+                        'note':boxData['away']['players']['ID'+batterId]['stats']['batting'].get('note',''),
+                        'name':boxData['playerInfo']['ID'+batterId]['boxscoreName'],
+                        'position':boxData['away']['players']['ID'+batterId]['position']['abbreviation'],
+                        'obp':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['obp']),
+                        'slg':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['slg'])
                     }
         awayBatters.append(batter)
 
     #Add home column headers
-    homeBatters = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS'}]
+    homeBatters = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['home']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG'}]
     for batterId_int in [x for x in boxData['home']['batters'] if boxData['home']['players']['ID'+str(x)].get('battingOrder')]:
         batterId = str(batterId_int)
         namefield = str(boxData['home']['players']['ID'+batterId]['battingOrder'])[0] if str(boxData['home']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
@@ -502,7 +510,15 @@ def boxscore_data(gamePk,timecode=None):
                         'k':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['strikeOuts']),
                         'lob':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['leftOnBase']),
                         'avg':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['avg']),
-                        'ops':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['ops'])
+                        'ops':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['ops']),
+                        'personId':batterId_int,
+                        'battingOrder':str(boxData['home']['players']['ID'+batterId]['battingOrder']),
+                        'substitution':False if str(boxData['home']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else True,
+                        'note':boxData['home']['players']['ID'+batterId]['stats']['batting'].get('note',''),
+                        'name':boxData['playerInfo']['ID'+batterId]['boxscoreName'],
+                        'position':boxData['home']['players']['ID'+batterId]['position']['abbreviation'],
+                        'obp':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['obp']),
+                        'slg':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['slg'])
                     }
         homeBatters.append(batter)
 
@@ -520,7 +536,15 @@ def boxscore_data(gamePk,timecode=None):
                             'k':str(boxData['away']['teamStats']['batting']['strikeOuts']),
                             'lob':str(boxData['away']['teamStats']['batting']['leftOnBase']),
                             'avg':'',
-                            'ops':''
+                            'ops':'',
+                            'obp':'',
+                            'slg':'',
+                            'name':'',
+                            'position':'',
+                            'note':'',
+                            'substitution':False,
+                            'battingOrder':'',
+                            'personId':0
                         }})
     #Add home team totals
     boxData.update({'homeBattingTotals': {
@@ -533,7 +557,15 @@ def boxscore_data(gamePk,timecode=None):
                             'k':str(boxData['home']['teamStats']['batting']['strikeOuts']),
                             'lob':str(boxData['home']['teamStats']['batting']['leftOnBase']),
                             'avg':'',
-                            'ops':''
+                            'ops':'',
+                            'obp':'',
+                            'slg':'',
+                            'name':'',
+                            'position':'',
+                            'note':'',
+                            'substitution':False,
+                            'battingOrder':'',
+                            'personId':0
                         }})
 
     #Get batting notes
@@ -563,6 +595,8 @@ def boxscore_data(gamePk,timecode=None):
                         'bb':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['baseOnBalls']),
                         'k':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['strikeOuts']),
                         'hr':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['homeRuns']),
+                        'p':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['pitchesThrown']),
+                        's':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['strikes']),
                         'era':str(boxData['away']['players']['ID'+pitcherId]['seasonStats']['pitching']['era'])
                     }
         awayPitchers.append(pitcher)
@@ -584,6 +618,8 @@ def boxscore_data(gamePk,timecode=None):
                         'bb':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['baseOnBalls']),
                         'k':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['strikeOuts']),
                         'hr':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['homeRuns']),
+                        'p':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['pitchesThrown']),
+                        's':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['strikes']),
                         'era':str(boxData['home']['players']['ID'+pitcherId]['seasonStats']['pitching']['era'])
                     }
         homePitchers.append(pitcher)
@@ -600,6 +636,8 @@ def boxscore_data(gamePk,timecode=None):
                             'bb':str(boxData['away']['teamStats']['pitching']['baseOnBalls']),
                             'k':str(boxData['away']['teamStats']['pitching']['strikeOuts']),
                             'hr':str(boxData['away']['teamStats']['pitching']['homeRuns']),
+                            'p':'',
+                            's':'',
                             'era':''
                         }})
 
@@ -614,6 +652,8 @@ def boxscore_data(gamePk,timecode=None):
                             'bb':str(boxData['home']['teamStats']['pitching']['baseOnBalls']),
                             'k':str(boxData['home']['teamStats']['pitching']['strikeOuts']),
                             'hr':str(boxData['home']['teamStats']['pitching']['homeRuns']),
+                            'p':'',
+                            's':'',
                             'era':''
                         }})
 
