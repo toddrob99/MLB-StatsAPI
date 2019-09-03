@@ -494,7 +494,7 @@ def boxscore_data(gamePk,timecode=None):
         awayBatters.append(batter)
 
     #Add home column headers
-    homeBatters = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['home']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG', 'battingOrder':'}]
+    homeBatters = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['home']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG', 'battingOrder':''}]
     for batterId_int in [x for x in boxData['home']['batters'] if boxData['home']['players']['ID'+str(x)].get('battingOrder')]:
         batterId = str(batterId_int)
         namefield = str(boxData['home']['players']['ID'+batterId]['battingOrder'])[0] if str(boxData['home']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
