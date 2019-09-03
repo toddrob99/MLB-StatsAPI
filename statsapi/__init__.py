@@ -465,7 +465,7 @@ def boxscore_data(gamePk,timecode=None):
     boxData.update({'away':r['liveData']['boxscore']['teams']['away']})
     boxData.update({'home':r['liveData']['boxscore']['teams']['home']})
     #Add away column headers
-    awayBatters = [{'namefield':boxData['teamInfo']['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['away']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG'}]
+    awayBatters = [{'namefield':boxData['teamInfo']['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['away']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG', 'battingOrder':''}]
     for batterId_int in [x for x in boxData['away']['batters'] if boxData['away']['players']['ID'+str(x)].get('battingOrder')]:
         batterId = str(batterId_int)
         namefield = str(boxData['away']['players']['ID'+batterId]['battingOrder'])[0] if str(boxData['away']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
@@ -494,7 +494,7 @@ def boxscore_data(gamePk,timecode=None):
         awayBatters.append(batter)
 
     #Add home column headers
-    homeBatters = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['home']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG'}]
+    homeBatters = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['home']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG', 'battingOrder':''}]
     for batterId_int in [x for x in boxData['home']['batters'] if boxData['home']['players']['ID'+str(x)].get('battingOrder')]:
         batterId = str(batterId_int)
         namefield = str(boxData['home']['players']['ID'+batterId]['battingOrder'])[0] if str(boxData['home']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
@@ -581,7 +581,7 @@ def boxscore_data(gamePk,timecode=None):
 
     #Get pitching box
     #Add away column headers
-    awayPitchers = [{'namefield':boxData['teamInfo']['away']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA'}]
+    awayPitchers = [{'namefield':boxData['teamInfo']['away']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA', 'p':'', 's':''}]
     for pitcherId_int in boxData['away']['pitchers']:
         pitcherId = str(pitcherId_int)
         namefield = boxData['playerInfo']['ID'+pitcherId]['boxscoreName']
@@ -604,7 +604,7 @@ def boxscore_data(gamePk,timecode=None):
     boxData.update({'awayPitchers':awayPitchers})
 
     #Add home column headers
-    homePitchers = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA'}]
+    homePitchers = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA', 'p':'', 's':''}]
     for pitcherId_int in boxData['home']['pitchers']:
         pitcherId = str(pitcherId_int)
         namefield = boxData['playerInfo']['ID'+pitcherId]['boxscoreName']
