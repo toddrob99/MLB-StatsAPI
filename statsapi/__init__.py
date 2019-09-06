@@ -460,6 +460,7 @@ def boxscore_data(gamePk,timecode=None):
     if timecode: params.update({'timecode':timecode})
     r = get('game',params)
 
+    boxData.update({'gameId':r['gameData']['game']['id']})
     boxData.update({'teamInfo':r['gameData']['teams']})
     boxData.update({'playerInfo':r['gameData']['players']})
     boxData.update({'away':r['liveData']['boxscore']['teams']['away']})
