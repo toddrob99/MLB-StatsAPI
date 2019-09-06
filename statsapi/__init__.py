@@ -456,7 +456,7 @@ def boxscore_data(gamePk,timecode=None):
     boxData = {}
     """boxData holds the dict to be returned"""
 
-    params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,obp,slg,era,pitchesThrown,strikes,battingOrder,info,title,fieldList,note,label,value,wins,losses,holds,blownSaves'}
+    params = {'gamePk':gamePk,'fields':'gameData,game,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,obp,slg,era,pitchesThrown,strikes,battingOrder,info,title,fieldList,note,label,value,wins,losses,holds,blownSaves'}
     if timecode: params.update({'timecode':timecode})
     r = get('game',params)
 
