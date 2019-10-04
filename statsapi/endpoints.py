@@ -803,7 +803,7 @@ ENDPOINTS = {
                                                                                         'required': False
                                                                                     }
                                                                     },
-                                                    'query_params': ['sportId','divisionId','leagueId','fields'],
+                                                    'query_params': ['season','sportId','divisionId','leagueId','fields'],
                                                     'required_params': [['sportId'],['divisionId'],['leagueId']],
                                                     'note': 'Include "all" parameter with value of True to query all seasons. The divisionId and leagueId parameters are supported when "all" is used.'
                                                 },

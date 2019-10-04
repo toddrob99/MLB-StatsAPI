@@ -17,6 +17,9 @@ if sys.version_info.major < 3:
     sys.setdefaultencoding('utf8')
 # Trying to support Python 2.7
 
+import logging
+logger = logging.getLogger('statsapi')
+
 from . import version
 __version__ = version.VERSION
 """Installed version of MLB-StatsAPI"""
@@ -802,7 +805,6 @@ def game_scoring_play_data(gamePk):
     home_team = r['dates'][0]['games'][0]['teams']['home']['team']
     away_team = r['dates'][0]['games'][0]['teams']['away']['team']
 
-    scoring_plays = ''
     unorderedPlays = {}
     for v in items:
         unorderedPlays.update({v['about']['endTime'] : v})
@@ -849,7 +851,6 @@ def game_highlight_data(gamePk):
     if not len(r['dates'][0]['games'][0]['content']['highlights']['highlights']['items']): return ''
     items = r['dates'][0]['games'][0]['content']['highlights']['highlights']['items']
 
-    highlights = ''
     unorderedHighlights = {}
     for v in (x for x in items if isinstance(x,dict) and x['type']=='video'):
         unorderedHighlights.update({v['date'] : v})
@@ -1556,7 +1557,7 @@ def get(endpoint,params,force=False):
     ep = ENDPOINTS.get(endpoint)
     if not ep: raise ValueError('Invalid endpoint ('+str(endpoint)+').')
     url = ep['url']
-    if DEBUG: print("URL:",url) #debug
+    logger.debug("URL: {}".format(url))
 
     path_params = {}
     query_params = {}
@@ -1564,7 +1565,7 @@ def get(endpoint,params,force=False):
     #Parse parameters into path and query parameters, and discard invalid parameters
     for p,pv in params.items():
         if ep['path_params'].get(p):
-            if DEBUG: print ("Found path param:",p) #debug
+            logger.debug("Found path param: {}".format(p))
             if ep['path_params'][p].get('type') == 'bool':
                 if str(pv).lower() == 'false':
                     path_params.update({p: ep['path_params'][p].get('False','')})
@@ -1573,45 +1574,45 @@ def get(endpoint,params,force=False):
             else:
                 path_params.update({p: str(pv)})
         elif p in ep['query_params']:
-            if DEBUG: print ("Found query param:",p) #debug
+            logger.debug("Found query param: {}".format(p))
             query_params.update({p: str(pv)})
         else:
             if force:
-                if DEBUG: print("Found invalid param, forcing into query parameters per force flag:",p) #debug
+                logger.debug("Found invalid param, forcing into query parameters per force flag: {}".format(p))
                 query_params.update({p: str(pv)})
             else:
-                if DEBUG: print("Found invalid param, ignoring:",p) #debug
+                logger.debug("Found invalid param, ignoring: {}".format(p))
 
-    if DEBUG: print ("path_params:",path_params) #debug
-    if DEBUG: print ("query_params:",query_params) #debug
+    logger.debug("path_params: {}".format(path_params))
+    logger.debug("query_params: {}".format(query_params))
 
     #Replace path parameters with their values
     for k,v in path_params.items():
-        if DEBUG: print("Replacing {%s}" % k) #debug
+        logger.debug("Replacing {%s}" % k)
         url = url.replace('{'+k+'}',v)
-        if DEBUG: print("URL:",url) #debug
+        logger.debug("URL: {}".format(url))
     while url.find('{') != -1 and url.find('}') > url.find('{'):
         param = url[url.find('{')+1:url.find('}')]
         if ep.get('path_params',{}).get(param,{}).get('required'): 
             if ep['path_params'][param]['default'] and ep['path_params'][param]['default'] != '':
-                if DEBUG: print("Replacing {%s} with default: %s." % (param, ep['path_params'][param]['default'])) #debug
+                logger.debug("Replacing {%s} with default: %s." % (param, ep['path_params'][param]['default']))
                 url = url.replace('{'+param+'}',ep['path_params'][param]['default'])
             else:
                 if force:
-                    if DEBUG: print('Missing required path parameter {'+str(param)+'}, proceeding anyway per force flag...')
+                    logger.warning('Missing required path parameter {%s}, proceeding anyway per force flag...' % param)
                 else:
-                    raise ValueError('Missing required path parameter {'+str(param)+'}')
+                    raise ValueError('Missing required path parameter {%s}' % param)
         else:
-            if DEBUG: print("Removing optional param {%s}" % param) #debug
+            logger.debug("Removing optional param {%s}" % param)
             url = url.replace('{'+param+'}','')
-        if DEBUG: print("URL:",url) #debug
+        logger.debug("URL: {}".format(url))
     #Add query parameters to the URL
     if len(query_params) > 0:
         for k,v in query_params.items():
-            if DEBUG: print("Adding query parameter %s=%s" % (k,v))
+            logger.debug("Adding query parameter {}={}".format(k,v))
             sep = '?' if url.find('?') == -1 else '&'
             url += sep + k + "=" + v
-            if DEBUG: print("URL:",url) #debug
+            logger.debug("URL: {}".format(url))
 
     #Make sure required parameters are present
     satisfied = False
