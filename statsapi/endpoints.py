@@ -803,7 +803,7 @@ ENDPOINTS = {
                                                                                         'required': False
                                                                                     }
                                                                     },
-                                                    'query_params': ['sportId','divisionId','leagueId','fields'],
+                                                    'query_params': ['season','sportId','divisionId','leagueId','fields'],
                                                     'required_params': [['sportId'],['divisionId'],['leagueId']],
                                                     'note': 'Include "all" parameter with value of True to query all seasons. The divisionId and leagueId parameters are supported when "all" is used.'
                                                 },
@@ -918,7 +918,7 @@ ENDPOINTS = {
                                                                                     }
                                                                     },
                                                     'query_params': ['streakType','streakSpan','gameType','season','sportId','limit','hydrate','fields'],
-                                                    'required_params': [['streakType','streakSpan','season']],
+                                                    'required_params': [['streakType','streakSpan','season','sportId','limit']],
                                                     'note': 'Valid streakType values: "hittingStreakOverall" "hittingStreakHome" "hittingStreakAway" "onBaseOverall" "onBaseHome" "onBaseAway". Valid streakSpan values: "career" "season" "currentStreak" "currentStreakInSeason" "notable" "notableInSeason".'
                                                 },
                 'teams':                        {
