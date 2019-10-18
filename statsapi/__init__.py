@@ -24,9 +24,6 @@ from . import version
 __version__ = version.VERSION
 """Installed version of MLB-StatsAPI"""
 
-DEBUG = False
-"""To enable debug: statsapi.DEBUG=True"""
-
 from . import endpoints
 BASE_URL = endpoints.BASE_URL
 """Base MLB Stats API URL"""
