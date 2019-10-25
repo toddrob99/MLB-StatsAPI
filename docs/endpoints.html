@@ -26,1149 +26,1293 @@
 </summary>
 <pre><code class="python">#!/usr/bin/env python
 
-BASE_URL = &#39;https://statsapi.mlb.com/api/&#39;
+BASE_URL = &#34;https://statsapi.mlb.com/api/&#34;
 
 ENDPOINTS = {
-                &#39;attendance&#39;:                   {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/attendance&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;teamId&#39;,&#39;leagueId&#39;,&#39;season&#39;,&#39;date&#39;,&#39;leagueListId&#39;,&#39;gameType&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;teamId&#39;],[&#39;leagueId&#39;],[&#39;leagueListid&#39;]]
-                                                },
-                &#39;awards&#39;:                       {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/awards{awardId}{recipients}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;awardId&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: None,
-                                                                                    &#39;leading_slash&#39;: True,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: False
-                                                                                },
-                                                                        &#39;recipients&#39;:  {
-                                                                                    &#39;type&#39;: &#39;bool&#39;,
-                                                                                    &#39;default&#39;: True,
-                                                                                    &#39;True&#39;: &#39;/recipients&#39;,
-                                                                                    &#39;False&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: False
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;sportId&#39;,&#39;leagueId&#39;,&#39;season&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]],
-                                                    &#39;note&#39;: &#39;Call awards endpoint with no parameters to return a list of awardIds.&#39;
-                                                },
-                &#39;conferences&#39;:                   {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/conferences&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;conferenceId&#39;,&#39;season&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;divisions&#39;:                     {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/divisions&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;divisionId&#39;,&#39;leagueId&#39;,&#39;sportId&#39;],
-                                                    &#39;required_params&#39;: [[]],
-                                                    &#39;note&#39;: &#39;Call divisions endpoint with no parameters to return a list of divisions.&#39;
-                                                },
-                &#39;draft&#39;:                        {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/draft{prospects}{year}{latest}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;prospects&#39;:    {
-                                                                                    &#39;type&#39;: &#39;bool&#39;,
-                                                                                    &#39;default&#39;: False,
-                                                                                    &#39;True&#39;: &#39;/prospects&#39;,
-                                                                                    &#39;False&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: False
-                                                                                },
-                                                                        &#39;year&#39;:    {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;2019&#39;, #TODO: current year or most recent draft year
-                                                                                    &#39;leading_slash&#39;: True,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;latest&#39;:    {
-                                                                                    &#39;type&#39;: &#39;bool&#39;,
-                                                                                    &#39;default&#39;: False,
-                                                                                    &#39;True&#39;: &#39;/latest&#39;,
-                                                                                    &#39;False&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: False
-                                                                                },
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;limit&#39;,&#39;fields&#39;,&#39;round&#39;,&#39;name&#39;,&#39;school&#39;,&#39;state&#39;,&#39;country&#39;,&#39;position&#39;,&#39;teamId&#39;,&#39;playerId&#39;,&#39;bisPlayerId&#39;],
-                                                    &#39;required_params&#39;: [[]],
-                                                    &#39;note&#39;: &#39;No query parameters are honored when &#34;latest&#34; endpoint is queried (year is still required). Prospects and Latest cannot be used together.&#39;
-                                                },
-                &#39;game&#39;:                         {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/feed/live&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1.1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;timecode&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;game_diff&#39;:                    {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/feed/live/diffPatch&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1.1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;startTimecode&#39;,&#39;endTimecode&#39;],
-                                                    &#39;required_params&#39;: [[&#39;startTimeCode&#39;,&#39;endTimeCode&#39;]]
-                                                },
-                &#39;game_timestamps&#39;:              {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/feed/live/timestamps&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1.1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;game_changes&#39;:                 {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/changes&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;updatedSince&#39;,&#39;sportId&#39;,&#39;gameType&#39;,&#39;season&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;updatedSince&#39;]]
-                                                },
-                &#39;game_contextMetrics&#39;:          {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/contextMetrics&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;timecode&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;game_winProbability&#39;:          {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/winProbability&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;timecode&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]],
-                                                    &#39;note&#39;: &#39;If you only want the current win probability for each team, try the game_contextMetrics endpoint instad.&#39;
-                                                },
-                &#39;game_boxscore&#39;:                {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/boxscore&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;timecode&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;game_content&#39;:                 {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/content&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;highlightLimit&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;game_color&#39;:                   {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/feed/color&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;timecode&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;game_color_diff&#39;:              {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/feed/color/diffPatch&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;startTimecode&#39;,&#39;endTimecode&#39;],
-                                                    &#39;required_params&#39;: [[&#39;startTimeCode&#39;,&#39;endTimeCode&#39;]]
-                                                },
-                &#39;game_color_timestamps&#39;:        {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/feed/color/timestamps&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;game_linescore&#39;:               {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/linescore&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;timecode&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;game_playByPlay&#39;:              {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/game/{gamePk}/playByPlay&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;gamePk&#39;: {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;timecode&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;gamePace&#39;:                     {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/gamePace&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;teamIds&#39;,&#39;leagueIds&#39;,&#39;leagueListId&#39;,&#39;sportId&#39;,&#39;gameType&#39;,&#39;startDate&#39;,&#39;endDate&#39;,&#39;venueIds&#39;,&#39;orgType&#39;,&#39;includeChildren&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;]]
-                                                },
-                &#39;highLow&#39;:                      {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/highLow/{orgType}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                },
-                                                                        &#39;orgType&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;statGroup&#39;,&#39;sortStat&#39;,&#39;season&#39;,&#39;gameType&#39;,&#39;teamId&#39;,&#39;leagueId&#39;,&#39;sportIds&#39;,&#39;limit&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;sortStat&#39;,&#39;season&#39;]],
-                                                    &#39;note&#39;: &#39;Valid values for orgType parameter: player, team, division, league, sport, types.&#39;
-                                                },
-                &#39;homeRunDerby&#39;:                 {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/honeRunDerby/{gamePk}{bracket}{pool}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;gamePk&#39;:   {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;bracket&#39;:  {
-                                                                                        &#39;type&#39;: &#39;bool&#39;,
-                                                                                        &#39;default&#39;: False,
-                                                                                        &#39;True&#39;: &#39;/bracket&#39;,
-                                                                                        &#39;False&#39;: &#39;&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: False
-                                                                                    },
-                                                                        &#39;pool&#39;:     {
-                                                                                        &#39;type&#39;: &#39;bool&#39;,
-                                                                                        &#39;default&#39;: False,
-                                                                                        &#39;True&#39;: &#39;/pool&#39;,
-                                                                                        &#39;False&#39;: &#39;&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: False
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;league&#39;:                       {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/league&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:  {
-                                                                                    &#39;type&#39;: &#39;str&#39;,
-                                                                                    &#39;default&#39;: &#39;v1&#39;,
-                                                                                    &#39;leading_slash&#39;: False,
-                                                                                    &#39;trailing_slash&#39;: False,
-                                                                                    &#39;required&#39;: True
-                                                                                }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;sportId&#39;,&#39;leagueIds&#39;,&#39;seasons&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;sportId&#39;],[&#39;leagueIds&#39;]]
-                                                },
-                &#39;league_allStarBallot&#39;:         {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/league/{leagueId}/allStarBallot&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;leagueId&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;]]
-                                                },
-                &#39;league_allStarWriteIns&#39;:       {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/league/{leagueId}/allStarWriteIns&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;leagueId&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;]]
-                                                },
-                &#39;league_allStarFinalVote&#39;:      {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/league/{leagueId}/allStarFinalVote&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;leagueId&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;]]
-                                                },
-                &#39;people&#39;:                       {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/people&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;personIds&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;personIds&#39;]]
-                                                },
-                &#39;people_changes&#39;:               {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/people/changes&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;updatedSince&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;people_freeAgents&#39;:            {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/people/freeAgents&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;leagueId&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;order&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;person&#39;:                       {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/people/{personId}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;personId&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;person_stats&#39;:                 {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/people/{personId}/stats/game/{gamePk}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;personId&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;gamePk&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]],
-                                                    &#39;note&#39;: &#39;Specify &#34;current&#34; instead of a gamePk for a player\&#39;s current game stats.&#39;
-                                                },
-                &#39;jobs&#39;:                         {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/jobs&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;jobType&#39;,&#39;sportId&#39;,&#39;date&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;jobType&#39;]]
-                                                },
-                &#39;jobs_umpires&#39;:                 {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/jobs/umpires&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;sportId&#39;,&#39;date&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;jobs_umpire_games&#39;:            {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/jobs/umpires/games/{umpireId}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;umpireId&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;]]
-                                                },
-                &#39;jobs_datacasters&#39;:             {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/jobs/datacasters&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;sportId&#39;,&#39;date&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;jobs_officialScorers&#39;:         {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/jobs/officialScorers&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;timecode&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;schedule&#39;:                     {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/schedule&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;scheduleType&#39;,&#39;eventTypes&#39;,&#39;hydrate&#39;,&#39;teamId&#39;,&#39;leagueId&#39;,&#39;sportId&#39;,&#39;gamePk&#39;,&#39;gamePks&#39;,&#39;venueIds&#39;,&#39;gameTypes&#39;,&#39;date&#39;,&#39;startDate&#39;,&#39;endDate&#39;,&#39;opponentId&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;sportId&#39;],[&#39;gamePk&#39;],[&#39;gamePks&#39;]]
-                                                },
-                &#39;schedule_tied&#39;:                {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/schedule/games/tied&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;gameTypes&#39;,&#39;season&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;]]
-                                                },
-                &#39;schedule_postseason&#39;:          {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/schedule/postseason&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;gameTypes&#39;,&#39;seriesNumber&#39;,&#39;teamId&#39;,&#39;sportId&#39;,&#39;season&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;schedule_postseason_series&#39;:   {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/schedule/postseason/series&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;gameTypes&#39;,&#39;seriesNumber&#39;,&#39;teamId&#39;,&#39;sportId&#39;,&#39;season&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;schedule_postseason_tuneIn&#39;:   {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/schedule/postseason/tuneIn&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;teamId&#39;,&#39;sportId&#39;,&#39;season&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]],
-                                                    &#39;note&#39;: &#39;The schedule_postseason_tuneIn endpoint appears to return no data.&#39;
-                                                },
-                &#39;seasons&#39;:                       {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/seasons{all}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;all&#39;:      {
-                                                                                        &#39;type&#39;: &#39;bool&#39;,
-                                                                                        &#39;default&#39;: False,
-                                                                                        &#39;True&#39;: &#39;/all&#39;,
-                                                                                        &#39;False&#39;: &#39;&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: False
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;sportId&#39;,&#39;divisionId&#39;,&#39;leagueId&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;sportId&#39;],[&#39;divisionId&#39;],[&#39;leagueId&#39;]],
-                                                    &#39;note&#39;: &#39;Include &#34;all&#34; parameter with value of True to query all seasons. The divisionId and leagueId parameters are supported when &#34;all&#34; is used.&#39;
-                                                },
-                &#39;season&#39;:                       {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/seasons/{seasonId}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;seasonId&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: False,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;sportId&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;sportId&#39;]]
-                                                },
-                &#39;sports&#39;:                       {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/sports&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;sportId&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;sports_players&#39;:               {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/sports/{sportId}/players&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;sportId&#39;: {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;gameType&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;]]
-                                                },
-                &#39;standings&#39;:                    {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/standings&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;leagueId&#39;,&#39;season&#39;,&#39;standingsTypes&#39;,&#39;date&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;leagueId&#39;]]
-                                                },
-                &#39;stats&#39;:                        {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/stats&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;stats&#39;,&#39;playerPool&#39;,&#39;position&#39;,&#39;teamId&#39;,&#39;leagueId&#39;,&#39;limit&#39;,&#39;offset&#39;,&#39;group&#39;,&#39;gameType&#39;,&#39;season&#39;,&#39;sportIds&#39;,&#39;sortStat&#39;,&#39;order&#39;,&#39;hydrate&#39;,&#39;fields&#39;,&#39;personId&#39;,&#39;metrics&#39;],
-                                                    &#39;required_params&#39;: [[&#39;stats&#39;,&#39;group&#39;]]
-                                                },
-                &#39;stats_leaders&#39;:                {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/stats/leaders&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;leaderCategories&#39;,&#39;playerPool&#39;,&#39;leaderGameTypes&#39;,&#39;statGroup&#39;,&#39;season&#39;,&#39;leagueId&#39;,&#39;sportId&#39;,&#39;hydrate&#39;,&#39;limit&#39;,&#39;fields&#39;,&#39;statType&#39;],
-                                                    &#39;required_params&#39;: [[&#39;leaderCategories&#39;]],
-                                                    &#39;note&#39;: &#39;If excluding season parameter to get all time leaders, include statType=statsSingleSeason or you will likely not get any results.&#39;
-                                                },
-                &#39;stats_streaks&#39;:                {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/stats/streaks&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;streakType&#39;,&#39;streakSpan&#39;,&#39;gameType&#39;,&#39;season&#39;,&#39;sportId&#39;,&#39;limit&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;streakType&#39;,&#39;streakSpan&#39;,&#39;season&#39;,&#39;sportId&#39;,&#39;limit&#39;]],
-                                                    &#39;note&#39;: &#39;Valid streakType values: &#34;hittingStreakOverall&#34; &#34;hittingStreakHome&#34; &#34;hittingStreakAway&#34; &#34;onBaseOverall&#34; &#34;onBaseHome&#34; &#34;onBaseAway&#34;. Valid streakSpan values: &#34;career&#34; &#34;season&#34; &#34;currentStreak&#34; &#34;currentStreakInSeason&#34; &#34;notable&#34; &#34;notableInSeason&#34;.&#39;
-                                                },
-                &#39;teams&#39;:                        {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;activeStatus&#39;,&#39;leagueIds&#39;,&#39;sportIds&#39;,&#39;gameType&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;teams_history&#39;:                {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/history&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;teamIds&#39;,&#39;startSeason&#39;,&#39;endSeason&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;teamIds&#39;]]
-                                                },
-                &#39;teams_stats&#39;:                  {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/stats&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;sportIds&#39;,&#39;group&#39;,&#39;gameType&#39;,&#39;stats&#39;,&#39;order&#39;,&#39;sortStat&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;,&#39;group&#39;,&#39;stats&#39;]],
-                                                    &#39;note&#39;: &#39;Use meta(\&#39;statGroups\&#39;) to look up valid values for group, and meta(\&#39;statTypes\&#39;) for valid values for stats.&#39;
-                                                },
-                &#39;teams_affiliates&#39;:             {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/affiliates&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;teamIds&#39;,&#39;sportId&#39;,&#39;season&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;teamIds&#39;]]
-                                                },
-                &#39;team&#39;:                         {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/{teamId}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;teamId&#39;:   {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;sportId&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;team_alumni&#39;:                  {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/{teamId}/alumni&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;teamId&#39;:   {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;group&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;season&#39;,&#39;group&#39;]]
-                                                },
-                &#39;team_coaches&#39;:                 {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/{teamId}/coaches&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;teamId&#39;:   {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;season&#39;,&#39;date&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;team_personnel&#39;:               {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/{teamId}/personnel&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;teamId&#39;:   {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;date&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[]]
-                                                },
-                &#39;team_leaders&#39;:                  {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/{teamId}/leaders&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;teamId&#39;:   {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;leaderCategories&#39;,&#39;season&#39;,&#39;leaderGameTypes&#39;,&#39;hydrate&#39;,&#39;limit&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;leaderCategories&#39;,&#39;season&#39;]]
-                                                },
-                &#39;team_roster&#39;:                  {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/teams/{teamId}/roster&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;teamId&#39;:   {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;rosterType&#39;,&#39;season&#39;,&#39;date&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;rosterType&#39;,&#39;season&#39;]]
-                                                },
-                &#39;venue&#39;:                        {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/venues&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [&#39;venueIds&#39;,&#39;season&#39;,&#39;hydrate&#39;,&#39;fields&#39;],
-                                                    &#39;required_params&#39;: [[&#39;venueIds&#39;]]
-                                                },
-                &#39;meta&#39;:                         {
-                                                    &#39;url&#39;: BASE_URL + &#39;{ver}/{type}&#39;,
-                                                    &#39;path_params&#39;:  {
-                                                                        &#39;ver&#39;:      {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: &#39;v1&#39;,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    },
-                                                                        &#39;type&#39;:   {
-                                                                                        &#39;type&#39;: &#39;str&#39;,
-                                                                                        &#39;default&#39;: None,
-                                                                                        &#39;leading_slash&#39;: False,
-                                                                                        &#39;trailing_slash&#39;: False,
-                                                                                        &#39;required&#39;: True
-                                                                                    }
-                                                                    },
-                                                    &#39;query_params&#39;: [[]],
-                                                    &#39;required_params&#39;: [[]],
-                                                    &#39;note&#39;: &#39;The meta endpoint is used to retrieve values to be used within other API calls. Available types: awards, baseballStats, eventTypes, gameStatus, gameTypes, hitTrajectories, jobTypes, languages, leagueLeaderTypes, logicalEvents, metrics, pitchCodes, pitchTypes, platforms, positions, reviewReasons, rosterTypes, scheduleEventTypes, situationCodes, sky, standingsTypes, statGroups, statTypes, windDirection.&#39;
-                                                }
-                #v1/analytics - requires authentication
-                #v1/game/{gamePk}/guids - statcast data - requires authentication
-            }</code></pre>
+    &#34;attendance&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/attendance&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;teamId&#34;,
+            &#34;leagueId&#34;,
+            &#34;season&#34;,
+            &#34;date&#34;,
+            &#34;leagueListId&#34;,
+            &#34;gameType&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;teamId&#34;], [&#34;leagueId&#34;], [&#34;leagueListid&#34;]],
+    },
+    &#34;awards&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/awards{awardId}{recipients}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;awardId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: True,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: False,
+            },
+            &#34;recipients&#34;: {
+                &#34;type&#34;: &#34;bool&#34;,
+                &#34;default&#34;: True,
+                &#34;True&#34;: &#34;/recipients&#34;,
+                &#34;False&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: False,
+            },
+        },
+        &#34;query_params&#34;: [&#34;sportId&#34;, &#34;leagueId&#34;, &#34;season&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+        &#34;note&#34;: &#34;Call awards endpoint with no parameters to return a list of awardIds.&#34;,
+    },
+    &#34;conferences&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/conferences&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;conferenceId&#34;, &#34;season&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;divisions&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/divisions&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;divisionId&#34;, &#34;leagueId&#34;, &#34;sportId&#34;],
+        &#34;required_params&#34;: [[]],
+        &#34;note&#34;: &#34;Call divisions endpoint with no parameters to return a list of divisions.&#34;,
+    },
+    &#34;draft&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/draft{prospects}{year}{latest}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;prospects&#34;: {
+                &#34;type&#34;: &#34;bool&#34;,
+                &#34;default&#34;: False,
+                &#34;True&#34;: &#34;/prospects&#34;,
+                &#34;False&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: False,
+            },
+            &#34;year&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;2019&#34;,  # TODO: current year or most recent draft year
+                &#34;leading_slash&#34;: True,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;latest&#34;: {
+                &#34;type&#34;: &#34;bool&#34;,
+                &#34;default&#34;: False,
+                &#34;True&#34;: &#34;/latest&#34;,
+                &#34;False&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: False,
+            },
+        },
+        &#34;query_params&#34;: [
+            &#34;limit&#34;,
+            &#34;fields&#34;,
+            &#34;round&#34;,
+            &#34;name&#34;,
+            &#34;school&#34;,
+            &#34;state&#34;,
+            &#34;country&#34;,
+            &#34;position&#34;,
+            &#34;teamId&#34;,
+            &#34;playerId&#34;,
+            &#34;bisPlayerId&#34;,
+        ],
+        &#34;required_params&#34;: [[]],
+        &#34;note&#34;: &#39;No query parameters are honored when &#34;latest&#34; endpoint is queried (year is still required). Prospects and Latest cannot be used together.&#39;,
+    },
+    &#34;game&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/feed/live&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1.1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;timecode&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;game_diff&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/feed/live/diffPatch&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1.1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;startTimecode&#34;, &#34;endTimecode&#34;],
+        &#34;required_params&#34;: [[&#34;startTimeCode&#34;, &#34;endTimeCode&#34;]],
+    },
+    &#34;game_timestamps&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/feed/live/timestamps&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1.1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;game_changes&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/changes&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;updatedSince&#34;, &#34;sportId&#34;, &#34;gameType&#34;, &#34;season&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;updatedSince&#34;]],
+    },
+    &#34;game_contextMetrics&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/contextMetrics&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;timecode&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;game_winProbability&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/winProbability&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;timecode&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+        &#34;note&#34;: &#34;If you only want the current win probability for each team, try the game_contextMetrics endpoint instad.&#34;,
+    },
+    &#34;game_boxscore&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/boxscore&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;timecode&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;game_content&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/content&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;highlightLimit&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;game_color&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/feed/color&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;timecode&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;game_color_diff&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/feed/color/diffPatch&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;startTimecode&#34;, &#34;endTimecode&#34;],
+        &#34;required_params&#34;: [[&#34;startTimeCode&#34;, &#34;endTimeCode&#34;]],
+    },
+    &#34;game_color_timestamps&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/feed/color/timestamps&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;game_linescore&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/linescore&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;timecode&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;game_playByPlay&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/game/{gamePk}/playByPlay&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;timecode&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;gamePace&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/gamePace&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;season&#34;,
+            &#34;teamIds&#34;,
+            &#34;leagueIds&#34;,
+            &#34;leagueListId&#34;,
+            &#34;sportId&#34;,
+            &#34;gameType&#34;,
+            &#34;startDate&#34;,
+            &#34;endDate&#34;,
+            &#34;venueIds&#34;,
+            &#34;orgType&#34;,
+            &#34;includeChildren&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;season&#34;]],
+    },
+    &#34;highLow&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/highLow/{orgType}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;orgType&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [
+            &#34;statGroup&#34;,
+            &#34;sortStat&#34;,
+            &#34;season&#34;,
+            &#34;gameType&#34;,
+            &#34;teamId&#34;,
+            &#34;leagueId&#34;,
+            &#34;sportIds&#34;,
+            &#34;limit&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;sortStat&#34;, &#34;season&#34;]],
+        &#34;note&#34;: &#34;Valid values for orgType parameter: player, team, division, league, sport, types.&#34;,
+    },
+    &#34;homeRunDerby&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/honeRunDerby/{gamePk}{bracket}{pool}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;bracket&#34;: {
+                &#34;type&#34;: &#34;bool&#34;,
+                &#34;default&#34;: False,
+                &#34;True&#34;: &#34;/bracket&#34;,
+                &#34;False&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: False,
+            },
+            &#34;pool&#34;: {
+                &#34;type&#34;: &#34;bool&#34;,
+                &#34;default&#34;: False,
+                &#34;True&#34;: &#34;/pool&#34;,
+                &#34;False&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: False,
+            },
+        },
+        &#34;query_params&#34;: [&#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;league&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/league&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;sportId&#34;, &#34;leagueIds&#34;, &#34;seasons&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;sportId&#34;], [&#34;leagueIds&#34;]],
+    },
+    &#34;league_allStarBallot&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/league/{leagueId}/allStarBallot&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;leagueId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;season&#34;]],
+    },
+    &#34;league_allStarWriteIns&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/league/{leagueId}/allStarWriteIns&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;leagueId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;season&#34;]],
+    },
+    &#34;league_allStarFinalVote&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/league/{leagueId}/allStarFinalVote&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;leagueId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;season&#34;]],
+    },
+    &#34;people&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/people&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;personIds&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;personIds&#34;]],
+    },
+    &#34;people_changes&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/people/changes&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;updatedSince&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;people_freeAgents&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/people/freeAgents&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;leagueId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;order&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;person&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/people/{personId}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;personId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;person_stats&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/people/{personId}/stats/game/{gamePk}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;personId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;gamePk&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+        &#34;note&#34;: &#39;Specify &#34;current&#34; instead of a gamePk for a player\&#39;s current game stats.&#39;,
+    },
+    &#34;jobs&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/jobs&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;jobType&#34;, &#34;sportId&#34;, &#34;date&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;jobType&#34;]],
+    },
+    &#34;jobs_umpires&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/jobs/umpires&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;sportId&#34;, &#34;date&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;jobs_umpire_games&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/jobs/umpires/games/{umpireId}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;umpireId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;season&#34;]],
+    },
+    &#34;jobs_datacasters&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/jobs/datacasters&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;sportId&#34;, &#34;date&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;jobs_officialScorers&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/jobs/officialScorers&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;timecode&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;schedule&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/schedule&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;scheduleType&#34;,
+            &#34;eventTypes&#34;,
+            &#34;hydrate&#34;,
+            &#34;teamId&#34;,
+            &#34;leagueId&#34;,
+            &#34;sportId&#34;,
+            &#34;gamePk&#34;,
+            &#34;gamePks&#34;,
+            &#34;venueIds&#34;,
+            &#34;gameTypes&#34;,
+            &#34;date&#34;,
+            &#34;startDate&#34;,
+            &#34;endDate&#34;,
+            &#34;opponentId&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;sportId&#34;], [&#34;gamePk&#34;], [&#34;gamePks&#34;]],
+    },
+    &#34;schedule_tied&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/schedule/games/tied&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;gameTypes&#34;, &#34;season&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;season&#34;]],
+    },
+    &#34;schedule_postseason&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/schedule/postseason&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;gameTypes&#34;,
+            &#34;seriesNumber&#34;,
+            &#34;teamId&#34;,
+            &#34;sportId&#34;,
+            &#34;season&#34;,
+            &#34;hydrate&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;schedule_postseason_series&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/schedule/postseason/series&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;gameTypes&#34;,
+            &#34;seriesNumber&#34;,
+            &#34;teamId&#34;,
+            &#34;sportId&#34;,
+            &#34;season&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;schedule_postseason_tuneIn&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/schedule/postseason/tuneIn&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;teamId&#34;, &#34;sportId&#34;, &#34;season&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+        &#34;note&#34;: &#34;The schedule_postseason_tuneIn endpoint appears to return no data.&#34;,
+    },
+    &#34;seasons&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/seasons{all}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;all&#34;: {
+                &#34;type&#34;: &#34;bool&#34;,
+                &#34;default&#34;: False,
+                &#34;True&#34;: &#34;/all&#34;,
+                &#34;False&#34;: &#34;&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: False,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;sportId&#34;, &#34;divisionId&#34;, &#34;leagueId&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;sportId&#34;], [&#34;divisionId&#34;], [&#34;leagueId&#34;]],
+        &#34;note&#34;: &#39;Include &#34;all&#34; parameter with value of True to query all seasons. The divisionId and leagueId parameters are supported when &#34;all&#34; is used.&#39;,
+    },
+    &#34;season&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/seasons/{seasonId}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;seasonId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: False,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;sportId&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;sportId&#34;]],
+    },
+    &#34;sports&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/sports&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;sportId&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;sports_players&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/sports/{sportId}/players&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;sportId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;gameType&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;season&#34;]],
+    },
+    &#34;standings&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/standings&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;leagueId&#34;,
+            &#34;season&#34;,
+            &#34;standingsTypes&#34;,
+            &#34;date&#34;,
+            &#34;hydrate&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;leagueId&#34;]],
+    },
+    &#34;stats&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/stats&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;stats&#34;,
+            &#34;playerPool&#34;,
+            &#34;position&#34;,
+            &#34;teamId&#34;,
+            &#34;leagueId&#34;,
+            &#34;limit&#34;,
+            &#34;offset&#34;,
+            &#34;group&#34;,
+            &#34;gameType&#34;,
+            &#34;season&#34;,
+            &#34;sportIds&#34;,
+            &#34;sortStat&#34;,
+            &#34;order&#34;,
+            &#34;hydrate&#34;,
+            &#34;fields&#34;,
+            &#34;personId&#34;,
+            &#34;metrics&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;stats&#34;, &#34;group&#34;]],
+    },
+    &#34;stats_leaders&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/stats/leaders&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;leaderCategories&#34;,
+            &#34;playerPool&#34;,
+            &#34;leaderGameTypes&#34;,
+            &#34;statGroup&#34;,
+            &#34;season&#34;,
+            &#34;leagueId&#34;,
+            &#34;sportId&#34;,
+            &#34;hydrate&#34;,
+            &#34;limit&#34;,
+            &#34;fields&#34;,
+            &#34;statType&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;leaderCategories&#34;]],
+        &#34;note&#34;: &#34;If excluding season parameter to get all time leaders, include statType=statsSingleSeason or you will likely not get any results.&#34;,
+    },
+    &#34;stats_streaks&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/stats/streaks&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;streakType&#34;,
+            &#34;streakSpan&#34;,
+            &#34;gameType&#34;,
+            &#34;season&#34;,
+            &#34;sportId&#34;,
+            &#34;limit&#34;,
+            &#34;hydrate&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;streakType&#34;, &#34;streakSpan&#34;, &#34;season&#34;, &#34;sportId&#34;, &#34;limit&#34;]],
+        &#34;note&#34;: &#39;Valid streakType values: &#34;hittingStreakOverall&#34; &#34;hittingStreakHome&#34; &#34;hittingStreakAway&#34; &#34;onBaseOverall&#34; &#34;onBaseHome&#34; &#34;onBaseAway&#34;. Valid streakSpan values: &#34;career&#34; &#34;season&#34; &#34;currentStreak&#34; &#34;currentStreakInSeason&#34; &#34;notable&#34; &#34;notableInSeason&#34;.&#39;,
+    },
+    &#34;teams&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;season&#34;,
+            &#34;activeStatus&#34;,
+            &#34;leagueIds&#34;,
+            &#34;sportIds&#34;,
+            &#34;gameType&#34;,
+            &#34;hydrate&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;teams_history&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/history&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;teamIds&#34;, &#34;startSeason&#34;, &#34;endSeason&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;teamIds&#34;]],
+    },
+    &#34;teams_stats&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/stats&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [
+            &#34;season&#34;,
+            &#34;sportIds&#34;,
+            &#34;group&#34;,
+            &#34;gameType&#34;,
+            &#34;stats&#34;,
+            &#34;order&#34;,
+            &#34;sortStat&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;season&#34;, &#34;group&#34;, &#34;stats&#34;]],
+        &#34;note&#34;: &#34;Use meta(&#39;statGroups&#39;) to look up valid values for group, and meta(&#39;statTypes&#39;) for valid values for stats.&#34;,
+    },
+    &#34;teams_affiliates&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/affiliates&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;teamIds&#34;, &#34;sportId&#34;, &#34;season&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;teamIds&#34;]],
+    },
+    &#34;team&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/{teamId}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;teamId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;sportId&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;team_alumni&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/{teamId}/alumni&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;teamId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;group&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;season&#34;, &#34;group&#34;]],
+    },
+    &#34;team_coaches&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/{teamId}/coaches&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;teamId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;season&#34;, &#34;date&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;team_personnel&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/{teamId}/personnel&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;teamId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;date&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[]],
+    },
+    &#34;team_leaders&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/{teamId}/leaders&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;teamId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [
+            &#34;leaderCategories&#34;,
+            &#34;season&#34;,
+            &#34;leaderGameTypes&#34;,
+            &#34;hydrate&#34;,
+            &#34;limit&#34;,
+            &#34;fields&#34;,
+        ],
+        &#34;required_params&#34;: [[&#34;leaderCategories&#34;, &#34;season&#34;]],
+    },
+    &#34;team_roster&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/teams/{teamId}/roster&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;teamId&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [&#34;rosterType&#34;, &#34;season&#34;, &#34;date&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;rosterType&#34;, &#34;season&#34;]],
+    },
+    &#34;venue&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/venues&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            }
+        },
+        &#34;query_params&#34;: [&#34;venueIds&#34;, &#34;season&#34;, &#34;hydrate&#34;, &#34;fields&#34;],
+        &#34;required_params&#34;: [[&#34;venueIds&#34;]],
+    },
+    &#34;meta&#34;: {
+        &#34;url&#34;: BASE_URL + &#34;{ver}/{type}&#34;,
+        &#34;path_params&#34;: {
+            &#34;ver&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: &#34;v1&#34;,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+            &#34;type&#34;: {
+                &#34;type&#34;: &#34;str&#34;,
+                &#34;default&#34;: None,
+                &#34;leading_slash&#34;: False,
+                &#34;trailing_slash&#34;: False,
+                &#34;required&#34;: True,
+            },
+        },
+        &#34;query_params&#34;: [[]],
+        &#34;required_params&#34;: [[]],
+        &#34;note&#34;: &#34;The meta endpoint is used to retrieve values to be used within other API calls. Available types: awards, baseballStats, eventTypes, gameStatus, gameTypes, hitTrajectories, jobTypes, languages, leagueLeaderTypes, logicalEvents, metrics, pitchCodes, pitchTypes, platforms, positions, reviewReasons, rosterTypes, scheduleEventTypes, situationCodes, sky, standingsTypes, statGroups, statTypes, windDirection.&#34;,
+    }
+    # v1/analytics - requires authentication
+    # v1/game/{gamePk}/guids - statcast data - requires authentication
+}</code></pre>
 </details>
 </section>
 <section>

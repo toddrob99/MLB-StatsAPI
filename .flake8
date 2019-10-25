@@ -1,0 +1,4 @@
+[flake8]
+ignore = E203, E501, W503
+exclude = .git,__pycache__,docs,build,dist,logs,.vscode
+max-line-length = 88
