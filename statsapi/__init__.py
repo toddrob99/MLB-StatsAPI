@@ -12,28 +12,39 @@ https://github.com/toddrob99/MLB-StatsAPI
 Documentation: https://toddrob99.github.io/MLB-StatsAPI/
 """
 import sys
-if sys.version_info.major < 3:
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-# Trying to support Python 2.7
 
 import logging
-logger = logging.getLogger('statsapi')
+import requests
+from datetime import datetime
 
 from . import version
+from . import endpoints
+
+# Trying to support Python 2.7:
+if sys.version_info.major < 3:
+    reload(sys)
+    sys.setdefaultencoding("utf8")
+
 __version__ = version.VERSION
 """Installed version of MLB-StatsAPI"""
 
-from . import endpoints
 BASE_URL = endpoints.BASE_URL
 """Base MLB Stats API URL"""
 ENDPOINTS = endpoints.ENDPOINTS
 """MLB Stats API endpoint configuration"""
 
-import requests
-from datetime import datetime
+logger = logging.getLogger("statsapi")
 
-def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sportId=1, game_id=None):
+
+def schedule(
+    date=None,
+    start_date=None,
+    end_date=None,
+    team="",
+    opponent="",
+    sportId=1,
+    game_id=None,
+):
     """Get list of games for a given date/range and/or team/opponent.
 
     Include a game_id to get data for that game.
@@ -106,81 +117,156 @@ def schedule(date=None, start_date=None, end_date=None, team='', opponent='', sp
 
     params = {}
 
-    if date: params.update({'date':date})
-    elif start_date and end_date: params.update({'startDate':start_date, 'endDate':end_date})
+    if date:
+        params.update({"date": date})
+    elif start_date and end_date:
+        params.update({"startDate": start_date, "endDate": end_date})
 
-    if team != '':
-        params.update({'teamId':str(team)})
+    if team != "":
+        params.update({"teamId": str(team)})
 
-    if opponent != '':
-        params.update({'opponentId':str(opponent)})
+    if opponent != "":
+        params.update({"opponentId": str(opponent)})
 
-    if game_id: params.update({'gamePks':game_id})
+    if game_id:
+        params.update({"gamePks": game_id})
 
-    params.update({'sportId':str(sportId), 'hydrate':'decisions,probablePitcher(note),linescore'})
+    params.update(
+        {
+            "sportId": str(sportId),
+            "hydrate": "decisions,probablePitcher(note),linescore",
+        }
+    )
 
-    r = get('schedule',params)
+    r = get("schedule", params)
 
     games = []
-    if r.get('totalItems') == 0:
-        return games #TODO: ValueError('No games to parse from schedule object.') instead?
+    if r.get("totalItems") == 0:
+        return (
+            games
+        )  # TODO: ValueError('No games to parse from schedule object.') instead?
     else:
-        for date in r.get('dates'):
-            for game in date.get('games'):
+        for date in r.get("dates"):
+            for game in date.get("games"):
                 game_info = {
-                                'game_id': game['gamePk'],
-                                'game_datetime': game['gameDate'],
-                                'game_date': date['date'],
-                                'game_type': game['gameType'],
-                                'status': game['status']['detailedState'],
-                                'away_name': game['teams']['away']['team']['name'],
-                                'home_name': game['teams']['home']['team']['name'],
-                                'away_id': game['teams']['away']['team']['id'],
-                                'home_id': game['teams']['home']['team']['id'],
-                                'doubleheader': game['doubleHeader'],
-                                'game_num': game['gameNumber'],
-                                'home_probable_pitcher': game['teams']['home'].get('probablePitcher',{}).get('fullName',''),
-                                'away_probable_pitcher': game['teams']['away'].get('probablePitcher',{}).get('fullName',''),
-                                'home_pitcher_note': game['teams']['home'].get('probablePitcher',{}).get('note',''),
-                                'away_pitcher_note': game['teams']['away'].get('probablePitcher',{}).get('note',''),
-                                'away_score': game['teams']['away'].get('score','0'),
-                                'home_score': game['teams']['home'].get('score','0'),
-                                'current_inning': game.get('linescore',{}).get('currentInning',''),
-                                'inning_state': game.get('linescore',{}).get('inningState','')
-                            }
-                if game_info['status'] in ['Final','Game Over']:
-                    if game.get('isTie'):
-                        game_info.update({
-                                            'winning_team': 'Tie',
-                                            'losing_Team': 'Tie'
-                                        })
+                    "game_id": game["gamePk"],
+                    "game_datetime": game["gameDate"],
+                    "game_date": date["date"],
+                    "game_type": game["gameType"],
+                    "status": game["status"]["detailedState"],
+                    "away_name": game["teams"]["away"]["team"]["name"],
+                    "home_name": game["teams"]["home"]["team"]["name"],
+                    "away_id": game["teams"]["away"]["team"]["id"],
+                    "home_id": game["teams"]["home"]["team"]["id"],
+                    "doubleheader": game["doubleHeader"],
+                    "game_num": game["gameNumber"],
+                    "home_probable_pitcher": game["teams"]["home"]
+                    .get("probablePitcher", {})
+                    .get("fullName", ""),
+                    "away_probable_pitcher": game["teams"]["away"]
+                    .get("probablePitcher", {})
+                    .get("fullName", ""),
+                    "home_pitcher_note": game["teams"]["home"]
+                    .get("probablePitcher", {})
+                    .get("note", ""),
+                    "away_pitcher_note": game["teams"]["away"]
+                    .get("probablePitcher", {})
+                    .get("note", ""),
+                    "away_score": game["teams"]["away"].get("score", "0"),
+                    "home_score": game["teams"]["home"].get("score", "0"),
+                    "current_inning": game.get("linescore", {}).get(
+                        "currentInning", ""
+                    ),
+                    "inning_state": game.get("linescore", {}).get("inningState", ""),
+                }
+                if game_info["status"] in ["Final", "Game Over"]:
+                    if game.get("isTie"):
+                        game_info.update({"winning_team": "Tie", "losing_Team": "Tie"})
                     else:
-                        game_info.update({
-                                            'winning_team': game['teams']['away']['team']['name'] if game['teams']['away'].get('isWinner') else game['teams']['home']['team']['name'],
-                                            'losing_team': game['teams']['home']['team']['name'] if game['teams']['away'].get('isWinner') else game['teams']['away']['team']['name'],
-                                            'winning_pitcher': game.get('decisions',{}).get('winner',{}).get('fullName',''),
-                                            'losing_pitcher': game.get('decisions',{}).get('loser',{}).get('fullName',''),
-                                            'save_pitcher': game.get('decisions',{}).get('save',{}).get('fullName')
-                                        })
-                    summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' (' + str(game['teams']['away']['score']) + ') @ ' + game['teams']['home']['team']['name'] + ' (' + str(game['teams']['home']['score']) + ') (' + game['status']['detailedState'] + ')'
-                    game_info.update({'summary': summary})
-                elif game_info['status'] == 'In Progress':
-                    game_info.update({
-                                        'summary': date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' (' + str(game['teams']['away']['score']) + ') @ ' + game['teams']['home']['team']['name'] + ' (' + str(game['teams']['home']['score']) + ') (' + game['linescore']['inningState'] + ' of the ' + game['linescore']['currentInningOrdinal'] + ')'
-                                    })
+                        game_info.update(
+                            {
+                                "winning_team": game["teams"]["away"]["team"]["name"]
+                                if game["teams"]["away"].get("isWinner")
+                                else game["teams"]["home"]["team"]["name"],
+                                "losing_team": game["teams"]["home"]["team"]["name"]
+                                if game["teams"]["away"].get("isWinner")
+                                else game["teams"]["away"]["team"]["name"],
+                                "winning_pitcher": game.get("decisions", {})
+                                .get("winner", {})
+                                .get("fullName", ""),
+                                "losing_pitcher": game.get("decisions", {})
+                                .get("loser", {})
+                                .get("fullName", ""),
+                                "save_pitcher": game.get("decisions", {})
+                                .get("save", {})
+                                .get("fullName"),
+                            }
+                        )
+                    summary = (
+                        date["date"]
+                        + " - "
+                        + game["teams"]["away"]["team"]["name"]
+                        + " ("
+                        + str(game["teams"]["away"]["score"])
+                        + ") @ "
+                        + game["teams"]["home"]["team"]["name"]
+                        + " ("
+                        + str(game["teams"]["home"]["score"])
+                        + ") ("
+                        + game["status"]["detailedState"]
+                        + ")"
+                    )
+                    game_info.update({"summary": summary})
+                elif game_info["status"] == "In Progress":
+                    game_info.update(
+                        {
+                            "summary": date["date"]
+                            + " - "
+                            + game["teams"]["away"]["team"]["name"]
+                            + " ("
+                            + str(game["teams"]["away"]["score"])
+                            + ") @ "
+                            + game["teams"]["home"]["team"]["name"]
+                            + " ("
+                            + str(game["teams"]["home"]["score"])
+                            + ") ("
+                            + game["linescore"]["inningState"]
+                            + " of the "
+                            + game["linescore"]["currentInningOrdinal"]
+                            + ")"
+                        }
+                    )
                 else:
-                    summary = date['date'] + ' - ' + game['teams']['away']['team']['name'] + ' @ ' + game['teams']['home']['team']['name'] + ' (' + game['status']['detailedState'] + ')'
-                    game_info.update({'summary': summary})
-                        
+                    summary = (
+                        date["date"]
+                        + " - "
+                        + game["teams"]["away"]["team"]["name"]
+                        + " @ "
+                        + game["teams"]["home"]["team"]["name"]
+                        + " ("
+                        + game["status"]["detailedState"]
+                        + ")"
+                    )
+                    game_info.update({"summary": summary})
+
                 games.append(game_info)
 
         return games
 
-def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingBox=True,gameInfo=True,timecode=None):
+
+def boxscore(
+    gamePk,
+    battingBox=True,
+    battingInfo=True,
+    fieldingInfo=True,
+    pitchingBox=True,
+    gameInfo=True,
+    timecode=None,
+):
     """Get a formatted boxscore for a given game.
 
     Note: This function uses the game endpoint instead of game_box,
-    because game_box does not contain the players' names as they should be 
+    because game_box does not contain the players' names as they should be
     displayed in the box score (e.g. Last name only or Last, F)
 
     It is possible to get the boxscore as it existed at a specific time by including the timestamp in the timecode parameter.
@@ -272,178 +358,267 @@ def boxscore(gamePk,battingBox=True,battingInfo=True,fieldingInfo=True,pitchingB
     All default to True; set to False to exclude from the results
     For example, to retrieve only the batting box: statsapi.boxscore(565997,battingInfo=False,fieldingInfo=False,pitchingBox=False,gameInfo=False)
     """
-    boxData = boxscore_data(gamePk,timecode)
+    boxData = boxscore_data(gamePk, timecode)
 
     rowLen = 79
     """rowLen is the total width of each side of the box score, excluding the " | " separator"""
     fullRowLen = rowLen * 2 + 3
     """fullRowLen is the full table width"""
-    boxscore = ''
+    boxscore = ""
     """boxscore will hold the string to be returned"""
 
     if battingBox:
-        #Add away column headers
-        awayBatters = boxData['awayBatters']
-        homeBatters = boxData['homeBatters']
+        # Add away column headers
+        awayBatters = boxData["awayBatters"]
+        homeBatters = boxData["homeBatters"]
 
-        #Make sure the home and away batter lists are the same length
+        # Make sure the home and away batter lists are the same length
         while len(awayBatters) > len(homeBatters):
-            homeBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
+            homeBatters.append(
+                {
+                    "namefield": "",
+                    "ab": "",
+                    "r": "",
+                    "h": "",
+                    "rbi": "",
+                    "bb": "",
+                    "k": "",
+                    "lob": "",
+                    "avg": "",
+                    "ops": "",
+                }
+            )
         while len(awayBatters) < len(homeBatters):
-            awayBatters.append({'namefield':'','ab':'','r':'','h':'','rbi':'','bb':'','k':'','lob':'','avg':'','ops':''})
+            awayBatters.append(
+                {
+                    "namefield": "",
+                    "ab": "",
+                    "r": "",
+                    "h": "",
+                    "rbi": "",
+                    "bb": "",
+                    "k": "",
+                    "lob": "",
+                    "avg": "",
+                    "ops": "",
+                }
+            )
 
-        #Get team totals
-        awayBatters.append(boxData['awayBattingTotals'])
-        homeBatters.append(boxData['homeBattingTotals'])
+        # Get team totals
+        awayBatters.append(boxData["awayBattingTotals"])
+        homeBatters.append(boxData["homeBattingTotals"])
 
-        #Build the batting box!
-        for i in range(0,len(awayBatters)):
-            if i==0 or i==len(awayBatters)-1:
-                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
-            boxscore += '{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5} | '.format(**awayBatters[i])
-            boxscore += '{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5}\n'.format(**homeBatters[i])
-            if i==0 or i==len(awayBatters)-1:
-                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
+        # Build the batting box!
+        for i in range(0, len(awayBatters)):
+            if i == 0 or i == len(awayBatters) - 1:
+                boxscore += "-" * rowLen + " | " + "-" * rowLen + "\n"
+            boxscore += "{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5} | ".format(
+                **awayBatters[i]
+            )
+            boxscore += "{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5}\n".format(
+                **homeBatters[i]
+            )
+            if i == 0 or i == len(awayBatters) - 1:
+                boxscore += "-" * rowLen + " | " + "-" * rowLen + "\n"
 
-        #Get batting notes
-        awayBattingNotes = boxData['awayBattingNotes']
-        homeBattingNotes = boxData['homeBattingNotes']
+        # Get batting notes
+        awayBattingNotes = boxData["awayBattingNotes"]
+        homeBattingNotes = boxData["homeBattingNotes"]
 
         while len(awayBattingNotes) > len(homeBattingNotes):
-            homeBattingNotes.update({len(homeBattingNotes) : ''})
+            homeBattingNotes.update({len(homeBattingNotes): ""})
         while len(awayBattingNotes) < len(homeBattingNotes):
-            awayBattingNotes.update({len(awayBattingNotes) : ''})
+            awayBattingNotes.update({len(awayBattingNotes): ""})
 
-        for i in range(0,len(awayBattingNotes)):
-            boxscore += '{:<79} | '.format(awayBattingNotes[i])
-            boxscore += '{:<79}\n'.format(homeBattingNotes[i])
+        for i in range(0, len(awayBattingNotes)):
+            boxscore += "{:<79} | ".format(awayBattingNotes[i])
+            boxscore += "{:<79}\n".format(homeBattingNotes[i])
 
-        boxscore += ' '*rowLen + ' | ' + ' '*rowLen + '\n'
+        boxscore += " " * rowLen + " | " + " " * rowLen + "\n"
 
-    #Get batting and fielding info
+    # Get batting and fielding info
     awayBoxInfo = {}
     homeBoxInfo = {}
-    for infoType in ['BATTING','FIELDING']:
-        if (infoType=='BATTING' and battingInfo) or (infoType=='FIELDING' and fieldingInfo):
-            for z in (x for x in boxData['away']['info'] if x.get('title')==infoType):
-                awayBoxInfo.update({len(awayBoxInfo): z['title']})
-                for x in z['fieldList']:
-                    if len(x['label'] + ': ' + x.get('value','')) > rowLen:
-                        words = iter((x['label'] + ': ' + x.get('value','')).split())
-                        check = ''
+    for infoType in ["BATTING", "FIELDING"]:
+        if (infoType == "BATTING" and battingInfo) or (
+            infoType == "FIELDING" and fieldingInfo
+        ):
+            for z in (x for x in boxData["away"]["info"] if x.get("title") == infoType):
+                awayBoxInfo.update({len(awayBoxInfo): z["title"]})
+                for x in z["fieldList"]:
+                    if len(x["label"] + ": " + x.get("value", "")) > rowLen:
+                        words = iter((x["label"] + ": " + x.get("value", "")).split())
+                        check = ""
                         lines = []
                         for word in words:
                             if len(check) + 1 + len(word) <= rowLen:
-                                if check=='': check = word
-                                else: check += ' ' + word
+                                if check == "":
+                                    check = word
+                                else:
+                                    check += " " + word
                             else:
                                 lines.append(check)
-                                check = '    ' + word
-                        if len(check): lines.append(check)
-                        for i in range(0,len(lines)):
-                            awayBoxInfo.update({len(awayBoxInfo): lines[i] })
-                            
-                    else:
-                        awayBoxInfo.update({len(awayBoxInfo): x['label'] + ': ' + x.get('value','') })
+                                check = "    " + word
+                        if len(check):
+                            lines.append(check)
+                        for i in range(0, len(lines)):
+                            awayBoxInfo.update({len(awayBoxInfo): lines[i]})
 
-            for z in (x for x in boxData['home']['info'] if x.get('title')==infoType):
-                homeBoxInfo.update({len(homeBoxInfo): z['title']})
-                for x in z['fieldList']:
-                    if len(x['label'] + ': ' + x.get('value','')) > rowLen:
-                        words = iter((x['label'] + ': ' + x.get('value','')).split())
-                        check = ''
+                    else:
+                        awayBoxInfo.update(
+                            {len(awayBoxInfo): x["label"] + ": " + x.get("value", "")}
+                        )
+
+            for z in (x for x in boxData["home"]["info"] if x.get("title") == infoType):
+                homeBoxInfo.update({len(homeBoxInfo): z["title"]})
+                for x in z["fieldList"]:
+                    if len(x["label"] + ": " + x.get("value", "")) > rowLen:
+                        words = iter((x["label"] + ": " + x.get("value", "")).split())
+                        check = ""
                         lines = []
                         for word in words:
                             if len(check) + 1 + len(word) <= rowLen:
-                                if check=='': check = word
-                                else: check += ' ' + word
+                                if check == "":
+                                    check = word
+                                else:
+                                    check += " " + word
                             else:
                                 lines.append(check)
-                                check = '    ' + word
-                        if len(check): lines.append(check)
-                        for i in range(0,len(lines)):
-                            homeBoxInfo.update({len(homeBoxInfo): lines[i] })
+                                check = "    " + word
+                        if len(check):
+                            lines.append(check)
+                        for i in range(0, len(lines)):
+                            homeBoxInfo.update({len(homeBoxInfo): lines[i]})
                     else:
-                        homeBoxInfo.update({len(homeBoxInfo): x['label'] + ': ' + x.get('value','') })
+                        homeBoxInfo.update(
+                            {len(homeBoxInfo): x["label"] + ": " + x.get("value", "")}
+                        )
 
-            if len(awayBoxInfo) and infoType == 'BATTING':
-                awayBoxInfo.update({len(awayBoxInfo) : ' '})
-            if len(homeBoxInfo) and infoType == 'BATTING':
-                homeBoxInfo.update({len(homeBoxInfo) : ' '})
+            if len(awayBoxInfo) and infoType == "BATTING":
+                awayBoxInfo.update({len(awayBoxInfo): " "})
+            if len(homeBoxInfo) and infoType == "BATTING":
+                homeBoxInfo.update({len(homeBoxInfo): " "})
 
     if len(awayBoxInfo) > 0:
         while len(awayBoxInfo) > len(homeBoxInfo):
-            homeBoxInfo.update({len(homeBoxInfo) : ''})
+            homeBoxInfo.update({len(homeBoxInfo): ""})
         while len(awayBoxInfo) < len(homeBoxInfo):
-            awayBoxInfo.update({len(awayBoxInfo) : ''})
+            awayBoxInfo.update({len(awayBoxInfo): ""})
 
-        #Build info box
-        for i in range(0,len(awayBoxInfo)):
-            boxscore += ('{:<%s} | '%rowLen).format(awayBoxInfo[i])
-            boxscore += ('{:<%s}\n'%rowLen).format(homeBoxInfo[i])
-            if i==len(awayBoxInfo)-1:
-                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
+        # Build info box
+        for i in range(0, len(awayBoxInfo)):
+            boxscore += ("{:<%s} | " % rowLen).format(awayBoxInfo[i])
+            boxscore += ("{:<%s}\n" % rowLen).format(homeBoxInfo[i])
+            if i == len(awayBoxInfo) - 1:
+                boxscore += "-" * rowLen + " | " + "-" * rowLen + "\n"
 
-    #Get pitching box
+    # Get pitching box
     if pitchingBox:
-        awayPitchers = boxData['awayPitchers']
-        homePitchers = boxData['homePitchers']
+        awayPitchers = boxData["awayPitchers"]
+        homePitchers = boxData["homePitchers"]
 
-        #Make sure the home and away pitcher lists are the same length
+        # Make sure the home and away pitcher lists are the same length
         while len(awayPitchers) > len(homePitchers):
-            homePitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
+            homePitchers.append(
+                {
+                    "namefield": "",
+                    "ip": "",
+                    "h": "",
+                    "r": "",
+                    "er": "",
+                    "bb": "",
+                    "k": "",
+                    "hr": "",
+                    "era": "",
+                }
+            )
         while len(awayPitchers) < len(homePitchers):
-            awayPitchers.append({'namefield':'','ip':'','h':'','r':'','er':'','bb':'','k':'','hr':'','era':''})
+            awayPitchers.append(
+                {
+                    "namefield": "",
+                    "ip": "",
+                    "h": "",
+                    "r": "",
+                    "er": "",
+                    "bb": "",
+                    "k": "",
+                    "hr": "",
+                    "era": "",
+                }
+            )
 
-        #Get team totals
-        awayPitchers.append(boxData['awayPitchingTotals'])
-        homePitchers.append(boxData['homePitchingTotals'])
+        # Get team totals
+        awayPitchers.append(boxData["awayPitchingTotals"])
+        homePitchers.append(boxData["homePitchingTotals"])
 
-        #Build the pitching box!
-        for i in range(0,len(awayPitchers)):
-            if i==0 or i==len(awayPitchers)-1:
-                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
-            boxscore += '{namefield:<43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6} | '.format(**awayPitchers[i])
-            boxscore += '{namefield:<43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6}\n'.format(**homePitchers[i])
-            if i==0 or i==len(awayPitchers)-1:
-                boxscore += '-'*rowLen + ' | ' + '-'*rowLen + '\n'
+        # Build the pitching box!
+        for i in range(0, len(awayPitchers)):
+            if i == 0 or i == len(awayPitchers) - 1:
+                boxscore += "-" * rowLen + " | " + "-" * rowLen + "\n"
+            boxscore += "{namefield:<43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6} | ".format(
+                **awayPitchers[i]
+            )
+            boxscore += "{namefield:<43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6}\n".format(
+                **homePitchers[i]
+            )
+            if i == 0 or i == len(awayPitchers) - 1:
+                boxscore += "-" * rowLen + " | " + "-" * rowLen + "\n"
 
-    #Get game info
+    # Get game info
     if gameInfo:
-        z = boxData['gameBoxInfo']
+        z = boxData["gameBoxInfo"]
         gameBoxInfo = {}
         for x in z:
-            if len(x['label'] + (': ' if x.get('value') else '') + x.get('value','')) > fullRowLen:
-                words = iter((x['label'] + (': ' if x.get('value') else '') + x.get('value','')).split())
-                check = ''
+            if (
+                len(x["label"] + (": " if x.get("value") else "") + x.get("value", ""))
+                > fullRowLen
+            ):
+                words = iter(
+                    (
+                        x["label"]
+                        + (": " if x.get("value") else "")
+                        + x.get("value", "")
+                    ).split()
+                )
+                check = ""
                 lines = []
                 for word in words:
                     if len(check) + 1 + len(word) <= fullRowLen:
-                        if check=='': check = word
-                        else: check += ' ' + word
+                        if check == "":
+                            check = word
+                        else:
+                            check += " " + word
                     else:
                         lines.append(check)
-                        check = '    ' + word
-                if len(check): lines.append(check)
-                for i in range(0,len(lines)):
-                    gameBoxInfo.update({len(gameBoxInfo): lines[i] })
-                    
-            else:
-                gameBoxInfo.update({len(gameBoxInfo): x['label'] + (': ' if x.get('value') else '') + x.get('value','') })
+                        check = "    " + word
+                if len(check):
+                    lines.append(check)
+                for i in range(0, len(lines)):
+                    gameBoxInfo.update({len(gameBoxInfo): lines[i]})
 
-        #Build the game info box
-        for i in range(0,len(gameBoxInfo)):
-            boxscore += ('{:<%s}'%fullRowLen + '\n').format(gameBoxInfo[i])
-            if i==len(gameBoxInfo)-1:
-                boxscore += '-'*fullRowLen + '\n'
+            else:
+                gameBoxInfo.update(
+                    {
+                        len(gameBoxInfo): x["label"]
+                        + (": " if x.get("value") else "")
+                        + x.get("value", "")
+                    }
+                )
+
+        # Build the game info box
+        for i in range(0, len(gameBoxInfo)):
+            boxscore += ("{:<%s}" % fullRowLen + "\n").format(gameBoxInfo[i])
+            if i == len(gameBoxInfo) - 1:
+                boxscore += "-" * fullRowLen + "\n"
 
     return boxscore
 
-def boxscore_data(gamePk,timecode=None):
+
+def boxscore_data(gamePk, timecode=None):
     """Returns a python dict containing boxscore data for a given game.
 
     Note: This function uses the game endpoint instead of game_box,
-    because game_box does not contain the players' names as they should be 
+    because game_box does not contain the players' names as they should be
     displayed in the box score (e.g. Last name only or Last, F)
 
     It is possible to get the boxscore as it existed at a specific time by including the timestamp in the timecode parameter.
@@ -456,231 +631,553 @@ def boxscore_data(gamePk,timecode=None):
     boxData = {}
     """boxData holds the dict to be returned"""
 
-    params = {'gamePk':gamePk,'fields':'gameData,game,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,obp,slg,era,pitchesThrown,strikes,battingOrder,info,title,fieldList,note,label,value,wins,losses,holds,blownSaves'}
-    if timecode: params.update({'timecode':timecode})
-    r = get('game',params)
+    params = {
+        "gamePk": gamePk,
+        "fields": "gameData,game,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,rbi,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,obp,slg,era,pitchesThrown,strikes,battingOrder,info,title,fieldList,note,label,value,wins,losses,holds,blownSaves",
+    }
+    if timecode:
+        params.update({"timecode": timecode})
+    r = get("game", params)
 
-    boxData.update({'gameId':r['gameData']['game']['id']})
-    boxData.update({'teamInfo':r['gameData']['teams']})
-    boxData.update({'playerInfo':r['gameData']['players']})
-    boxData.update({'away':r['liveData']['boxscore']['teams']['away']})
-    boxData.update({'home':r['liveData']['boxscore']['teams']['home']})
-    #Add away column headers
-    awayBatters = [{'namefield':boxData['teamInfo']['away']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['away']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG', 'battingOrder':''}]
-    for batterId_int in [x for x in boxData['away']['batters'] if boxData['away']['players']['ID'+str(x)].get('battingOrder')]:
+    boxData.update({"gameId": r["gameData"]["game"]["id"]})
+    boxData.update({"teamInfo": r["gameData"]["teams"]})
+    boxData.update({"playerInfo": r["gameData"]["players"]})
+    boxData.update({"away": r["liveData"]["boxscore"]["teams"]["away"]})
+    boxData.update({"home": r["liveData"]["boxscore"]["teams"]["home"]})
+    # Add away column headers
+    awayBatters = [
+        {
+            "namefield": boxData["teamInfo"]["away"]["teamName"] + " Batters",
+            "ab": "AB",
+            "r": "R",
+            "h": "H",
+            "rbi": "RBI",
+            "bb": "BB",
+            "k": "K",
+            "lob": "LOB",
+            "avg": "AVG",
+            "ops": "OPS",
+            "personId": 0,
+            "substitution": False,
+            "note": "",
+            "name": boxData["teamInfo"]["away"]["teamName"] + " Batters",
+            "position": "",
+            "obp": "OBP",
+            "slg": "SLG",
+            "battingOrder": "",
+        }
+    ]
+    for batterId_int in [
+        x
+        for x in boxData["away"]["batters"]
+        if boxData["away"]["players"]["ID" + str(x)].get("battingOrder")
+    ]:
         batterId = str(batterId_int)
-        namefield = str(boxData['away']['players']['ID'+batterId]['battingOrder'])[0] if str(boxData['away']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
-        namefield += " " + boxData['away']['players']['ID'+batterId]['stats']['batting'].get('note','')
-        namefield += boxData['playerInfo']['ID'+batterId]['boxscoreName'] + "  " + boxData['away']['players']['ID'+batterId]['position']['abbreviation']
-        batter =    {
-                        'namefield':namefield,
-                        'ab':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['atBats']),
-                        'r':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['runs']),
-                        'h':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['hits']),
-                        'rbi':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['rbi']),
-                        'bb':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['baseOnBalls']),
-                        'k':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['strikeOuts']),
-                        'lob':str(boxData['away']['players']['ID'+batterId]['stats']['batting']['leftOnBase']),
-                        'avg':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['avg']),
-                        'ops':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['ops']),
-                        'personId':batterId_int,
-                        'battingOrder':str(boxData['away']['players']['ID'+batterId]['battingOrder']),
-                        'substitution':False if str(boxData['away']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else True,
-                        'note':boxData['away']['players']['ID'+batterId]['stats']['batting'].get('note',''),
-                        'name':boxData['playerInfo']['ID'+batterId]['boxscoreName'],
-                        'position':boxData['away']['players']['ID'+batterId]['position']['abbreviation'],
-                        'obp':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['obp']),
-                        'slg':str(boxData['away']['players']['ID'+batterId]['seasonStats']['batting']['slg'])
-                    }
+        namefield = (
+            str(boxData["away"]["players"]["ID" + batterId]["battingOrder"])[0]
+            if str(boxData["away"]["players"]["ID" + batterId]["battingOrder"])[-1]
+            == "0"
+            else "   "
+        )
+        namefield += " " + boxData["away"]["players"]["ID" + batterId]["stats"][
+            "batting"
+        ].get("note", "")
+        namefield += (
+            boxData["playerInfo"]["ID" + batterId]["boxscoreName"]
+            + "  "
+            + boxData["away"]["players"]["ID" + batterId]["position"]["abbreviation"]
+        )
+        batter = {
+            "namefield": namefield,
+            "ab": str(
+                boxData["away"]["players"]["ID" + batterId]["stats"]["batting"][
+                    "atBats"
+                ]
+            ),
+            "r": str(
+                boxData["away"]["players"]["ID" + batterId]["stats"]["batting"]["runs"]
+            ),
+            "h": str(
+                boxData["away"]["players"]["ID" + batterId]["stats"]["batting"]["hits"]
+            ),
+            "rbi": str(
+                boxData["away"]["players"]["ID" + batterId]["stats"]["batting"]["rbi"]
+            ),
+            "bb": str(
+                boxData["away"]["players"]["ID" + batterId]["stats"]["batting"][
+                    "baseOnBalls"
+                ]
+            ),
+            "k": str(
+                boxData["away"]["players"]["ID" + batterId]["stats"]["batting"][
+                    "strikeOuts"
+                ]
+            ),
+            "lob": str(
+                boxData["away"]["players"]["ID" + batterId]["stats"]["batting"][
+                    "leftOnBase"
+                ]
+            ),
+            "avg": str(
+                boxData["away"]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                    "avg"
+                ]
+            ),
+            "ops": str(
+                boxData["away"]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                    "ops"
+                ]
+            ),
+            "personId": batterId_int,
+            "battingOrder": str(
+                boxData["away"]["players"]["ID" + batterId]["battingOrder"]
+            ),
+            "substitution": False
+            if str(boxData["away"]["players"]["ID" + batterId]["battingOrder"])[-1]
+            == "0"
+            else True,
+            "note": boxData["away"]["players"]["ID" + batterId]["stats"]["batting"].get(
+                "note", ""
+            ),
+            "name": boxData["playerInfo"]["ID" + batterId]["boxscoreName"],
+            "position": boxData["away"]["players"]["ID" + batterId]["position"][
+                "abbreviation"
+            ],
+            "obp": str(
+                boxData["away"]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                    "obp"
+                ]
+            ),
+            "slg": str(
+                boxData["away"]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                    "slg"
+                ]
+            ),
+        }
         awayBatters.append(batter)
 
-    #Add home column headers
-    homeBatters = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Batters', 'ab':'AB', 'r':'R', 'h':'H', 'rbi':'RBI', 'bb':'BB', 'k':'K', 'lob':'LOB', 'avg':'AVG', 'ops':'OPS', 'personId':0, 'substitution':False, 'note':'', 'name':boxData['teamInfo']['home']['teamName'] + ' Batters', 'position':'', 'obp':'OBP', 'slg':'SLG', 'battingOrder':''}]
-    for batterId_int in [x for x in boxData['home']['batters'] if boxData['home']['players']['ID'+str(x)].get('battingOrder')]:
+    # Add home column headers
+    homeBatters = [
+        {
+            "namefield": boxData["teamInfo"]["home"]["teamName"] + " Batters",
+            "ab": "AB",
+            "r": "R",
+            "h": "H",
+            "rbi": "RBI",
+            "bb": "BB",
+            "k": "K",
+            "lob": "LOB",
+            "avg": "AVG",
+            "ops": "OPS",
+            "personId": 0,
+            "substitution": False,
+            "note": "",
+            "name": boxData["teamInfo"]["home"]["teamName"] + " Batters",
+            "position": "",
+            "obp": "OBP",
+            "slg": "SLG",
+            "battingOrder": "",
+        }
+    ]
+    for batterId_int in [
+        x
+        for x in boxData["home"]["batters"]
+        if boxData["home"]["players"]["ID" + str(x)].get("battingOrder")
+    ]:
         batterId = str(batterId_int)
-        namefield = str(boxData['home']['players']['ID'+batterId]['battingOrder'])[0] if str(boxData['home']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else "   "
-        namefield += " " + boxData['home']['players']['ID'+batterId]['stats']['batting'].get('note','')
-        namefield += boxData['playerInfo']['ID'+batterId]['boxscoreName'] + "  " + boxData['home']['players']['ID'+batterId]['position']['abbreviation']
-        batter =    {
-                        'namefield':namefield,
-                        'ab':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['atBats']),
-                        'r':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['runs']),
-                        'h':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['hits']),
-                        'rbi':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['rbi']),
-                        'bb':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['baseOnBalls']),
-                        'k':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['strikeOuts']),
-                        'lob':str(boxData['home']['players']['ID'+batterId]['stats']['batting']['leftOnBase']),
-                        'avg':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['avg']),
-                        'ops':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['ops']),
-                        'personId':batterId_int,
-                        'battingOrder':str(boxData['home']['players']['ID'+batterId]['battingOrder']),
-                        'substitution':False if str(boxData['home']['players']['ID'+batterId]['battingOrder'])[-1] == '0' else True,
-                        'note':boxData['home']['players']['ID'+batterId]['stats']['batting'].get('note',''),
-                        'name':boxData['playerInfo']['ID'+batterId]['boxscoreName'],
-                        'position':boxData['home']['players']['ID'+batterId]['position']['abbreviation'],
-                        'obp':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['obp']),
-                        'slg':str(boxData['home']['players']['ID'+batterId]['seasonStats']['batting']['slg'])
-                    }
+        namefield = (
+            str(boxData["home"]["players"]["ID" + batterId]["battingOrder"])[0]
+            if str(boxData["home"]["players"]["ID" + batterId]["battingOrder"])[-1]
+            == "0"
+            else "   "
+        )
+        namefield += " " + boxData["home"]["players"]["ID" + batterId]["stats"][
+            "batting"
+        ].get("note", "")
+        namefield += (
+            boxData["playerInfo"]["ID" + batterId]["boxscoreName"]
+            + "  "
+            + boxData["home"]["players"]["ID" + batterId]["position"]["abbreviation"]
+        )
+        batter = {
+            "namefield": namefield,
+            "ab": str(
+                boxData["home"]["players"]["ID" + batterId]["stats"]["batting"][
+                    "atBats"
+                ]
+            ),
+            "r": str(
+                boxData["home"]["players"]["ID" + batterId]["stats"]["batting"]["runs"]
+            ),
+            "h": str(
+                boxData["home"]["players"]["ID" + batterId]["stats"]["batting"]["hits"]
+            ),
+            "rbi": str(
+                boxData["home"]["players"]["ID" + batterId]["stats"]["batting"]["rbi"]
+            ),
+            "bb": str(
+                boxData["home"]["players"]["ID" + batterId]["stats"]["batting"][
+                    "baseOnBalls"
+                ]
+            ),
+            "k": str(
+                boxData["home"]["players"]["ID" + batterId]["stats"]["batting"][
+                    "strikeOuts"
+                ]
+            ),
+            "lob": str(
+                boxData["home"]["players"]["ID" + batterId]["stats"]["batting"][
+                    "leftOnBase"
+                ]
+            ),
+            "avg": str(
+                boxData["home"]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                    "avg"
+                ]
+            ),
+            "ops": str(
+                boxData["home"]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                    "ops"
+                ]
+            ),
+            "personId": batterId_int,
+            "battingOrder": str(
+                boxData["home"]["players"]["ID" + batterId]["battingOrder"]
+            ),
+            "substitution": False
+            if str(boxData["home"]["players"]["ID" + batterId]["battingOrder"])[-1]
+            == "0"
+            else True,
+            "note": boxData["home"]["players"]["ID" + batterId]["stats"]["batting"].get(
+                "note", ""
+            ),
+            "name": boxData["playerInfo"]["ID" + batterId]["boxscoreName"],
+            "position": boxData["home"]["players"]["ID" + batterId]["position"][
+                "abbreviation"
+            ],
+            "obp": str(
+                boxData["home"]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                    "obp"
+                ]
+            ),
+            "slg": str(
+                boxData["home"]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                    "slg"
+                ]
+            ),
+        }
         homeBatters.append(batter)
 
-    boxData.update({'awayBatters':awayBatters})
-    boxData.update({'homeBatters':homeBatters})
+    boxData.update({"awayBatters": awayBatters})
+    boxData.update({"homeBatters": homeBatters})
 
-    #Add away team totals
-    boxData.update({'awayBattingTotals': {
-                            'namefield':'Totals',
-                            'ab':str(boxData['away']['teamStats']['batting']['atBats']),
-                            'r':str(boxData['away']['teamStats']['batting']['runs']),
-                            'h':str(boxData['away']['teamStats']['batting']['hits']),
-                            'rbi':str(boxData['away']['teamStats']['batting']['rbi']),
-                            'bb':str(boxData['away']['teamStats']['batting']['baseOnBalls']),
-                            'k':str(boxData['away']['teamStats']['batting']['strikeOuts']),
-                            'lob':str(boxData['away']['teamStats']['batting']['leftOnBase']),
-                            'avg':'',
-                            'ops':'',
-                            'obp':'',
-                            'slg':'',
-                            'name':'Totals',
-                            'position':'',
-                            'note':'',
-                            'substitution':False,
-                            'battingOrder':'',
-                            'personId':0
-                        }})
-    #Add home team totals
-    boxData.update({'homeBattingTotals': {
-                            'namefield':'Totals',
-                            'ab':str(boxData['home']['teamStats']['batting']['atBats']),
-                            'r':str(boxData['home']['teamStats']['batting']['runs']),
-                            'h':str(boxData['home']['teamStats']['batting']['hits']),
-                            'rbi':str(boxData['home']['teamStats']['batting']['rbi']),
-                            'bb':str(boxData['home']['teamStats']['batting']['baseOnBalls']),
-                            'k':str(boxData['home']['teamStats']['batting']['strikeOuts']),
-                            'lob':str(boxData['home']['teamStats']['batting']['leftOnBase']),
-                            'avg':'',
-                            'ops':'',
-                            'obp':'',
-                            'slg':'',
-                            'name':'Totals',
-                            'position':'',
-                            'note':'',
-                            'substitution':False,
-                            'battingOrder':'',
-                            'personId':0
-                        }})
+    # Add away team totals
+    boxData.update(
+        {
+            "awayBattingTotals": {
+                "namefield": "Totals",
+                "ab": str(boxData["away"]["teamStats"]["batting"]["atBats"]),
+                "r": str(boxData["away"]["teamStats"]["batting"]["runs"]),
+                "h": str(boxData["away"]["teamStats"]["batting"]["hits"]),
+                "rbi": str(boxData["away"]["teamStats"]["batting"]["rbi"]),
+                "bb": str(boxData["away"]["teamStats"]["batting"]["baseOnBalls"]),
+                "k": str(boxData["away"]["teamStats"]["batting"]["strikeOuts"]),
+                "lob": str(boxData["away"]["teamStats"]["batting"]["leftOnBase"]),
+                "avg": "",
+                "ops": "",
+                "obp": "",
+                "slg": "",
+                "name": "Totals",
+                "position": "",
+                "note": "",
+                "substitution": False,
+                "battingOrder": "",
+                "personId": 0,
+            }
+        }
+    )
+    # Add home team totals
+    boxData.update(
+        {
+            "homeBattingTotals": {
+                "namefield": "Totals",
+                "ab": str(boxData["home"]["teamStats"]["batting"]["atBats"]),
+                "r": str(boxData["home"]["teamStats"]["batting"]["runs"]),
+                "h": str(boxData["home"]["teamStats"]["batting"]["hits"]),
+                "rbi": str(boxData["home"]["teamStats"]["batting"]["rbi"]),
+                "bb": str(boxData["home"]["teamStats"]["batting"]["baseOnBalls"]),
+                "k": str(boxData["home"]["teamStats"]["batting"]["strikeOuts"]),
+                "lob": str(boxData["home"]["teamStats"]["batting"]["leftOnBase"]),
+                "avg": "",
+                "ops": "",
+                "obp": "",
+                "slg": "",
+                "name": "Totals",
+                "position": "",
+                "note": "",
+                "substitution": False,
+                "battingOrder": "",
+                "personId": 0,
+            }
+        }
+    )
 
-    #Get batting notes
+    # Get batting notes
     awayBattingNotes = {}
-    for n in boxData['away']['note']:
-        awayBattingNotes.update({len(awayBattingNotes) : n['label'] + '-' + n['value']})
+    for n in boxData["away"]["note"]:
+        awayBattingNotes.update({len(awayBattingNotes): n["label"] + "-" + n["value"]})
     homeBattingNotes = {}
-    for n in boxData['home']['note']:
-        homeBattingNotes.update({len(homeBattingNotes) : n['label'] + '-' + n['value']})
+    for n in boxData["home"]["note"]:
+        homeBattingNotes.update({len(homeBattingNotes): n["label"] + "-" + n["value"]})
 
-    boxData.update({'awayBattingNotes':awayBattingNotes})
-    boxData.update({'homeBattingNotes':homeBattingNotes})
+    boxData.update({"awayBattingNotes": awayBattingNotes})
+    boxData.update({"homeBattingNotes": homeBattingNotes})
 
-    #Get pitching box
-    #Add away column headers
-    awayPitchers = [{'namefield':boxData['teamInfo']['away']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA', 'p':'P', 's':'S', 'name':boxData['teamInfo']['away']['teamName'] + ' Pitchers', 'personId':0, 'note':''}]
-    for pitcherId_int in boxData['away']['pitchers']:
+    # Get pitching box
+    # Add away column headers
+    awayPitchers = [
+        {
+            "namefield": boxData["teamInfo"]["away"]["teamName"] + " Pitchers",
+            "ip": "IP",
+            "h": "H",
+            "r": "R",
+            "er": "ER",
+            "bb": "BB",
+            "k": "K",
+            "hr": "HR",
+            "era": "ERA",
+            "p": "P",
+            "s": "S",
+            "name": boxData["teamInfo"]["away"]["teamName"] + " Pitchers",
+            "personId": 0,
+            "note": "",
+        }
+    ]
+    for pitcherId_int in boxData["away"]["pitchers"]:
         pitcherId = str(pitcherId_int)
-        namefield = boxData['playerInfo']['ID'+pitcherId]['boxscoreName']
-        namefield += '  ' + boxData['away']['players']['ID'+pitcherId]['stats']['pitching'].get('note','') if boxData['away']['players']['ID'+pitcherId]['stats']['pitching'].get('note') else ''
-        pitcher =    {
-                        'namefield':namefield,
-                        'ip':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['inningsPitched']),
-                        'h':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['hits']),
-                        'r':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['runs']),
-                        'er':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['earnedRuns']),
-                        'bb':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['baseOnBalls']),
-                        'k':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['strikeOuts']),
-                        'hr':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['homeRuns']),
-                        'p':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['pitchesThrown']),
-                        's':str(boxData['away']['players']['ID'+pitcherId]['stats']['pitching']['strikes']),
-                        'era':str(boxData['away']['players']['ID'+pitcherId]['seasonStats']['pitching']['era']),
-                        'name':boxData['playerInfo']['ID'+pitcherId]['boxscoreName'],
-                        'personId':pitcherId_int,
-                        'note':boxData['away']['players']['ID'+pitcherId]['stats']['pitching'].get('note','')
-                    }
+        namefield = boxData["playerInfo"]["ID" + pitcherId]["boxscoreName"]
+        namefield += (
+            "  "
+            + boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"].get(
+                "note", ""
+            )
+            if boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"].get(
+                "note"
+            )
+            else ""
+        )
+        pitcher = {
+            "namefield": namefield,
+            "ip": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "inningsPitched"
+                ]
+            ),
+            "h": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "hits"
+                ]
+            ),
+            "r": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "runs"
+                ]
+            ),
+            "er": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "earnedRuns"
+                ]
+            ),
+            "bb": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "baseOnBalls"
+                ]
+            ),
+            "k": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "strikeOuts"
+                ]
+            ),
+            "hr": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "homeRuns"
+                ]
+            ),
+            "p": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "pitchesThrown"
+                ]
+            ),
+            "s": str(
+                boxData["away"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "strikes"
+                ]
+            ),
+            "era": str(
+                boxData["away"]["players"]["ID" + pitcherId]["seasonStats"]["pitching"][
+                    "era"
+                ]
+            ),
+            "name": boxData["playerInfo"]["ID" + pitcherId]["boxscoreName"],
+            "personId": pitcherId_int,
+            "note": boxData["away"]["players"]["ID" + pitcherId]["stats"][
+                "pitching"
+            ].get("note", ""),
+        }
         awayPitchers.append(pitcher)
 
-    boxData.update({'awayPitchers':awayPitchers})
+    boxData.update({"awayPitchers": awayPitchers})
 
-    #Add home column headers
-    homePitchers = [{'namefield':boxData['teamInfo']['home']['teamName'] + ' Pitchers', 'ip':'IP', 'h':'H', 'r':'R', 'er':'ER', 'bb':'BB', 'k':'K', 'hr':'HR', 'era':'ERA', 'p':'P', 's':'S', 'name': boxData['teamInfo']['home']['teamName'] + ' Pitchers', 'personId':0, 'note':''}]
-    for pitcherId_int in boxData['home']['pitchers']:
+    # Add home column headers
+    homePitchers = [
+        {
+            "namefield": boxData["teamInfo"]["home"]["teamName"] + " Pitchers",
+            "ip": "IP",
+            "h": "H",
+            "r": "R",
+            "er": "ER",
+            "bb": "BB",
+            "k": "K",
+            "hr": "HR",
+            "era": "ERA",
+            "p": "P",
+            "s": "S",
+            "name": boxData["teamInfo"]["home"]["teamName"] + " Pitchers",
+            "personId": 0,
+            "note": "",
+        }
+    ]
+    for pitcherId_int in boxData["home"]["pitchers"]:
         pitcherId = str(pitcherId_int)
-        namefield = boxData['playerInfo']['ID'+pitcherId]['boxscoreName']
-        namefield += '  ' + boxData['home']['players']['ID'+pitcherId]['stats']['pitching'].get('note','') if boxData['home']['players']['ID'+pitcherId]['stats']['pitching'].get('note') else ''
-        pitcher =    {
-                        'namefield':namefield,
-                        'ip':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['inningsPitched']),
-                        'h':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['hits']),
-                        'r':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['runs']),
-                        'er':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['earnedRuns']),
-                        'bb':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['baseOnBalls']),
-                        'k':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['strikeOuts']),
-                        'hr':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['homeRuns']),
-                        'p':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['pitchesThrown']),
-                        's':str(boxData['home']['players']['ID'+pitcherId]['stats']['pitching']['strikes']),
-                        'era':str(boxData['home']['players']['ID'+pitcherId]['seasonStats']['pitching']['era']),
-                        'name':boxData['playerInfo']['ID'+pitcherId]['boxscoreName'],
-                        'personId':pitcherId_int,
-                        'note':boxData['home']['players']['ID'+pitcherId]['stats']['pitching'].get('note','')
-                    }
+        namefield = boxData["playerInfo"]["ID" + pitcherId]["boxscoreName"]
+        namefield += (
+            "  "
+            + boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"].get(
+                "note", ""
+            )
+            if boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"].get(
+                "note"
+            )
+            else ""
+        )
+        pitcher = {
+            "namefield": namefield,
+            "ip": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "inningsPitched"
+                ]
+            ),
+            "h": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "hits"
+                ]
+            ),
+            "r": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "runs"
+                ]
+            ),
+            "er": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "earnedRuns"
+                ]
+            ),
+            "bb": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "baseOnBalls"
+                ]
+            ),
+            "k": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "strikeOuts"
+                ]
+            ),
+            "hr": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "homeRuns"
+                ]
+            ),
+            "p": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "pitchesThrown"
+                ]
+            ),
+            "s": str(
+                boxData["home"]["players"]["ID" + pitcherId]["stats"]["pitching"][
+                    "strikes"
+                ]
+            ),
+            "era": str(
+                boxData["home"]["players"]["ID" + pitcherId]["seasonStats"]["pitching"][
+                    "era"
+                ]
+            ),
+            "name": boxData["playerInfo"]["ID" + pitcherId]["boxscoreName"],
+            "personId": pitcherId_int,
+            "note": boxData["home"]["players"]["ID" + pitcherId]["stats"][
+                "pitching"
+            ].get("note", ""),
+        }
         homePitchers.append(pitcher)
 
-    boxData.update({'homePitchers':homePitchers})
+    boxData.update({"homePitchers": homePitchers})
 
-    #Get away team totals
-    boxData.update({'awayPitchingTotals':   {
-                            'namefield':'Totals',
-                            'ip':str(boxData['away']['teamStats']['pitching']['inningsPitched']),
-                            'h':str(boxData['away']['teamStats']['pitching']['hits']),
-                            'r':str(boxData['away']['teamStats']['pitching']['runs']),
-                            'er':str(boxData['away']['teamStats']['pitching']['earnedRuns']),
-                            'bb':str(boxData['away']['teamStats']['pitching']['baseOnBalls']),
-                            'k':str(boxData['away']['teamStats']['pitching']['strikeOuts']),
-                            'hr':str(boxData['away']['teamStats']['pitching']['homeRuns']),
-                            'p':'',
-                            's':'',
-                            'era':'',
-                            'name':'Totals',
-                            'personId':0,
-                            'note':''
-                        }})
+    # Get away team totals
+    boxData.update(
+        {
+            "awayPitchingTotals": {
+                "namefield": "Totals",
+                "ip": str(boxData["away"]["teamStats"]["pitching"]["inningsPitched"]),
+                "h": str(boxData["away"]["teamStats"]["pitching"]["hits"]),
+                "r": str(boxData["away"]["teamStats"]["pitching"]["runs"]),
+                "er": str(boxData["away"]["teamStats"]["pitching"]["earnedRuns"]),
+                "bb": str(boxData["away"]["teamStats"]["pitching"]["baseOnBalls"]),
+                "k": str(boxData["away"]["teamStats"]["pitching"]["strikeOuts"]),
+                "hr": str(boxData["away"]["teamStats"]["pitching"]["homeRuns"]),
+                "p": "",
+                "s": "",
+                "era": "",
+                "name": "Totals",
+                "personId": 0,
+                "note": "",
+            }
+        }
+    )
 
+    # Get home team totals
+    boxData.update(
+        {
+            "homePitchingTotals": {
+                "namefield": "Totals",
+                "ip": str(boxData["home"]["teamStats"]["pitching"]["inningsPitched"]),
+                "h": str(boxData["home"]["teamStats"]["pitching"]["hits"]),
+                "r": str(boxData["home"]["teamStats"]["pitching"]["runs"]),
+                "er": str(boxData["home"]["teamStats"]["pitching"]["earnedRuns"]),
+                "bb": str(boxData["home"]["teamStats"]["pitching"]["baseOnBalls"]),
+                "k": str(boxData["home"]["teamStats"]["pitching"]["strikeOuts"]),
+                "hr": str(boxData["home"]["teamStats"]["pitching"]["homeRuns"]),
+                "p": "",
+                "s": "",
+                "era": "",
+                "name": "Totals",
+                "personId": 0,
+                "note": "",
+            }
+        }
+    )
 
-    #Get home team totals
-    boxData.update({'homePitchingTotals':   {
-                            'namefield':'Totals',
-                            'ip':str(boxData['home']['teamStats']['pitching']['inningsPitched']),
-                            'h':str(boxData['home']['teamStats']['pitching']['hits']),
-                            'r':str(boxData['home']['teamStats']['pitching']['runs']),
-                            'er':str(boxData['home']['teamStats']['pitching']['earnedRuns']),
-                            'bb':str(boxData['home']['teamStats']['pitching']['baseOnBalls']),
-                            'k':str(boxData['home']['teamStats']['pitching']['strikeOuts']),
-                            'hr':str(boxData['home']['teamStats']['pitching']['homeRuns']),
-                            'p':'',
-                            's':'',
-                            'era':'',
-                            'name':'Totals',
-                            'personId':0,
-                            'note':''
-                        }})
-
-    #Get game info
-    boxData.update({'gameBoxInfo':r['liveData']['boxscore'].get('info',[])})
+    # Get game info
+    boxData.update({"gameBoxInfo": r["liveData"]["boxscore"].get("info", [])})
 
     return boxData
 
-def linescore(gamePk,timecode=None):
+
+def linescore(gamePk, timecode=None):
     """Get formatted linescore for a given game.
 
     Note: This function uses the game endpoint instead of game_linescore,
     because game_linescore does not contain the team names or game status
-    and it's better to make one call instead of two. All of this data can 
+    and it's better to make one call instead of two. All of this data can
     also be retrieved through the schedule endpoint using hydrate=linescore,
     but the schedule endpoint does not support the timecode parameter.
 
@@ -703,62 +1200,120 @@ def linescore(gamePk,timecode=None):
     Mets     0 0 0 0 0 0 0 0 0  0   6   3
 
     """
-    linescore = ''
-    params = {'gamePk':gamePk,'fields':'gameData,teams,teamName,shortName,status,abstractGameState,liveData,linescore,innings,num,home,away,runs,hits,errors'}
-    if timecode: params.update({'timecode':timecode})
-    r = get('game',params)
+    linescore = ""
+    params = {
+        "gamePk": gamePk,
+        "fields": "gameData,teams,teamName,shortName,status,abstractGameState,liveData,linescore,innings,num,home,away,runs,hits,errors",
+    }
+    if timecode:
+        params.update({"timecode": timecode})
+    r = get("game", params)
 
-    header_name = r['gameData']['status']['abstractGameState']
-    away_name = r['gameData']['teams']['away']['teamName']
-    home_name = r['gameData']['teams']['home']['teamName']
+    header_name = r["gameData"]["status"]["abstractGameState"]
+    away_name = r["gameData"]["teams"]["away"]["teamName"]
+    home_name = r["gameData"]["teams"]["home"]["teamName"]
     header_row = []
     away = []
     home = []
 
-    for x in r['liveData']['linescore']['innings']:
-        header_row.append(str(x.get('num','')))
-        away.append(str(x.get('away',{}).get('runs',0)))
-        home.append(str(x.get('home',{}).get('runs',0)))
+    for x in r["liveData"]["linescore"]["innings"]:
+        header_row.append(str(x.get("num", "")))
+        away.append(str(x.get("away", {}).get("runs", 0)))
+        home.append(str(x.get("home", {}).get("runs", 0)))
 
-    if len(r['liveData']['linescore']['innings']) < 9:
-        for i in range(len(r['liveData']['linescore']['innings']) + 1, 10):
+    if len(r["liveData"]["linescore"]["innings"]) < 9:
+        for i in range(len(r["liveData"]["linescore"]["innings"]) + 1, 10):
             header_row.append(str(i))
-            away.append(' ')
-            home.append(' ')
+            away.append(" ")
+            home.append(" ")
 
-    header_row.extend(['R','H','E'])
-    away.extend([
-                    str(r['liveData']['linescore'].get('teams',{}).get('away',{}).get('runs',0)),
-                    str(r['liveData']['linescore'].get('teams',{}).get('away',{}).get('hits',0)),
-                    str(r['liveData']['linescore'].get('teams',{}).get('away',{}).get('errors',0))
-                ])
-    home.extend([
-                    str(r['liveData']['linescore'].get('teams',{}).get('home',{}).get('runs',0)),
-                    str(r['liveData']['linescore'].get('teams',{}).get('home',{}).get('hits',0)),
-                    str(r['liveData']['linescore'].get('teams',{}).get('home',{}).get('errors',0))
-                ])
+    header_row.extend(["R", "H", "E"])
+    away.extend(
+        [
+            str(
+                r["liveData"]["linescore"]
+                .get("teams", {})
+                .get("away", {})
+                .get("runs", 0)
+            ),
+            str(
+                r["liveData"]["linescore"]
+                .get("teams", {})
+                .get("away", {})
+                .get("hits", 0)
+            ),
+            str(
+                r["liveData"]["linescore"]
+                .get("teams", {})
+                .get("away", {})
+                .get("errors", 0)
+            ),
+        ]
+    )
+    home.extend(
+        [
+            str(
+                r["liveData"]["linescore"]
+                .get("teams", {})
+                .get("home", {})
+                .get("runs", 0)
+            ),
+            str(
+                r["liveData"]["linescore"]
+                .get("teams", {})
+                .get("home", {})
+                .get("hits", 0)
+            ),
+            str(
+                r["liveData"]["linescore"]
+                .get("teams", {})
+                .get("home", {})
+                .get("errors", 0)
+            ),
+        ]
+    )
 
-    #Build the linescore
-    for k in [[header_name,header_row],[away_name,away],[home_name,home]]:
-        linescore += ('{:<%s}' % str(len(max([header_name,away_name,home_name],key=len)) + 1)).format(k[0])
-        linescore += ('{:^2}' * (len(k[1])-3)).format(*k[1])
-        linescore += ('{:^4}' * 3).format(*k[1][-3:])
-        linescore += '\n'
-    if len(linescore)>1: linescore = linescore[:-1] #strip the extra line break
+    # Build the linescore
+    for k in [[header_name, header_row], [away_name, away], [home_name, home]]:
+        linescore += (
+            "{:<%s}" % str(len(max([header_name, away_name, home_name], key=len)) + 1)
+        ).format(k[0])
+        linescore += ("{:^2}" * (len(k[1]) - 3)).format(*k[1])
+        linescore += ("{:^4}" * 3).format(*k[1][-3:])
+        linescore += "\n"
+    if len(linescore) > 1:
+        linescore = linescore[:-1]  # strip the extra line break
 
     return linescore
+
 
 def last_game(teamId):
     """Get the gamePk for the given team's most recent game.
     Note: Sometimes Stats API will actually return the next game in the previousSchedule hydration
     """
-    return get('team',{'teamId':teamId,'hydrate':'previousSchedule','fields':'teams,id,teamName,previousGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name'})['teams'][0]['previousGameSchedule']['dates'][0]['games'][0]['gamePk']
+    return get(
+        "team",
+        {
+            "teamId": teamId,
+            "hydrate": "previousSchedule",
+            "fields": "teams,id,teamName,previousGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name",
+        },
+    )["teams"][0]["previousGameSchedule"]["dates"][0]["games"][0]["gamePk"]
+
 
 def next_game(teamId):
     """Get the gamePk for the given team's next game.
     Note: Sometimes Stats API will actually return the next game in the previousSchedule hydration
     """
-    return get('team',{'teamId':teamId,'hydrate':'nextSchedule','fields':'teams,id,teamName,nextGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name'})['teams'][0]['nextGameSchedule']['dates'][0]['games'][0]['gamePk']
+    return get(
+        "team",
+        {
+            "teamId": teamId,
+            "hydrate": "nextSchedule",
+            "fields": "teams,id,teamName,nextGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name",
+        },
+    )["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["gamePk"]
+
 
 def game_scoring_plays(gamePk):
     """Get a text-formatted list of scoring plays for a given game
@@ -778,39 +1333,59 @@ def game_scoring_plays(gamePk):
     Bottom 8 - Miami Marlins: 1, Philadelphia Phillies: 5
     """
     sortedPlays = game_scoring_play_data(gamePk)
-    scoring_plays = ''
-    for a in sortedPlays['plays']:
-        scoring_plays += '{}\n{} {} - {}: {}, {}: {}\n\n'.format(a['result']['description'], a['about']['halfInning'][0:1].upper() + a['about']['halfInning'][1:], a['about']['inning'], sortedPlays['away']['name'], a['result']['awayScore'], sortedPlays['home']['name'], a['result']['homeScore'])
+    scoring_plays = ""
+    for a in sortedPlays["plays"]:
+        scoring_plays += "{}\n{} {} - {}: {}, {}: {}\n\n".format(
+            a["result"]["description"],
+            a["about"]["halfInning"][0:1].upper() + a["about"]["halfInning"][1:],
+            a["about"]["inning"],
+            sortedPlays["away"]["name"],
+            a["result"]["awayScore"],
+            sortedPlays["home"]["name"],
+            a["result"]["homeScore"],
+        )
 
-    if len(scoring_plays)>1: scoring_plays = scoring_plays[:-2] #strip the extra line break
+    if len(scoring_plays) > 1:
+        scoring_plays = scoring_plays[:-2]  # strip the extra line break
 
     return scoring_plays
 
+
 def game_scoring_play_data(gamePk):
     """Returns a python list of scoring plays for a given game.
-    
+
     Will return a dict containing 3 keys:
-    
+
     * home - home team data
     * away - away team data
     * plays - sorted list of scoring play data
     """
-    r = get('schedule',{'sportId':1,'gamePk':gamePk,'hydrate':'scoringplays','fields':'dates,date,games,teams,away,team,name,scoringPlays,result,description,awayScore,homeScore,about,halfInning,inning,endTime'})
-    if not len(r['dates'][0]['games'][0]['scoringPlays']): return ''
+    r = get(
+        "schedule",
+        {
+            "sportId": 1,
+            "gamePk": gamePk,
+            "hydrate": "scoringplays",
+            "fields": "dates,date,games,teams,away,team,name,scoringPlays,result,description,awayScore,homeScore,about,halfInning,inning,endTime",
+        },
+    )
+    if not len(r["dates"][0]["games"][0]["scoringPlays"]):
+        return ""
 
-    items = r['dates'][0]['games'][0]['scoringPlays']
-    home_team = r['dates'][0]['games'][0]['teams']['home']['team']
-    away_team = r['dates'][0]['games'][0]['teams']['away']['team']
+    items = r["dates"][0]["games"][0]["scoringPlays"]
+    home_team = r["dates"][0]["games"][0]["teams"]["home"]["team"]
+    away_team = r["dates"][0]["games"][0]["teams"]["away"]["team"]
 
     unorderedPlays = {}
     for v in items:
-        unorderedPlays.update({v['about']['endTime'] : v})
+        unorderedPlays.update({v["about"]["endTime"]: v})
 
     sortedPlays = []
     for x in sorted(unorderedPlays):
         sortedPlays.append(unorderedPlays[x])
 
-    return {'home':home_team, 'away':away_team, 'plays':sortedPlays}
+    return {"home": home_team, "away": away_team, "plays": sortedPlays}
+
 
 def game_highlights(gamePk):
     """Get the highlight video links for a given game
@@ -832,25 +1407,52 @@ def game_highlights(gamePk):
     https://cuts.diamond.mlb.com/FORGE/2019/2019-04/28/7d978385-db13f22d-f68c304f-csvm-diamondx64-asset_1280x720_59_4000K.mp4
     """
     sortedHighlights = game_highlight_data(gamePk)
-    
-    highlights = ''
+
+    highlights = ""
     for a in sortedHighlights:
-        #if sum(1 for t in a['keywordsAll'] if t['type']=='team_id') == 1:
+        # if sum(1 for t in a['keywordsAll'] if t['type']=='team_id') == 1:
         #    highlights += next(t['displayName'] for t in a['keywordsAll'] if t['type']=='team_id') + '\n'
-        highlights += '{} ({})\n{}\n{}\n\n'.format(a.get('title',a.get('headline','')), a['duration'], a.get('description',''), next((s['url'] for s in a['playbacks'] if s['name']=='mp4Avc'),next((s['url'] for s in a['playbacks'] if s['name']=='FLASH_2500K_1280X720'),'Link not found')))
+        highlights += "{} ({})\n{}\n{}\n\n".format(
+            a.get("title", a.get("headline", "")),
+            a["duration"],
+            a.get("description", ""),
+            next(
+                (s["url"] for s in a["playbacks"] if s["name"] == "mp4Avc"),
+                next(
+                    (
+                        s["url"]
+                        for s in a["playbacks"]
+                        if s["name"] == "FLASH_2500K_1280X720"
+                    ),
+                    "Link not found",
+                ),
+            ),
+        )
 
     return highlights
+
 
 def game_highlight_data(gamePk):
     """Returns a list of highlight data for a given game
     """
-    r = get('schedule',{'sportId':1,'gamePk':gamePk,'hydrate':'game(content(highlights(highlights)))','fields':'dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url'})
-    if not len(r['dates'][0]['games'][0]['content']['highlights']['highlights']['items']): return ''
-    items = r['dates'][0]['games'][0]['content']['highlights']['highlights']['items']
+    r = get(
+        "schedule",
+        {
+            "sportId": 1,
+            "gamePk": gamePk,
+            "hydrate": "game(content(highlights(highlights)))",
+            "fields": "dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url",
+        },
+    )
+    if not len(
+        r["dates"][0]["games"][0]["content"]["highlights"]["highlights"]["items"]
+    ):
+        return ""
+    items = r["dates"][0]["games"][0]["content"]["highlights"]["highlights"]["items"]
 
     unorderedHighlights = {}
-    for v in (x for x in items if isinstance(x,dict) and x['type']=='video'):
-        unorderedHighlights.update({v['date'] : v})
+    for v in (x for x in items if isinstance(x, dict) and x["type"] == "video"):
+        unorderedHighlights.update({v["date"]: v})
 
     sortedHighlights = []
     for x in sorted(unorderedHighlights):
@@ -858,7 +1460,8 @@ def game_highlight_data(gamePk):
 
     return sortedHighlights
 
-def game_pace(season=datetime.now().year,sportId=1):
+
+def game_pace(season=datetime.now().year, sportId=1):
     """Get a text-formatted list about pace of game for a given season (back to 1999).
 
     Example use:
@@ -911,36 +1514,46 @@ def game_pace(season=datetime.now().year,sportId=1):
     timePer9InnGame: 02:50:38
     timePerExtraInnGame: 03:43:36
     """
-    r = game_pace_data(season,sportId)
+    r = game_pace_data(season, sportId)
 
-    pace = ''
+    pace = ""
 
-    pace += '{} Game Pace Stats\n'.format(season)
-    for s in r['sports']:
+    pace += "{} Game Pace Stats\n".format(season)
+    for s in r["sports"]:
         for k in s.keys():
-            if k in ['season','sport']: continue
-            if k == 'prPortalCalculatedFields':
+            if k in ["season", "sport"]:
+                continue
+            if k == "prPortalCalculatedFields":
                 for x in s[k].keys():
-                    pace += '{}: {}\n'.format(x,s[k][x])
-            else: pace += '{}: {}\n'.format(k,s[k])
+                    pace += "{}: {}\n".format(x, s[k][x])
+            else:
+                pace += "{}: {}\n".format(k, s[k])
 
     return pace
 
-def game_pace_data(season=datetime.now().year,sportId=1):
+
+def game_pace_data(season=datetime.now().year, sportId=1):
     """Returns data about pace of game for a given season (back to 1999).
     """
     params = {}
-    if season: params.update({'season':season})
-    if sportId: params.update({'sportId':sportId})
+    if season:
+        params.update({"season": season})
+    if sportId:
+        params.update({"sportId": sportId})
 
-    r = get('gamePace',params)
+    r = get("gamePace", params)
 
-    if not len(r['sports']):
-        raise ValueError('No game pace info found for the {} season. Game pace data appears to begin in 1999.'.format(season))
+    if not len(r["sports"]):
+        raise ValueError(
+            "No game pace info found for the {} season. Game pace data appears to begin in 1999.".format(
+                season
+            )
+        )
 
     return r
 
-def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
+
+def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
     """Get current season or career stats for a given player.
 
     For group use 'hitting', 'pitching', or 'fielding'.
@@ -991,27 +1604,38 @@ def player_stats(personId,group='[hitting,pitching,fielding]',type='season'):
     babip: .297
     groundOutsToAirouts: 0.84
     """
-    player = player_stat_data(personId,group,type)
+    player = player_stat_data(personId, group, type)
 
-    stats = ''
-    stats += player['first_name']
-    if player['nickname']: stats += ' "{nickname}"'.format(**player)
-    stats += ' {last_name}, {position} ({mlb_debut:.4}-'.format(**player)
-    if not player['active']: stats += '{last_played:.4}'.format(**player)
-    stats += ')\n\n'
+    stats = ""
+    stats += player["first_name"]
+    if player["nickname"]:
+        stats += ' "{nickname}"'.format(**player)
+    stats += " {last_name}, {position} ({mlb_debut:.4}-".format(**player)
+    if not player["active"]:
+        stats += "{last_played:.4}".format(**player)
+    stats += ")\n\n"
 
-    for x in player['stats']:
-        stats += x['type'][0:1].upper() + x['type'][1:] + ' ' + x['group'][0:1].upper() + x['group'][1:]
-        if x['stats'].get('position'): stats += ' ({})'.format(x['stats']['position']['abbreviation'])
-        stats += '\n'
-        for y in x['stats'].keys():
-            if y=='position': continue
-            stats += '{}: {}\n'.format(y,x['stats'][y])
-        stats += '\n'
+    for x in player["stats"]:
+        stats += (
+            x["type"][0:1].upper()
+            + x["type"][1:]
+            + " "
+            + x["group"][0:1].upper()
+            + x["group"][1:]
+        )
+        if x["stats"].get("position"):
+            stats += " ({})".format(x["stats"]["position"]["abbreviation"])
+        stats += "\n"
+        for y in x["stats"].keys():
+            if y == "position":
+                continue
+            stats += "{}: {}\n".format(y, x["stats"][y])
+        stats += "\n"
 
     return stats
 
-def player_stat_data(personId,group='[hitting,pitching,fielding]',type='season'):
+
+def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season"):
     """Returns a list of current season or career stat data for a given player.
 
     For group use 'hitting', 'pitching', or 'fielding'.
@@ -1022,40 +1646,43 @@ def player_stat_data(personId,group='[hitting,pitching,fielding]',type='season')
     Include multiple types in the following format (this is a string, not actually a list):
     group='[career,season]'
     """
-    params = {'personId':personId,'hydrate':'stats(group='+group+',type='+type+'),currentTeam'}
-    r = get('person',params)
+    params = {
+        "personId": personId,
+        "hydrate": "stats(group=" + group + ",type=" + type + "),currentTeam",
+    }
+    r = get("person", params)
 
     stat_groups = []
 
-    player =   {
-                'id' : r['people'][0]['id'],
-                'first_name' : r['people'][0]['useName'],
-                'last_name' : r['people'][0]['lastName'],
-                'active' : r['people'][0]['active'],
-                'current_team' : r['people'][0]['currentTeam']['name'],
-                'position' : r['people'][0]['primaryPosition']['abbreviation'],
-                'nickname' : r['people'][0].get('nickName'),
-                'active' : r['people'][0]['active'],
-                'last_played' : r['people'][0].get('lastPlayedDate'),
-                'mlb_debut' : r['people'][0]['mlbDebutDate'],
-                'bat_side' : r['people'][0]['batSide']['description'],
-                'pitch_hand' : r['people'][0]['pitchHand']['description']
-            }
+    player = {
+        "id": r["people"][0]["id"],
+        "first_name": r["people"][0]["useName"],
+        "last_name": r["people"][0]["lastName"],
+        "active": r["people"][0]["active"],
+        "current_team": r["people"][0]["currentTeam"]["name"],
+        "position": r["people"][0]["primaryPosition"]["abbreviation"],
+        "nickname": r["people"][0].get("nickName"),
+        "last_played": r["people"][0].get("lastPlayedDate"),
+        "mlb_debut": r["people"][0]["mlbDebutDate"],
+        "bat_side": r["people"][0]["batSide"]["description"],
+        "pitch_hand": r["people"][0]["pitchHand"]["description"],
+    }
 
-    for s in r['people'][0].get('stats',[]):
-        for i in range(0,len(s['splits'])):
-            stat_group =    {
-                                'type' : s['type']['displayName'],
-                                'group' : s['group']['displayName'],
-                                'stats' : s['splits'][i]['stat']
-                            }
+    for s in r["people"][0].get("stats", []):
+        for i in range(0, len(s["splits"])):
+            stat_group = {
+                "type": s["type"]["displayName"],
+                "group": s["group"]["displayName"],
+                "stats": s["splits"][i]["stat"],
+            }
             stat_groups.append(stat_group)
 
-    player.update({'stats':stat_groups})
+    player.update({"stats": stat_groups})
 
     return player
 
-def lookup_player(lookup_value,gameType='R',season=datetime.now().year,sportId=1):
+
+def lookup_player(lookup_value, gameType="R", season=datetime.now().year, sportId=1):
     """Get data about players based on first, last, or full name.
 
     Example use:
@@ -1083,11 +1710,16 @@ def lookup_player(lookup_value,gameType='R',season=datetime.now().year,sportId=1
     Full name: Bryce Harper, Position: RF
     Full name: Ryne Harper, Position: P
     """
-    params = {'gameType':gameType, 'season':season, 'sportId':sportId, 'fields':'people,id,fullName,firstName,lastName,primaryNumber,currentTeam,id,primaryPosition,code,abbreviation,useName,boxscoreName,nickName,mlbDebutDate,nameFirstLast,firstLastName,lastFirstName,lastInitName,initLastName,fullFMLName,fullLFMName'}
-    r = get('sports_players',params)
+    params = {
+        "gameType": gameType,
+        "season": season,
+        "sportId": sportId,
+        "fields": "people,id,fullName,firstName,lastName,primaryNumber,currentTeam,id,primaryPosition,code,abbreviation,useName,boxscoreName,nickName,mlbDebutDate,nameFirstLast,firstLastName,lastFirstName,lastInitName,initLastName,fullFMLName,fullLFMName",
+    }
+    r = get("sports_players", params)
 
     players = []
-    for player in r['people']:
+    for player in r["people"]:
         for v in player.values():
             if str(lookup_value).lower() in str(v).lower():
                 players.append(player)
@@ -1095,12 +1727,13 @@ def lookup_player(lookup_value,gameType='R',season=datetime.now().year,sportId=1
 
     return players
 
-def lookup_team(lookup_value,activeStatus='Y',season=datetime.now().year,sportIds=1):
+
+def lookup_team(lookup_value, activeStatus="Y", season=datetime.now().year, sportIds=1):
     """Get a info about a team or teams based on the team name, city, abbreviation, or file code.
 
     Values for activeStatus: Y, N, B (Both)
 
-    Return value will be a list of teams matching the lookup_value. 
+    Return value will be a list of teams matching the lookup_value.
     If no matches are found, an empty list will be returned.
 
     Example use:
@@ -1125,18 +1758,26 @@ def lookup_team(lookup_value,activeStatus='Y',season=datetime.now().year,sportId
     {'id': 147, 'name': 'New York Yankees', 'teamCode': 'nya', 'fileCode': 'nyy', 'teamName': 'Yankees', 'locationName': 'Bronx', 'shortName': 'NY Yankees'}
     {'id': 121, 'name': 'New York Mets', 'teamCode': 'nyn', 'fileCode': 'nym', 'teamName': 'Mets', 'locationName': 'New York', 'shortName': 'NY Mets'}
     """
-    params = {'activeStatus':activeStatus, 'season':season, 'sportIds':sportIds, 'fields':'teams,id,name,teamCode,fileCode,teamName,locationName,shortName'}
-    r = get('teams',params)
+    params = {
+        "activeStatus": activeStatus,
+        "season": season,
+        "sportIds": sportIds,
+        "fields": "teams,id,name,teamCode,fileCode,teamName,locationName,shortName",
+    }
+    r = get("teams", params)
 
     teams = []
-    for team in r['teams']:
+    for team in r["teams"]:
         for v in team.values():
             if str(lookup_value).lower() in str(v).lower():
                 teams.append(team)
                 break
     return teams
 
-def team_leaders(teamId,leaderCategories,season=datetime.now().year,leaderGameTypes='R',limit=10):
+
+def team_leaders(
+    teamId, leaderCategories, season=datetime.now().year, leaderGameTypes="R", limit=10
+):
     """Get stat leaders for a given team.
 
     Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
@@ -1156,37 +1797,57 @@ def team_leaders(teamId,leaderCategories,season=datetime.now().year,leaderGameTy
      4   Jimmy Rollins         58
      5   Jayson Werth          57
     """
-    lines = team_leader_data(teamId,leaderCategories,season,leaderGameTypes,limit)
+    lines = team_leader_data(teamId, leaderCategories, season, leaderGameTypes, limit)
 
-    leaders = ''
+    leaders = ""
 
-    leaders += '{:<4} {:<20} {:<5}\n'.format(*['Rank','Name','Value'])
+    leaders += "{:<4} {:<20} {:<5}\n".format(*["Rank", "Name", "Value"])
     for a in lines:
-        leaders += '{:^4} {:<20} {:^5}\n'.format(*a)
+        leaders += "{:^4} {:<20} {:^5}\n".format(*a)
 
     return leaders
 
-def team_leader_data(teamId,leaderCategories,season=datetime.now().year,leaderGameTypes='R',limit=10):
+
+def team_leader_data(
+    teamId, leaderCategories, season=datetime.now().year, leaderGameTypes="R", limit=10
+):
     """Returns a python list of stat leader data for a given team.
 
     Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
     """
-    params = {'leaderCategories':leaderCategories,'season':season,'teamId':teamId,'leaderGameTypes':leaderGameTypes,'limit':limit}
-    params.update({'fields' : 'teamLeaders,leaders,rank,value,person,fullName'})
+    params = {
+        "leaderCategories": leaderCategories,
+        "season": season,
+        "teamId": teamId,
+        "leaderGameTypes": leaderGameTypes,
+        "limit": limit,
+    }
+    params.update({"fields": "teamLeaders,leaders,rank,value,person,fullName"})
 
-    r = get('team_leaders',params)
+    r = get("team_leaders", params)
 
     lines = []
-    for player in [x for x in r['teamLeaders'][0]['leaders']]:
-        lines.append([player['rank'],player['person']['fullName'],player['value']])
+    for player in [x for x in r["teamLeaders"][0]["leaders"]]:
+        lines.append([player["rank"], player["person"]["fullName"], player["value"]])
 
     return lines
 
-def league_leaders(leaderCategories,season=None,limit=10,statGroup=None,leagueId=None,gameTypes=None,playerPool=None,sportId=1,statType=None):
+
+def league_leaders(
+    leaderCategories,
+    season=None,
+    limit=10,
+    statGroup=None,
+    leagueId=None,
+    gameTypes=None,
+    playerPool=None,
+    sportId=1,
+    statType=None,
+):
     """NOTE: StatsAPI does not appear to be supporting the statType=statsSingleSeason at this time,
     despite this appearing in the documentation as a best practice for all time leaders.
     Be sure to specify a season or other statType such as 'career', or the default will be current season leaders.
-    
+
     Get stat leaders overall or for a given league (103=AL, 104=NL).
 
     Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
@@ -1196,7 +1857,7 @@ def league_leaders(leaderCategories,season=None,limit=10,statGroup=None,leagueId
     will return different results with statGroup='pitching' and statGroup='catching'.
 
     Get a list of available gameTypes by calling the meta endpoint with type=gameTypes
-    
+
     Get a list of available statTypes by calling the meta endpoint with type=statTypes
 
     Available playerPool values: ['all','qualified','rookies'] (default is qualified)
@@ -1271,21 +1932,42 @@ def league_leaders(leaderCategories,season=None,limit=10,statGroup=None,leagueId
      8   Stan Musial          St. Louis Cardinals      177
      10  Goose Goslin         Washington Senators      173
     """
-    lines = league_leader_data(leaderCategories ,season, limit, statGroup, leagueId, gameTypes, playerPool, sportId, statType)
+    lines = league_leader_data(
+        leaderCategories,
+        season,
+        limit,
+        statGroup,
+        leagueId,
+        gameTypes,
+        playerPool,
+        sportId,
+        statType,
+    )
 
-    leaders = ''
+    leaders = ""
 
-    leaders += '{:<4} {:<20} {:<23} {:<5}\n'.format(*['Rank','Name','Team','Value'])
+    leaders += "{:<4} {:<20} {:<23} {:<5}\n".format(*["Rank", "Name", "Team", "Value"])
     for a in lines:
-        leaders += '{:^4} {:<20} {:<23} {:^5}\n'.format(*a)
+        leaders += "{:^4} {:<20} {:<23} {:^5}\n".format(*a)
 
     return leaders
 
-def league_leader_data(leaderCategories,season=None,limit=10,statGroup=None,leagueId=None,gameTypes=None,playerPool=None,sportId=1,statType=None):
+
+def league_leader_data(
+    leaderCategories,
+    season=None,
+    limit=10,
+    statGroup=None,
+    leagueId=None,
+    gameTypes=None,
+    playerPool=None,
+    sportId=1,
+    statType=None,
+):
     """NOTE: StatsAPI does not appear to be supporting the statType=statsSingleSeason at this time,
     despite this appearing in the documentation as a best practice for all time leaders.
     Be sure to specify a season or statType such as 'career', or you will get current season leaders by default.
-    
+
     Returns a python list of stat leaders overall or for a given league (103=AL, 104=NL).
 
     Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
@@ -1295,44 +1977,72 @@ def league_leader_data(leaderCategories,season=None,limit=10,statGroup=None,leag
     will return different results with statGroup='pitching' and statGroup='catching'.
 
     Get a list of available gameTypes by calling the meta endpoint with type=gameTypes
-    
+
     Get a list of available statTypes by calling the meta endpoint with type=statTypes
 
     Available playerPool values: ['all','qualified','rookies'] (default is qualified)
     """
-    params = {'leaderCategories':leaderCategories,'sportId':sportId,'limit':limit}
-    if season: params.update({'season':season})
-    if statType: params.update({'statType':statType})
-    if not season and not statType: params.update({'season':datetime.now().year}) # default season to current year if no season or statType provided
+    params = {"leaderCategories": leaderCategories, "sportId": sportId, "limit": limit}
+    if season:
+        params.update({"season": season})
+    if statType:
+        params.update({"statType": statType})
+    if not season and not statType:
+        params.update(
+            {"season": datetime.now().year}
+        )  # default season to current year if no season or statType provided
     if statGroup:
-        if statGroup == 'batting': statGroup = 'hitting'
-        params.update({'statGroup':statGroup})
-    if gameTypes: params.update({'leaderGameTypes':gameTypes})
-    if leagueId: params.update({'leagueId':leagueId})
-    if playerPool: params.update({'playerPool':playerPool})
-    params.update({'fields' : 'leagueLeaders,leaders,rank,value,team,name,league,name,person,fullName'})
+        if statGroup == "batting":
+            statGroup = "hitting"
+        params.update({"statGroup": statGroup})
+    if gameTypes:
+        params.update({"leaderGameTypes": gameTypes})
+    if leagueId:
+        params.update({"leagueId": leagueId})
+    if playerPool:
+        params.update({"playerPool": playerPool})
+    params.update(
+        {
+            "fields": "leagueLeaders,leaders,rank,value,team,name,league,name,person,fullName"
+        }
+    )
 
-    r = get('stats_leaders',params)
+    r = get("stats_leaders", params)
 
     lines = []
-    for player in [x for x in r['leagueLeaders'][0]['leaders']]:
-        lines.append([player['rank'],player['person']['fullName'],player['team'].get('name',''),player['value']])
+    for player in [x for x in r["leagueLeaders"][0]["leaders"]]:
+        lines.append(
+            [
+                player["rank"],
+                player["person"]["fullName"],
+                player["team"].get("name", ""),
+                player["value"],
+            ]
+        )
 
     return lines
 
-def standings(leagueId='103,104',division='all',include_wildcard=True,season=None,standingsTypes=None,date=None):
+
+def standings(
+    leagueId="103,104",
+    division="all",
+    include_wildcard=True,
+    season=None,
+    standingsTypes=None,
+    date=None,
+):
     """Get formatted standings for a given league/division and season.
 
     Using both leagueId and divisionId is fine, as long as the division belongs to the specified league
 
     Return value will be a formatted table including division and wildcard standings, unless include_wildcard=False
-    
+
     Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
 
     Example use:
 
     Print National League standings from 09/27/2008
-    
+
     print( statsapi.standings(leagueId=104,date='09/27/2008') )
 
     Output:
@@ -1361,79 +2071,117 @@ def standings(leagueId='103,104',division='all',include_wildcard=True,season=Non
      3   Florida Marlins       83  77  7.5   E      5     5.5   E
      4   Atlanta Braves        72  89  19.0  E      9    17.0   E
      5   Washington Nationals  59  101 31.5  E     13    29.5   E
-    
+
     """
-    divisions = standings_data(leagueId, division, include_wildcard, season, standingsTypes, date)
+    divisions = standings_data(
+        leagueId, division, include_wildcard, season, standingsTypes, date
+    )
 
-    standings = ''
+    standings = ""
 
-    for div_id,div in divisions.items():
-        standings += div['div_name'] + '\n'
+    for div_id, div in divisions.items():
+        standings += div["div_name"] + "\n"
         if include_wildcard:
-            standings += '{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n'.format(*['Rank','Team','W','L','GB','(E#)','WC Rank','WC GB','(E#)'])
-            for t in div['teams']:
-                standings += '{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}\n'.format(**t)
+            standings += "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n".format(
+                *["Rank", "Team", "W", "L", "GB", "(E#)", "WC Rank", "WC GB", "(E#)"]
+            )
+            for t in div["teams"]:
+                standings += "{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}\n".format(
+                    **t
+                )
         else:
-            standings += '{:^4} {:<21} {:^3} {:^3} {:^4} {:^4}\n'.format(*['Rank','Team','W','L','GB','(E#)'])
-            for t in div['teams']:
-                standings += '{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4}\n'.format(**t)
-        standings += '\n'
+            standings += "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4}\n".format(
+                *["Rank", "Team", "W", "L", "GB", "(E#)"]
+            )
+            for t in div["teams"]:
+                standings += "{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4}\n".format(
+                    **t
+                )
+        standings += "\n"
 
     return standings
 
-def standings_data(leagueId='103,104',division='all',include_wildcard=True,season=None,standingsTypes=None,date=None):
+
+def standings_data(
+    leagueId="103,104",
+    division="all",
+    include_wildcard=True,
+    season=None,
+    standingsTypes=None,
+    date=None,
+):
     """Returns a dict of standings data for a given league/division and season.
 
     Using both leagueId and divisionId is fine, as long as the division belongs to the specified league
 
     Return value will be a dict including division and wildcard standings, unless include_wildcard=False
-    
+
     Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
 
     """
-    params = {'leagueId':leagueId}
-    if date: params.update({'date':date})
+    params = {"leagueId": leagueId}
+    if date:
+        params.update({"date": date})
     if not season:
         if date:
             season = date[-4:]
         else:
             season = datetime.now().year
-    if not standingsTypes: standingsTypes = 'regularSeason'
-    params.update({'season':season,'standingsTypes':standingsTypes})
-    params.update({'hydrate':'team(division)','fields':'records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses'})
+    if not standingsTypes:
+        standingsTypes = "regularSeason"
+    params.update({"season": season, "standingsTypes": standingsTypes})
+    params.update(
+        {
+            "hydrate": "team(division)",
+            "fields": "records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses",
+        }
+    )
 
-    r = get('standings',params)
+    r = get("standings", params)
 
     divisions = {}
 
-    for y in r['records']:
-        for x in (x for x in y['teamRecords'] if division.lower()=='all' or division.lower()==x['team']['division']['abbreviation'].lower()):
-            if x['team']['division']['id'] not in divisions.keys():
-                divisions.update({x['team']['division']['id']:{'div_name':x['team']['division']['name'],'teams':[]}})
-            team =  {
-                        'name' : x['team']['name'],
-                        'div_rank' : x['divisionRank'],
-                        'w' : x['wins'],
-                        'l' : x['losses'],
-                        'gb' : x['gamesBack'],
-                        'wc_rank' : x.get('wildCardRank','-'),
-                        'wc_gb' : x.get('wildCardGamesBack','-'),
-                        'wc_elim_num' : x.get('wildCardEliminationNumber','-'),
-                        'elim_num' : x['eliminationNumber'],
-                        'team_id' : x['team']['id']
+    for y in r["records"]:
+        for x in (
+            x
+            for x in y["teamRecords"]
+            if division.lower() == "all"
+            or division.lower() == x["team"]["division"]["abbreviation"].lower()
+        ):
+            if x["team"]["division"]["id"] not in divisions.keys():
+                divisions.update(
+                    {
+                        x["team"]["division"]["id"]: {
+                            "div_name": x["team"]["division"]["name"],
+                            "teams": [],
+                        }
                     }
-            divisions[x['team']['division']['id']]['teams'].append(team)
+                )
+            team = {
+                "name": x["team"]["name"],
+                "div_rank": x["divisionRank"],
+                "w": x["wins"],
+                "l": x["losses"],
+                "gb": x["gamesBack"],
+                "wc_rank": x.get("wildCardRank", "-"),
+                "wc_gb": x.get("wildCardGamesBack", "-"),
+                "wc_elim_num": x.get("wildCardEliminationNumber", "-"),
+                "elim_num": x["eliminationNumber"],
+                "team_id": x["team"]["id"],
+            }
+            divisions[x["team"]["division"]["id"]]["teams"].append(team)
 
     return divisions
 
-def roster(teamId,rosterType=None,season=datetime.now().year,date=None):
+
+def roster(teamId, rosterType=None, season=datetime.now().year, date=None):
     """Get the roster for a given team.
     Get a list of available rosterTypes by calling the meta endpoint with type=rosterTypes.
     Default rosterType=active
     Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
 
     Example use:
-    
+
     Print the current Phillies active roster:
 
     print( statsapi.roster(143) )
@@ -1466,40 +2214,71 @@ def roster(teamId,rosterType=None,season=datetime.now().year,date=None):
     #21  P   Vince Velasquez
     #56  P   Zach Eflin
     """
-    if not rosterType: rosterType='active'
-    params = {'rosterType':rosterType,'season':season,'teamId':teamId}
-    if date: params.update({'date':date})
+    if not rosterType:
+        rosterType = "active"
+    params = {"rosterType": rosterType, "season": season, "teamId": teamId}
+    if date:
+        params.update({"date": date})
 
-    r = get('team_roster',params)
+    r = get("team_roster", params)
 
-    roster = ''
+    roster = ""
     players = []
-    for x in r['roster']:
-        players.append([x['jerseyNumber'],x['position']['abbreviation'],x['person']['fullName']])
+    for x in r["roster"]:
+        players.append(
+            [x["jerseyNumber"], x["position"]["abbreviation"], x["person"]["fullName"]]
+        )
 
-    for i in range(0,len(players)):
-        roster += ('#{:<3} {:<3} {}\n').format(*players[i])
+    for i in range(0, len(players)):
+        roster += ("#{:<3} {:<3} {}\n").format(*players[i])
 
     return roster
 
-def meta(type,fields=None):
+
+def meta(type, fields=None):
     """Get available values from StatsAPI for use in other queries,
     or look up descriptions for values found in API results.
 
     For example, to get a list of leader categories to use when calling team_leaders():
     statsapi.meta('leagueLeaderTypes')
     """
-    types = ['awards', 'baseballStats', 'eventTypes', 'gameStatus', 'gameTypes', 'hitTrajectories', 'jobTypes', 'languages', 'leagueLeaderTypes', 'logicalEvents', 'metrics', 'pitchCodes', 'pitchTypes', 'platforms', 'positions', 'reviewReasons', 'rosterTypes', 'scheduleEventTypes', 'situationCodes', 'sky', 'standingsTypes', 'statGroups', 'statTypes', 'windDirection']
+    types = [
+        "awards",
+        "baseballStats",
+        "eventTypes",
+        "gameStatus",
+        "gameTypes",
+        "hitTrajectories",
+        "jobTypes",
+        "languages",
+        "leagueLeaderTypes",
+        "logicalEvents",
+        "metrics",
+        "pitchCodes",
+        "pitchTypes",
+        "platforms",
+        "positions",
+        "reviewReasons",
+        "rosterTypes",
+        "scheduleEventTypes",
+        "situationCodes",
+        "sky",
+        "standingsTypes",
+        "statGroups",
+        "statTypes",
+        "windDirection",
+    ]
     if type not in types:
         raise ValueError("Invalid meta type. Available meta types: %s." % types)
 
-    return get('meta',{'type':type})
+    return get("meta", {"type": type})
+
 
 def notes(endpoint):
-    """Get notes for a given endpoint. 
+    """Get notes for a given endpoint.
     Will include a list of required parameters, as well as hints for some endpoints.
-    If the specified endpoint has more than one distinct parameter requirement, 
-    for example one of teamId, leagueId, or leagueListId must be included for the attendance endpoint, 
+    If the specified endpoint has more than one distinct parameter requirement,
+    for example one of teamId, leagueId, or leagueListId must be included for the attendance endpoint,
     the required query parameters list will contain separate sublists for each independent set of requirements:
     'required_params': [['teamId'],['leagueId'],['leagueListid']]
 
@@ -1512,31 +2291,45 @@ def notes(endpoint):
     There is no difference in the way path and query parameters are passed into statsapi.get().
     """
     msg = ""
-    if not endpoint: msg = 'No endpoint specified.'
+    if not endpoint:
+        msg = "No endpoint specified."
     else:
-        if not ENDPOINTS.get(endpoint): msg = 'Invalid endpoint specified.'
+        if not ENDPOINTS.get(endpoint):
+            msg = "Invalid endpoint specified."
         else:
             msg += "Endpoint: " + endpoint + " \n"
-            path_params = [k for k,v in ENDPOINTS[endpoint]['path_params'].items()]
-            required_path_params = [k for k,v in ENDPOINTS[endpoint]['path_params'].items() if v['required']]
-            if required_path_params == []: required_path_params = "None"
-            
-            query_params = ENDPOINTS[endpoint]['query_params']
-            required_query_params = ENDPOINTS[endpoint]['required_params']
-            if required_query_params == [[]]: required_query_params = "None"
+            path_params = [k for k, v in ENDPOINTS[endpoint]["path_params"].items()]
+            required_path_params = [
+                k
+                for k, v in ENDPOINTS[endpoint]["path_params"].items()
+                if v["required"]
+            ]
+            if required_path_params == []:
+                required_path_params = "None"
+
+            query_params = ENDPOINTS[endpoint]["query_params"]
+            required_query_params = ENDPOINTS[endpoint]["required_params"]
+            if required_query_params == [[]]:
+                required_query_params = "None"
             msg += "All path parameters: %s. \n" % path_params
-            msg += "Required path parameters (note: ver will be included by default): %s. \n" % required_path_params
+            msg += (
+                "Required path parameters (note: ver will be included by default): %s. \n"
+                % required_path_params
+            )
             msg += "All query parameters: %s. \n" % query_params
             msg += "Required query parameters: %s. \n" % required_query_params
-            if 'hydrate' in query_params: msg += "The hydrate function is supported by this endpoint. Call the endpoint with {'hydrate':'hydrations'} in the parameters to return a list of available hydrations. For example, statsapi.get('schedule',{'sportId':1,'hydrate':'hydrations','fields':'hydrations'})\n"
-            if ENDPOINTS[endpoint].get('note'): msg += "Developer notes: %s" % ENDPOINTS[endpoint].get('note')
+            if "hydrate" in query_params:
+                msg += "The hydrate function is supported by this endpoint. Call the endpoint with {'hydrate':'hydrations'} in the parameters to return a list of available hydrations. For example, statsapi.get('schedule',{'sportId':1,'hydrate':'hydrations','fields':'hydrations'})\n"
+            if ENDPOINTS[endpoint].get("note"):
+                msg += "Developer notes: %s" % ENDPOINTS[endpoint].get("note")
 
     return msg
 
-def get(endpoint,params,force=False):
+
+def get(endpoint, params, force=False):
     """Call MLB StatsAPI and return JSON data.
 
-    This function is for advanced querying of the MLB StatsAPI, 
+    This function is for advanced querying of the MLB StatsAPI,
     and is used by the functions in this library.
 
     endpoint is one of the keys in the ENDPOINT dict
@@ -1550,32 +2343,37 @@ def get(endpoint,params,force=False):
     return value will be the raw response from MLB Stats API in json format
     """
 
-    #Lookup endpoint from input parameter
+    # Lookup endpoint from input parameter
     ep = ENDPOINTS.get(endpoint)
-    if not ep: raise ValueError('Invalid endpoint ('+str(endpoint)+').')
-    url = ep['url']
+    if not ep:
+        raise ValueError("Invalid endpoint (" + str(endpoint) + ").")
+    url = ep["url"]
     logger.debug("URL: {}".format(url))
 
     path_params = {}
     query_params = {}
 
-    #Parse parameters into path and query parameters, and discard invalid parameters
-    for p,pv in params.items():
-        if ep['path_params'].get(p):
+    # Parse parameters into path and query parameters, and discard invalid parameters
+    for p, pv in params.items():
+        if ep["path_params"].get(p):
             logger.debug("Found path param: {}".format(p))
-            if ep['path_params'][p].get('type') == 'bool':
-                if str(pv).lower() == 'false':
-                    path_params.update({p: ep['path_params'][p].get('False','')})
-                elif str(pv).lower() == 'true':
-                    path_params.update({p: ep['path_params'][p].get('True','')})
+            if ep["path_params"][p].get("type") == "bool":
+                if str(pv).lower() == "false":
+                    path_params.update({p: ep["path_params"][p].get("False", "")})
+                elif str(pv).lower() == "true":
+                    path_params.update({p: ep["path_params"][p].get("True", "")})
             else:
                 path_params.update({p: str(pv)})
-        elif p in ep['query_params']:
+        elif p in ep["query_params"]:
             logger.debug("Found query param: {}".format(p))
             query_params.update({p: str(pv)})
         else:
             if force:
-                logger.debug("Found invalid param, forcing into query parameters per force flag: {}".format(p))
+                logger.debug(
+                    "Found invalid param, forcing into query parameters per force flag: {}".format(
+                        p
+                    )
+                )
                 query_params.update({p: str(pv)})
             else:
                 logger.debug("Found invalid param, ignoring: {}".format(p))
@@ -1583,54 +2381,76 @@ def get(endpoint,params,force=False):
     logger.debug("path_params: {}".format(path_params))
     logger.debug("query_params: {}".format(query_params))
 
-    #Replace path parameters with their values
-    for k,v in path_params.items():
+    # Replace path parameters with their values
+    for k, v in path_params.items():
         logger.debug("Replacing {%s}" % k)
-        url = url.replace('{'+k+'}',v)
+        url = url.replace("{" + k + "}", v)
         logger.debug("URL: {}".format(url))
-    while url.find('{') != -1 and url.find('}') > url.find('{'):
-        param = url[url.find('{')+1:url.find('}')]
-        if ep.get('path_params',{}).get(param,{}).get('required'): 
-            if ep['path_params'][param]['default'] and ep['path_params'][param]['default'] != '':
-                logger.debug("Replacing {%s} with default: %s." % (param, ep['path_params'][param]['default']))
-                url = url.replace('{'+param+'}',ep['path_params'][param]['default'])
+    while url.find("{") != -1 and url.find("}") > url.find("{"):
+        param = url[url.find("{") + 1 : url.find("}")]
+        if ep.get("path_params", {}).get(param, {}).get("required"):
+            if (
+                ep["path_params"][param]["default"]
+                and ep["path_params"][param]["default"] != ""
+            ):
+                logger.debug(
+                    "Replacing {%s} with default: %s."
+                    % (param, ep["path_params"][param]["default"])
+                )
+                url = url.replace(
+                    "{" + param + "}", ep["path_params"][param]["default"]
+                )
             else:
                 if force:
-                    logger.warning('Missing required path parameter {%s}, proceeding anyway per force flag...' % param)
+                    logger.warning(
+                        "Missing required path parameter {%s}, proceeding anyway per force flag..."
+                        % param
+                    )
                 else:
-                    raise ValueError('Missing required path parameter {%s}' % param)
+                    raise ValueError("Missing required path parameter {%s}" % param)
         else:
             logger.debug("Removing optional param {%s}" % param)
-            url = url.replace('{'+param+'}','')
+            url = url.replace("{" + param + "}", "")
         logger.debug("URL: {}".format(url))
-    #Add query parameters to the URL
+    # Add query parameters to the URL
     if len(query_params) > 0:
-        for k,v in query_params.items():
-            logger.debug("Adding query parameter {}={}".format(k,v))
-            sep = '?' if url.find('?') == -1 else '&'
+        for k, v in query_params.items():
+            logger.debug("Adding query parameter {}={}".format(k, v))
+            sep = "?" if url.find("?") == -1 else "&"
             url += sep + k + "=" + v
             logger.debug("URL: {}".format(url))
 
-    #Make sure required parameters are present
+    # Make sure required parameters are present
     satisfied = False
     missing_params = []
-    for x in ep.get('required_params',[]):
-        if len(x) == 0: satisfied = True
+    for x in ep.get("required_params", []):
+        if len(x) == 0:
+            satisfied = True
         else:
             missing_params.extend([a for a in x if a not in query_params])
             if len(missing_params) == 0:
                 satisfied = True
                 break
     if not satisfied and not force:
-        if ep.get('note'):
-            note = '\n--Endpoint note: ' + ep.get('note')
-        else: note = ''
-        raise ValueError("Missing required parameter(s): " + ', '.join(missing_params) + ".\n--Required parameters for the " + endpoint + " endpoint: " + str(ep.get('required_params',[])) + ". \n--Note: If there are multiple sets in the required parameter list, you can choose any of the sets."+note)
+        if ep.get("note"):
+            note = "\n--Endpoint note: " + ep.get("note")
+        else:
+            note = ""
+        raise ValueError(
+            "Missing required parameter(s): "
+            + ", ".join(missing_params)
+            + ".\n--Required parameters for the "
+            + endpoint
+            + " endpoint: "
+            + str(ep.get("required_params", []))
+            + ". \n--Note: If there are multiple sets in the required parameter list, you can choose any of the sets."
+            + note
+        )
 
-    #Make the request
+    # Make the request
     r = requests.get(url)
-    if r.status_code not in [200,201]:
-        raise ValueError('Request failed. Status Code: ' + str(r.status_code) + '.')
+    if r.status_code not in [200, 201]:
+        raise ValueError("Request failed. Status Code: " + str(r.status_code) + ".")
     else:
         return r.json()
 
