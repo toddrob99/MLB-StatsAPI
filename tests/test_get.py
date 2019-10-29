@@ -31,3 +31,17 @@ def test_get_returns_dictionary(mocker):
     result = statsapi.get("foo", {"bar": "baz"})
     # assert that result is the same as the return value from calling the json method of a response object
     assert result == mock_req.get.return_value.json.return_value
+
+
+def test_get_calls_correct_url(mocker):
+    # mock the ENDPOINTS dictionary
+    mocker.patch.dict("statsapi.ENDPOINTS", fake_dict(), clear=True)
+    # mock the requests object
+    mock_req = mocker.patch("statsapi.requests", autospec=True)
+
+    try:
+        statsapi.get("foo", {"bar": "baz"})
+    except ValueError:
+        pass
+
+    mock_req.get.assert_called_with("www.foo.com?bar=baz")
