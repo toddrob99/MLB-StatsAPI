@@ -1,4 +1,5 @@
 import statsapi
+import pytest
 
 
 def fake_dict():
@@ -45,3 +46,23 @@ def test_get_calls_correct_url(mocker):
         pass
 
     mock_req.get.assert_called_with("www.foo.com?bar=baz")
+
+
+def test_get_raises_errors(mocker):
+    # mock the ENDPOINTS dictionary
+    mocker.patch.dict("statsapi.ENDPOINTS", fake_dict(), clear=True)
+    # mock the requests object
+    mock_req = mocker.patch("statsapi.requests", autospec=True)
+    # mock the status code to always be 200
+    mock_req.get.return_value.status_code = 0
+
+    # bad status code
+    with pytest.raises(ValueError):
+        statsapi.get("foo", {"bar": "baz"})
+
+    # invalid endpoint
+    with pytest.raises(ValueError):
+        statsapi.get("bar", {"foo": "baz"})
+
+    # need to add test for path requirement not met
+    # need to add test for required params
