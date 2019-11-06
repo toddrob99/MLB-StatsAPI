@@ -1246,7 +1246,7 @@ ENDPOINTS = {
             },
         },
         "query_params": ["rosterType", "season", "date", "hydrate", "fields"],
-        "required_params": [["rosterType", "season"]],
+        "required_params": [[]],
     },
     "venue": {
         "url": BASE_URL + "{ver}/venues",
