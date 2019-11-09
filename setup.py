@@ -1,10 +1,8 @@
 import setuptools
-import os
+from statsapi import version
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
-
-from statsapi import version
 
 setuptools.setup(
     name="MLB-StatsAPI",
@@ -16,7 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/toddrob99/MLB-StatsAPI",
     packages=setuptools.find_packages(),
-    install_requires=['requests'],
+    install_requires=["requests"],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
