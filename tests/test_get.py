@@ -64,5 +64,5 @@ def test_get_raises_errors(mocker):
     with pytest.raises(ValueError):
         statsapi.get("bar", {"foo": "baz"})
 
-    # need to add test for path requirement not met
-    # need to add test for required params
+    # TODO: add test for path requirement not met
+    # TODO: add test for required params
