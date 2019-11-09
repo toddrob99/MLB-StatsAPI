@@ -143,9 +143,7 @@ def schedule(
 
     games = []
     if r.get("totalItems") == 0:
-        return (
-            games
-        )  # TODO: ValueError('No games to parse from schedule object.') instead?
+        return games  # TODO: ValueError('No games to parse from schedule object.') instead?
     else:
         for date in r.get("dates"):
             for game in date.get("games"):
@@ -2110,7 +2108,7 @@ def standings(
 
     standings = ""
 
-    for div_id, div in divisions.items():
+    for div in divisions.values():
         standings += div["div_name"] + "\n"
         if include_wildcard:
             standings += "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n".format(
@@ -2425,7 +2423,7 @@ def get(endpoint, params, force=False):
             "{" + k + "}",
             ("/" if ep["path_params"][k]["leading_slash"] else "")
             + v
-            + ("/" if ep["path_params"][k]["trailing_slash"] else "")
+            + ("/" if ep["path_params"][k]["trailing_slash"] else ""),
         )
         logger.debug("URL: {}".format(url))
 
