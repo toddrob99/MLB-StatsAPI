@@ -143,6 +143,7 @@ def schedule(
     if end_date and not start_date:
         date = end_date
         end_date = None
+
     if start_date and not end_date:
         date = start_date
         start_date = None
@@ -174,9 +175,7 @@ def schedule(
 
     games = []
     if r.get(&#34;totalItems&#34;) == 0:
-        return (
-            games
-        )  # TODO: ValueError(&#39;No games to parse from schedule object.&#39;) instead?
+        return games  # TODO: ValueError(&#39;No games to parse from schedule object.&#39;) instead?
     else:
         for date in r.get(&#34;dates&#34;):
             for game in date.get(&#34;games&#34;):
@@ -420,6 +419,7 @@ def boxscore(
                     &#34;ops&#34;: &#34;&#34;,
                 }
             )
+
         while len(awayBatters) &lt; len(homeBatters):
             awayBatters.append(
                 {
@@ -444,6 +444,7 @@ def boxscore(
         for i in range(0, len(awayBatters)):
             if i == 0 or i == len(awayBatters) - 1:
                 boxscore += &#34;-&#34; * rowLen + &#34; | &#34; + &#34;-&#34; * rowLen + &#34;\n&#34;
+
             boxscore += &#34;{namefield:&lt;40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5} | &#34;.format(
                 **awayBatters[i]
             )
@@ -459,6 +460,7 @@ def boxscore(
 
         while len(awayBattingNotes) &gt; len(homeBattingNotes):
             homeBattingNotes.update({len(homeBattingNotes): &#34;&#34;})
+
         while len(awayBattingNotes) &lt; len(homeBattingNotes):
             awayBattingNotes.update({len(awayBattingNotes): &#34;&#34;})
 
@@ -491,11 +493,12 @@ def boxscore(
                             else:
                                 lines.append(check)
                                 check = &#34;    &#34; + word
+
                         if len(check):
                             lines.append(check)
+
                         for i in range(0, len(lines)):
                             awayBoxInfo.update({len(awayBoxInfo): lines[i]})
-
                     else:
                         awayBoxInfo.update(
                             {len(awayBoxInfo): x[&#34;label&#34;] + &#34;: &#34; + x.get(&#34;value&#34;, &#34;&#34;)}
@@ -519,6 +522,7 @@ def boxscore(
                                 check = &#34;    &#34; + word
                         if len(check):
                             lines.append(check)
+
                         for i in range(0, len(lines)):
                             homeBoxInfo.update({len(homeBoxInfo): lines[i]})
                     else:
@@ -528,12 +532,14 @@ def boxscore(
 
             if len(awayBoxInfo) and infoType == &#34;BATTING&#34;:
                 awayBoxInfo.update({len(awayBoxInfo): &#34; &#34;})
+
             if len(homeBoxInfo) and infoType == &#34;BATTING&#34;:
                 homeBoxInfo.update({len(homeBoxInfo): &#34; &#34;})
 
     if len(awayBoxInfo) &gt; 0:
         while len(awayBoxInfo) &gt; len(homeBoxInfo):
             homeBoxInfo.update({len(homeBoxInfo): &#34;&#34;})
+
         while len(awayBoxInfo) &lt; len(homeBoxInfo):
             awayBoxInfo.update({len(awayBoxInfo): &#34;&#34;})
 
@@ -564,6 +570,7 @@ def boxscore(
                     &#34;era&#34;: &#34;&#34;,
                 }
             )
+
         while len(awayPitchers) &lt; len(homePitchers):
             awayPitchers.append(
                 {
@@ -587,6 +594,7 @@ def boxscore(
         for i in range(0, len(awayPitchers)):
             if i == 0 or i == len(awayPitchers) - 1:
                 boxscore += &#34;-&#34; * rowLen + &#34; | &#34; + &#34;-&#34; * rowLen + &#34;\n&#34;
+
             boxscore += &#34;{namefield:&lt;43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6} | &#34;.format(
                 **awayPitchers[i]
             )
@@ -623,11 +631,12 @@ def boxscore(
                     else:
                         lines.append(check)
                         check = &#34;    &#34; + word
+
                 if len(check):
                     lines.append(check)
+
                 for i in range(0, len(lines)):
                     gameBoxInfo.update({len(gameBoxInfo): lines[i]})
-
             else:
                 gameBoxInfo.update(
                     {
@@ -669,6 +678,7 @@ def boxscore_data(gamePk, timecode=None):
     }
     if timecode:
         params.update({&#34;timecode&#34;: timecode})
+
     r = get(&#34;game&#34;, params)
 
     boxData.update({&#34;gameId&#34;: r[&#34;gameData&#34;][&#34;game&#34;][&#34;id&#34;]})
@@ -958,6 +968,7 @@ def boxscore_data(gamePk, timecode=None):
     awayBattingNotes = {}
     for n in boxData[&#34;away&#34;][&#34;note&#34;]:
         awayBattingNotes.update({len(awayBattingNotes): n[&#34;label&#34;] + &#34;-&#34; + n[&#34;value&#34;]})
+
     homeBattingNotes = {}
     for n in boxData[&#34;home&#34;][&#34;note&#34;]:
         homeBattingNotes.update({len(homeBattingNotes): n[&#34;label&#34;] + &#34;-&#34; + n[&#34;value&#34;]})
@@ -1239,6 +1250,7 @@ def linescore(gamePk, timecode=None):
     }
     if timecode:
         params.update({&#34;timecode&#34;: timecode})
+
     r = get(&#34;game&#34;, params)
 
     header_name = r[&#34;gameData&#34;][&#34;status&#34;][&#34;abstractGameState&#34;]
@@ -1313,6 +1325,7 @@ def linescore(gamePk, timecode=None):
         linescore += (&#34;{:^2}&#34; * (len(k[1]) - 3)).format(*k[1])
         linescore += (&#34;{:^4}&#34; * 3).format(*k[1][-3:])
         linescore += &#34;\n&#34;
+
     if len(linescore) &gt; 1:
         linescore = linescore[:-1]  # strip the extra line break
 
@@ -1480,6 +1493,7 @@ def game_highlight_data(gamePk):
         r[&#34;dates&#34;][0][&#34;games&#34;][0][&#34;content&#34;][&#34;highlights&#34;][&#34;highlights&#34;][&#34;items&#34;]
     ):
         return &#34;&#34;
+
     items = r[&#34;dates&#34;][0][&#34;games&#34;][0][&#34;content&#34;][&#34;highlights&#34;][&#34;highlights&#34;][&#34;items&#34;]
 
     unorderedHighlights = {}
@@ -1555,6 +1569,7 @@ def game_pace(season=datetime.now().year, sportId=1):
         for k in s.keys():
             if k in [&#34;season&#34;, &#34;sport&#34;]:
                 continue
+
             if k == &#34;prPortalCalculatedFields&#34;:
                 for x in s[k].keys():
                     pace += &#34;{}: {}\n&#34;.format(x, s[k][x])
@@ -1570,6 +1585,7 @@ def game_pace_data(season=datetime.now().year, sportId=1):
     params = {}
     if season:
         params.update({&#34;season&#34;: season})
+
     if sportId:
         params.update({&#34;sportId&#34;: sportId})
 
@@ -1642,9 +1658,11 @@ def player_stats(personId, group=&#34;[hitting,pitching,fielding]&#34;, type=&#3
     stats += player[&#34;first_name&#34;]
     if player[&#34;nickname&#34;]:
         stats += &#39; &#34;{nickname}&#34;&#39;.format(**player)
+
     stats += &#34; {last_name}, {position} ({mlb_debut:.4}-&#34;.format(**player)
     if not player[&#34;active&#34;]:
         stats += &#34;{last_played:.4}&#34;.format(**player)
+
     stats += &#34;)\n\n&#34;
 
     for x in player[&#34;stats&#34;]:
@@ -1657,11 +1675,13 @@ def player_stats(personId, group=&#34;[hitting,pitching,fielding]&#34;, type=&#3
         )
         if x[&#34;stats&#34;].get(&#34;position&#34;):
             stats += &#34; ({})&#34;.format(x[&#34;stats&#34;][&#34;position&#34;][&#34;abbreviation&#34;])
+
         stats += &#34;\n&#34;
         for y in x[&#34;stats&#34;].keys():
             if y == &#34;position&#34;:
                 continue
             stats += &#34;{}: {}\n&#34;.format(y, x[&#34;stats&#34;][y])
+
         stats += &#34;\n&#34;
 
     return stats
@@ -1804,6 +1824,7 @@ def lookup_team(lookup_value, activeStatus=&#34;Y&#34;, season=datetime.now().ye
             if str(lookup_value).lower() in str(v).lower():
                 teams.append(team)
                 break
+
     return teams
 
 
@@ -2017,22 +2038,30 @@ def league_leader_data(
     params = {&#34;leaderCategories&#34;: leaderCategories, &#34;sportId&#34;: sportId, &#34;limit&#34;: limit}
     if season:
         params.update({&#34;season&#34;: season})
+
     if statType:
         params.update({&#34;statType&#34;: statType})
+
     if not season and not statType:
         params.update(
             {&#34;season&#34;: datetime.now().year}
         )  # default season to current year if no season or statType provided
+
     if statGroup:
         if statGroup == &#34;batting&#34;:
             statGroup = &#34;hitting&#34;
+
         params.update({&#34;statGroup&#34;: statGroup})
+
     if gameTypes:
         params.update({&#34;leaderGameTypes&#34;: gameTypes})
+
     if leagueId:
         params.update({&#34;leagueId&#34;: leagueId})
+
     if playerPool:
         params.update({&#34;playerPool&#34;: playerPool})
+
     params.update(
         {
             &#34;fields&#34;: &#34;leagueLeaders,leaders,rank,value,team,name,league,name,person,fullName&#34;
@@ -2111,7 +2140,7 @@ def standings(
 
     standings = &#34;&#34;
 
-    for div_id, div in divisions.items():
+    for div in divisions.values():
         standings += div[&#34;div_name&#34;] + &#34;\n&#34;
         if include_wildcard:
             standings += &#34;{:^4} {:&lt;21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n&#34;.format(
@@ -2154,13 +2183,16 @@ def standings_data(
     params = {&#34;leagueId&#34;: leagueId}
     if date:
         params.update({&#34;date&#34;: date})
+
     if not season:
         if date:
             season = date[-4:]
         else:
             season = datetime.now().year
+
     if not standingsTypes:
         standingsTypes = &#34;regularSeason&#34;
+
     params.update({&#34;season&#34;: season, &#34;standingsTypes&#34;: standingsTypes})
     params.update(
         {
@@ -2189,6 +2221,7 @@ def standings_data(
                         }
                     }
                 )
+
             team = {
                 &#34;name&#34;: x[&#34;team&#34;][&#34;name&#34;],
                 &#34;div_rank&#34;: x[&#34;divisionRank&#34;],
@@ -2248,6 +2281,7 @@ def roster(teamId, rosterType=None, season=datetime.now().year, date=None):
     &#34;&#34;&#34;
     if not rosterType:
         rosterType = &#34;active&#34;
+
     params = {&#34;rosterType&#34;: rosterType, &#34;season&#34;: season, &#34;teamId&#34;: teamId}
     if date:
         params.update({&#34;date&#34;: date})
@@ -2379,6 +2413,7 @@ def get(endpoint, params, force=False):
     ep = ENDPOINTS.get(endpoint)
     if not ep:
         raise ValueError(&#34;Invalid endpoint (&#34; + str(endpoint) + &#34;).&#34;)
+
     url = ep[&#34;url&#34;]
     logger.debug(&#34;URL: {}&#34;.format(url))
 
@@ -2416,8 +2451,14 @@ def get(endpoint, params, force=False):
     # Replace path parameters with their values
     for k, v in path_params.items():
         logger.debug(&#34;Replacing {%s}&#34; % k)
-        url = url.replace(&#34;{&#34; + k + &#34;}&#34;, v)
+        url = url.replace(
+            &#34;{&#34; + k + &#34;}&#34;,
+            (&#34;/&#34; if ep[&#34;path_params&#34;][k][&#34;leading_slash&#34;] else &#34;&#34;)
+            + v
+            + (&#34;/&#34; if ep[&#34;path_params&#34;][k][&#34;trailing_slash&#34;] else &#34;&#34;),
+        )
         logger.debug(&#34;URL: {}&#34;.format(url))
+
     while url.find(&#34;{&#34;) != -1 and url.find(&#34;}&#34;) &gt; url.find(&#34;{&#34;):
         param = url[url.find(&#34;{&#34;) + 1 : url.find(&#34;}&#34;)]
         if ep.get(&#34;path_params&#34;, {}).get(param, {}).get(&#34;required&#34;):
@@ -2443,6 +2484,7 @@ def get(endpoint, params, force=False):
         else:
             logger.debug(&#34;Removing optional param {%s}&#34; % param)
             url = url.replace(&#34;{&#34; + param + &#34;}&#34;, &#34;&#34;)
+
         logger.debug(&#34;URL: {}&#34;.format(url))
     # Add query parameters to the URL
     if len(query_params) &gt; 0:
@@ -2463,11 +2505,13 @@ def get(endpoint, params, force=False):
             if len(missing_params) == 0:
                 satisfied = True
                 break
+
     if not satisfied and not force:
         if ep.get(&#34;note&#34;):
             note = &#34;\n--Endpoint note: &#34; + ep.get(&#34;note&#34;)
         else:
             note = &#34;&#34;
+
         raise ValueError(
             &#34;Missing required parameter(s): &#34;
             + &#34;, &#34;.join(missing_params)
@@ -3245,6 +3289,7 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
                     &#34;ops&#34;: &#34;&#34;,
                 }
             )
+
         while len(awayBatters) &lt; len(homeBatters):
             awayBatters.append(
                 {
@@ -3269,6 +3314,7 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
         for i in range(0, len(awayBatters)):
             if i == 0 or i == len(awayBatters) - 1:
                 boxscore += &#34;-&#34; * rowLen + &#34; | &#34; + &#34;-&#34; * rowLen + &#34;\n&#34;
+
             boxscore += &#34;{namefield:&lt;40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5} | &#34;.format(
                 **awayBatters[i]
             )
@@ -3284,6 +3330,7 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
 
         while len(awayBattingNotes) &gt; len(homeBattingNotes):
             homeBattingNotes.update({len(homeBattingNotes): &#34;&#34;})
+
         while len(awayBattingNotes) &lt; len(homeBattingNotes):
             awayBattingNotes.update({len(awayBattingNotes): &#34;&#34;})
 
@@ -3316,11 +3363,12 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
                             else:
                                 lines.append(check)
                                 check = &#34;    &#34; + word
+
                         if len(check):
                             lines.append(check)
+
                         for i in range(0, len(lines)):
                             awayBoxInfo.update({len(awayBoxInfo): lines[i]})
-
                     else:
                         awayBoxInfo.update(
                             {len(awayBoxInfo): x[&#34;label&#34;] + &#34;: &#34; + x.get(&#34;value&#34;, &#34;&#34;)}
@@ -3344,6 +3392,7 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
                                 check = &#34;    &#34; + word
                         if len(check):
                             lines.append(check)
+
                         for i in range(0, len(lines)):
                             homeBoxInfo.update({len(homeBoxInfo): lines[i]})
                     else:
@@ -3353,12 +3402,14 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
 
             if len(awayBoxInfo) and infoType == &#34;BATTING&#34;:
                 awayBoxInfo.update({len(awayBoxInfo): &#34; &#34;})
+
             if len(homeBoxInfo) and infoType == &#34;BATTING&#34;:
                 homeBoxInfo.update({len(homeBoxInfo): &#34; &#34;})
 
     if len(awayBoxInfo) &gt; 0:
         while len(awayBoxInfo) &gt; len(homeBoxInfo):
             homeBoxInfo.update({len(homeBoxInfo): &#34;&#34;})
+
         while len(awayBoxInfo) &lt; len(homeBoxInfo):
             awayBoxInfo.update({len(awayBoxInfo): &#34;&#34;})
 
@@ -3389,6 +3440,7 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
                     &#34;era&#34;: &#34;&#34;,
                 }
             )
+
         while len(awayPitchers) &lt; len(homePitchers):
             awayPitchers.append(
                 {
@@ -3412,6 +3464,7 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
         for i in range(0, len(awayPitchers)):
             if i == 0 or i == len(awayPitchers) - 1:
                 boxscore += &#34;-&#34; * rowLen + &#34; | &#34; + &#34;-&#34; * rowLen + &#34;\n&#34;
+
             boxscore += &#34;{namefield:&lt;43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6} | &#34;.format(
                 **awayPitchers[i]
             )
@@ -3448,11 +3501,12 @@ For example, to retrieve only the batting box: statsapi.boxscore(565997,battingI
                     else:
                         lines.append(check)
                         check = &#34;    &#34; + word
+
                 if len(check):
                     lines.append(check)
+
                 for i in range(0, len(lines)):
                     gameBoxInfo.update({len(gameBoxInfo): lines[i]})
-
             else:
                 gameBoxInfo.update(
                     {
@@ -3511,6 +3565,7 @@ statsapi.get('game_timestamps',{'gamePk':565997})</p></section>
     }
     if timecode:
         params.update({&#34;timecode&#34;: timecode})
+
     r = get(&#34;game&#34;, params)
 
     boxData.update({&#34;gameId&#34;: r[&#34;gameData&#34;][&#34;game&#34;][&#34;id&#34;]})
@@ -3800,6 +3855,7 @@ statsapi.get('game_timestamps',{'gamePk':565997})</p></section>
     awayBattingNotes = {}
     for n in boxData[&#34;away&#34;][&#34;note&#34;]:
         awayBattingNotes.update({len(awayBattingNotes): n[&#34;label&#34;] + &#34;-&#34; + n[&#34;value&#34;]})
+
     homeBattingNotes = {}
     for n in boxData[&#34;home&#34;][&#34;note&#34;]:
         homeBattingNotes.update({len(homeBattingNotes): n[&#34;label&#34;] + &#34;-&#34; + n[&#34;value&#34;]})
@@ -4071,6 +4127,7 @@ statsapi.get('game_timestamps',{'gamePk':565997})</p></section>
         r[&#34;dates&#34;][0][&#34;games&#34;][0][&#34;content&#34;][&#34;highlights&#34;][&#34;highlights&#34;][&#34;items&#34;]
     ):
         return &#34;&#34;
+
     items = r[&#34;dates&#34;][0][&#34;games&#34;][0][&#34;content&#34;][&#34;highlights&#34;][&#34;highlights&#34;][&#34;items&#34;]
 
     unorderedHighlights = {}
@@ -4264,6 +4321,7 @@ timePerExtraInnGame: 03:43:36</p></section>
         for k in s.keys():
             if k in [&#34;season&#34;, &#34;sport&#34;]:
                 continue
+
             if k == &#34;prPortalCalculatedFields&#34;:
                 for x in s[k].keys():
                     pace += &#34;{}: {}\n&#34;.format(x, s[k][x])
@@ -4288,6 +4346,7 @@ timePerExtraInnGame: 03:43:36</p></section>
     params = {}
     if season:
         params.update({&#34;season&#34;: season})
+
     if sportId:
         params.update({&#34;sportId&#34;: sportId})
 
@@ -4449,6 +4508,7 @@ Please note results from Stats API may not be as expected when forcing.</p>
     ep = ENDPOINTS.get(endpoint)
     if not ep:
         raise ValueError(&#34;Invalid endpoint (&#34; + str(endpoint) + &#34;).&#34;)
+
     url = ep[&#34;url&#34;]
     logger.debug(&#34;URL: {}&#34;.format(url))
 
@@ -4486,8 +4546,14 @@ Please note results from Stats API may not be as expected when forcing.</p>
     # Replace path parameters with their values
     for k, v in path_params.items():
         logger.debug(&#34;Replacing {%s}&#34; % k)
-        url = url.replace(&#34;{&#34; + k + &#34;}&#34;, v)
+        url = url.replace(
+            &#34;{&#34; + k + &#34;}&#34;,
+            (&#34;/&#34; if ep[&#34;path_params&#34;][k][&#34;leading_slash&#34;] else &#34;&#34;)
+            + v
+            + (&#34;/&#34; if ep[&#34;path_params&#34;][k][&#34;trailing_slash&#34;] else &#34;&#34;),
+        )
         logger.debug(&#34;URL: {}&#34;.format(url))
+
     while url.find(&#34;{&#34;) != -1 and url.find(&#34;}&#34;) &gt; url.find(&#34;{&#34;):
         param = url[url.find(&#34;{&#34;) + 1 : url.find(&#34;}&#34;)]
         if ep.get(&#34;path_params&#34;, {}).get(param, {}).get(&#34;required&#34;):
@@ -4513,6 +4579,7 @@ Please note results from Stats API may not be as expected when forcing.</p>
         else:
             logger.debug(&#34;Removing optional param {%s}&#34; % param)
             url = url.replace(&#34;{&#34; + param + &#34;}&#34;, &#34;&#34;)
+
         logger.debug(&#34;URL: {}&#34;.format(url))
     # Add query parameters to the URL
     if len(query_params) &gt; 0:
@@ -4533,11 +4600,13 @@ Please note results from Stats API may not be as expected when forcing.</p>
             if len(missing_params) == 0:
                 satisfied = True
                 break
+
     if not satisfied and not force:
         if ep.get(&#34;note&#34;):
             note = &#34;\n--Endpoint note: &#34; + ep.get(&#34;note&#34;)
         else:
             note = &#34;&#34;
+
         raise ValueError(
             &#34;Missing required parameter(s): &#34;
             + &#34;, &#34;.join(missing_params)
@@ -4634,22 +4703,30 @@ will return different results with statGroup='pitching' and statGroup='catching'
     params = {&#34;leaderCategories&#34;: leaderCategories, &#34;sportId&#34;: sportId, &#34;limit&#34;: limit}
     if season:
         params.update({&#34;season&#34;: season})
+
     if statType:
         params.update({&#34;statType&#34;: statType})
+
     if not season and not statType:
         params.update(
             {&#34;season&#34;: datetime.now().year}
         )  # default season to current year if no season or statType provided
+
     if statGroup:
         if statGroup == &#34;batting&#34;:
             statGroup = &#34;hitting&#34;
+
         params.update({&#34;statGroup&#34;: statGroup})
+
     if gameTypes:
         params.update({&#34;leaderGameTypes&#34;: gameTypes})
+
     if leagueId:
         params.update({&#34;leagueId&#34;: leagueId})
+
     if playerPool:
         params.update({&#34;playerPool&#34;: playerPool})
+
     params.update(
         {
             &#34;fields&#34;: &#34;leagueLeaders,leaders,rank,value,team,name,league,name,person,fullName&#34;
@@ -5044,6 +5121,7 @@ Mets
     }
     if timecode:
         params.update({&#34;timecode&#34;: timecode})
+
     r = get(&#34;game&#34;, params)
 
     header_name = r[&#34;gameData&#34;][&#34;status&#34;][&#34;abstractGameState&#34;]
@@ -5118,6 +5196,7 @@ Mets
         linescore += (&#34;{:^2}&#34; * (len(k[1]) - 3)).format(*k[1])
         linescore += (&#34;{:^4}&#34; * 3).format(*k[1][-3:])
         linescore += &#34;\n&#34;
+
     if len(linescore) &gt; 1:
         linescore = linescore[:-1]  # strip the extra line break
 
@@ -5261,6 +5340,7 @@ print(team)</p>
             if str(lookup_value).lower() in str(v).lower():
                 teams.append(team)
                 break
+
     return teams</code></pre>
 </details>
 </dd>
@@ -5578,9 +5658,11 @@ groundOutsToAirouts: 0.84</p></section>
     stats += player[&#34;first_name&#34;]
     if player[&#34;nickname&#34;]:
         stats += &#39; &#34;{nickname}&#34;&#39;.format(**player)
+
     stats += &#34; {last_name}, {position} ({mlb_debut:.4}-&#34;.format(**player)
     if not player[&#34;active&#34;]:
         stats += &#34;{last_played:.4}&#34;.format(**player)
+
     stats += &#34;)\n\n&#34;
 
     for x in player[&#34;stats&#34;]:
@@ -5593,11 +5675,13 @@ groundOutsToAirouts: 0.84</p></section>
         )
         if x[&#34;stats&#34;].get(&#34;position&#34;):
             stats += &#34; ({})&#34;.format(x[&#34;stats&#34;][&#34;position&#34;][&#34;abbreviation&#34;])
+
         stats += &#34;\n&#34;
         for y in x[&#34;stats&#34;].keys():
             if y == &#34;position&#34;:
                 continue
             stats += &#34;{}: {}\n&#34;.format(y, x[&#34;stats&#34;][y])
+
         stats += &#34;\n&#34;
 
     return stats</code></pre>
@@ -5736,6 +5820,7 @@ Zach Eflin</h1></section>
     &#34;&#34;&#34;
     if not rosterType:
         rosterType = &#34;active&#34;
+
     params = {&#34;rosterType&#34;: rosterType, &#34;season&#34;: season, &#34;teamId&#34;: teamId}
     if date:
         params.update({&#34;date&#34;: date})
@@ -5887,6 +5972,7 @@ print("%s Game %s - WP: %s, LP: %s" % (x['game_date'],x['game_num'],x['winning_p
     if end_date and not start_date:
         date = end_date
         end_date = None
+
     if start_date and not end_date:
         date = start_date
         start_date = None
@@ -5918,9 +6004,7 @@ print("%s Game %s - WP: %s, LP: %s" % (x['game_date'],x['game_num'],x['winning_p
 
     games = []
     if r.get(&#34;totalItems&#34;) == 0:
-        return (
-            games
-        )  # TODO: ValueError(&#39;No games to parse from schedule object.&#39;) instead?
+        return games  # TODO: ValueError(&#39;No games to parse from schedule object.&#39;) instead?
     else:
         for date in r.get(&#34;dates&#34;):
             for game in date.get(&#34;games&#34;):
@@ -6262,7 +6346,7 @@ E</p></section>
 
     standings = &#34;&#34;
 
-    for div_id, div in divisions.items():
+    for div in divisions.values():
         standings += div[&#34;div_name&#34;] + &#34;\n&#34;
         if include_wildcard:
             standings += &#34;{:^4} {:&lt;21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n&#34;.format(
@@ -6317,13 +6401,16 @@ E</p></section>
     params = {&#34;leagueId&#34;: leagueId}
     if date:
         params.update({&#34;date&#34;: date})
+
     if not season:
         if date:
             season = date[-4:]
         else:
             season = datetime.now().year
+
     if not standingsTypes:
         standingsTypes = &#34;regularSeason&#34;
+
     params.update({&#34;season&#34;: season, &#34;standingsTypes&#34;: standingsTypes})
     params.update(
         {
@@ -6352,6 +6439,7 @@ E</p></section>
                         }
                     }
                 )
+
             team = {
                 &#34;name&#34;: x[&#34;team&#34;][&#34;name&#34;],
                 &#34;div_rank&#34;: x[&#34;divisionRank&#34;],
