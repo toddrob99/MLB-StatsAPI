@@ -7,9 +7,7 @@ Created by Todd Roberts
 
 https://pypi.org/project/MLB-StatsAPI/
 
-https://github.com/toddrob99/MLB-StatsAPI
-
-Documentation: https://toddrob99.github.io/MLB-StatsAPI/
+Issues/Wiki: https://github.com/toddrob99/MLB-StatsAPI
 """
 import sys
 
@@ -46,69 +44,7 @@ def schedule(
     sportId=1,
     game_id=None,
 ):
-    """Get list of games for a given date/range and/or team/opponent.
-
-    Include a game_id to get data for that game.
-
-    Output will be a list containing a dict for each game. Fields in the dict:
-
-    'game_id': unique MLB game id (primary key, or gamePk)
-    'game_datetime': date and timestamp in UTC (be careful if you truncate the time--the date may be the next day for a late game)
-    'game_date': date of game (YYYY-MM-DD)
-    'game_type': Preseason, Regular season, Postseason, etc. Look up possible values using the meta endpoint with type=gameTypes
-    'status': Scheduled, Warmup, In Progress, Final, etc. Look up possible values using the meta endpoint with type=gameStatus
-    'away_name': team name for the away team (e.g. Philadelphia Phillies)
-    'home_name': team name for the home team (e.g. Philadelphia Phillies)
-    'away_id': team id for the away team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143
-    'home_id': team id for the home team, e.g. 143. Use this to look up other info about a team using the team endpoint with teamId=143
-    'doubleheader': indicates if the game is part of a straight doubleheader (Y), a split doubleheader (S), or not part of a doubleheader
-    'game_num': game sequence (1, 2) if part of a doubleheader (will be 1 when not part of a doubleheader)
-    'away_score': runs scored by the away team (even when game is in progress)
-    'home_score': runs scored by the home team (even when game is in progress)
-    'winning_team': team name for the winning team, if the game is final (e.g. Philadelphia Phillies)
-    'losing_team': team name for the losing team, if the game is final (e.g. Philadelphia Phillies)
-    'winning_pitcher': full name of the winning pitcher, if the game is final and has a winner (not postponed/tied)
-    'losing_pitcher': full name of the losing pitcher, if the game is final and has a winner (not postponed/tied)
-    'save_pitcher': full name of the pitcher credited with a save, if the game is final and has a winner (not postponed/tied)
-    'home_probable_pitcher': full name of the probable pitcher for the home team, if available
-    'away_probable_pitcher': full name of the probable pitcher for the away team, if available
-    'home_pitcher_note': pitching report for the home team probable pitcher, if available
-    'away_pitcher_note': pitching report for the away team probable pitcher, if available
-    'current_inning': current inning (applies best to in-progress games)
-    'inning_state': state of current inning: top, middle, bottom, end (applies best to in-progress games)
-    'summary':  if the game is final or in progress, the summary will include "<Date> - <Away Team Name> (<Away Score>) @ <Home Team Name> (<Home Score>) (<Game Status>)"
-                if the game has not started yet, the summary will include "<Date> - <Away Team Name> @ <Home Team Name> (<Game Status>)"
-
-    Example use:
-
-    Games between Phillies and Mets in July 2018:
-
-    games = statsapi.schedule(start_date='07/01/2018',end_date='07/31/2018',team=143,opponent=121)
-
-    Print a list of those games with final score or game status:
-
-    for x in games:
-        print(x['summary'])
-
-    Output:
-
-    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (4) (Final)
-    2018-07-09 - Philadelphia Phillies (3) @ New York Mets (1) (Final)
-    2018-07-10 - Philadelphia Phillies (7) @ New York Mets (3) (Final)
-    2018-07-11 - Philadelphia Phillies (0) @ New York Mets (3) (Final)
-
-    Print a list of decisions for those games:
-
-    for x in games:
-        print("%s Game %s - WP: %s, LP: %s" % (x['game_date'],x['game_num'],x['winning_pitcher'],x['losing_pitcher']))
-
-    Output:
-
-    2018-07-09 Game 1 - WP: Tim Peterson, LP: Victor Arano
-    2018-07-09 Game 2 - WP: Aaron Nola, LP: Corey Oswalt
-    2018-07-10 Game 1 - WP: Enyel De Los Santos, LP: Drew Gagnon
-    2018-07-11 Game 1 - WP: Robert Gsellman, LP: Mark Leiter Jr.
-    """
+    """Get list of games for a given date/range and/or team/opponent."""
     if end_date and not start_date:
         date = end_date
         end_date = None
@@ -263,101 +199,7 @@ def boxscore(
     gameInfo=True,
     timecode=None,
 ):
-    """Get a formatted boxscore for a given game.
-
-    Note: This function uses the game endpoint instead of game_box,
-    because game_box does not contain the players' names as they should be
-    displayed in the box score (e.g. Last name only or Last, F)
-
-    It is possible to get the boxscore as it existed at a specific time by including the timestamp in the timecode parameter.
-    The timecode should be in the format YYYYMMDD_HHMMSS, and in the UTC timezone
-    For example, 4/24/19 10:32:40 EDT (-4) would be: 20190425_012240
-    A list of timestamps for game events can be found through the game_timestamps endpoint:
-    statsapi.get('game_timestamps',{'gamePk':565997})
-
-    Example use:
-
-    Print the full box score for Phillies @ Mets game on 4/24/2019 (gamePk=565997):
-
-    print( statsapi.boxscore(565997) )
-
-    Output:
-
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    Phillies Batters                         AB   R   H  RBI BB   K  LOB AVG   OPS  | Mets Batters                             AB   R   H  RBI BB   K  LOB AVG   OPS
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    1 McCutchen  LF                           5   0   1   0   0   1   3  .250 .830  | 1 McNeil  LF                              4   0   1   0   0   0   1  .363 .928
-    2 Realmuto  C                             3   1   1   0   1   1   2  .282 .786  | 2 Conforto  RF                            3   0   0   0   1   1   1  .292 .986
-    3 Harper  RF                              4   1   1   1   1   3   4  .261 .909  | 3 Canó  2B                                3   0   3   0   1   0   0  .272 .758
-    4 Hoskins  1B                             4   2   2   2   1   1   3  .273 .982  | 4 Ramos, W  C                             4   0   0   0   0   3   6  .278 .687
-    5 Franco  3B                              5   1   1   1   0   0   3  .271 .905  | 5 Smith, Do  1B                           2   0   0   0   1   1   2  .400 .996
-    6 Hernández, C  2B                        5   1   1   0   0   1   2  .267 .730  |     c-Alonso, P  1B                       1   0   0   0   0   1   1  .306 1.086
-    7 Rodríguez, S  SS                        4   0   1   0   0   1   1  .250 .750  | 6 Frazier, T  3B                          3   0   0   0   0   0   4  .182 .705
-    8 Velasquez  P                            1   0   0   0   0   0   0  .167 .453  | 7 Rosario, A  SS                          4   0   1   0   0   0   1  .261 .676
-        a-Williams, N  PH                     1   0   0   0   0   0   1  .150 .427  | 8 Lagares  CF                             2   0   0   0   0   1   1  .244 .653
-        Neshek  P                             0   0   0   0   0   0   0  .000 .000  |     a-Nimmo  CF                           2   0   0   0   0   0   1  .203 .714
-        Domínguez  P                          0   0   0   0   0   0   0  .000 .000  | 9 Vargas  P                               2   0   0   0   0   1   1  .000 .000
-        b-Gosselin  PH                        1   0   1   1   0   0   0  .211 .474  |     Lugo, S  P                            0   0   0   0   0   0   0  .000 .000
-        Morgan  P                             0   0   0   0   0   0   0  .000 .000  |     Zamora  P                             0   0   0   0   0   0   0  .000 .000
-        c-Knapp  PH                           1   0   0   0   0   1   1  .222 .750  |     b-Guillorme  PH                       1   0   1   0   0   0   0  .167 .378
-        Nicasio  P                            0   0   0   0   0   0   0  .000 .000  |     Gsellman  P                           0   0   0   0   0   0   0  .000 .000
-    9 Quinn  CF                               4   0   1   1   0   1   1  .120 .305  |     Rhame  P                              0   0   0   0   0   0   0  .000 .000
-        1-Altherr  CF                         0   0   0   0   0   0   0  .042 .163  |     d-Davis, J  PH                        1   0   0   0   0   1   0  .276 .865
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    Totals                                   38   6  10   6   3  10  21             | Totals                                   32   0   6   0   3   9  19
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    a-Popped out for Velasquez in the 6th.                                          | a-Flied out for Lagares in the 6th.
-    b-Singled for Domínguez in the 8th.                                             | b-Singled for Zamora in the 7th.
-    c-Struck out for Morgan in the 9th.                                             | c-Struck out for Smith, Do in the 8th.
-    1-Ran for Quinn in the 8th.                                                     | d-Struck out for Rhame in the 9th.
-                                                                                    |
-    BATTING                                                                         | BATTING
-    2B: Harper (7, Vargas); Rodríguez, S (1, Rhame); Realmuto (4, Vargas).          | TB: Canó 3; Guillorme; McNeil; Rosario, A.
-    3B: Hoskins (1, Gsellman).                                                      | Runners left in scoring position, 2 out: Frazier, T 2; Vargas; Smith, Do 2.
-    HR: Hoskins (7, 9th inning off Rhame, 1 on, 0 out).                             | GIDP: McNeil.
-    TB: Franco; Gosselin; Harper 2; Hernández, C; Hoskins 7; McCutchen; Quinn;      | Team RISP: 0-for-6.
-        Realmuto 2; Rodríguez, S 2.                                                 | Team LOB: 9.
-    RBI: Franco (19); Gosselin (4); Harper (15); Hoskins 2 (20); Quinn (1).         |
-    Runners left in scoring position, 2 out: Hoskins; Hernández, C; Knapp; Realmuto | FIELDING
-        2; McCutchen.                                                               | E: Canó (3, fielding); Rosario, A 2 (7, throw, throw).
-    SAC: Rodríguez, S; Velasquez.                                                   |
-    Team RISP: 4-for-13.                                                            |
-    Team LOB: 11.                                                                   |
-                                                                                    |
-    FIELDING                                                                        |
-    DP: (Hernández, C-Rodríguez, S-Hoskins).                                        |
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    Phillies Pitchers                            IP   H   R  ER  BB   K  HR   ERA   | Mets Pitchers                                IP   H   R  ER  BB   K  HR   ERA
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    Velasquez  (W, 1-0)                         5.0   3   0   0   3   6   0   1.99  | Vargas  (L, 1-1)                            4.2   3   1   1   2   4   0   7.20
-    Neshek  (H, 2)                              1.0   1   0   0   0   0   0   2.70  | Lugo, S                                     2.0   0   0   0   0   2   0   4.60
-    Domínguez  (H, 3)                           1.0   1   0   0   0   0   0   4.32  | Zamora                                      0.1   0   0   0   0   1   0   0.00
-    Morgan                                      1.0   1   0   0   0   2   0   0.00  | Gsellman                                    1.0   5   3   3   0   1   0   4.20
-    Nicasio                                     1.0   0   0   0   0   1   0   5.84  | Rhame                                       1.0   2   2   2   1   2   1   8.10
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    Totals                                      9.0   6   0   0   3   9   0         | Totals                                      9.0  10   6   6   3  10   1
-    ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------
-    WP: Velasquez; Gsellman.
-    HBP: Realmuto (by Vargas); Frazier, T (by Velasquez).
-    Pitches-strikes: Velasquez 97-53; Neshek 13-8; Domínguez 9-6; Morgan 14-10; Nicasio 15-10; Vargas 89-53; Lugo, S 32-23; Zamora 5-3; Gsellman 25-17; Rhame 19-12.
-    Groundouts-flyouts: Velasquez 6-3; Neshek 1-2; Domínguez 1-1; Morgan 1-0; Nicasio 2-0; Vargas 8-3; Lugo, S 3-2; Zamora 0-0; Gsellman 1-1; Rhame 0-0.
-    Batters faced: Velasquez 22; Neshek 4; Domínguez 3; Morgan 4; Nicasio 3; Vargas 21; Lugo, S 8; Zamora; Gsellman 8; Rhame 6.
-    Inherited runners-scored: Lugo, S 2-0; Zamora 1-0.
-    Umpires: HP: Brian Gorman. 1B: Jansen Visconti. 2B: Mark Carlson. 3B: Scott Barry.
-    Weather: 66 degrees, Clear.
-    Wind: 12 mph, L To R.
-    First pitch: 7:11 PM.
-    T: 3:21.
-    Att: 27,685.
-    Venue: Citi Field.
-    April 24, 2019
-    -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    Which sections are included can be customized using the battingBox, battingInfo, pitchingBox, and gameInfo parameters
-    All default to True; set to False to exclude from the results
-    For example, to retrieve only the batting box: statsapi.boxscore(565997,battingInfo=False,fieldingInfo=False,pitchingBox=False,gameInfo=False)
-    """
+    """Get a formatted boxscore for a given game."""
     boxData = boxscore_data(gamePk, timecode)
 
     rowLen = 79
@@ -578,18 +420,7 @@ def boxscore(
 
 
 def boxscore_data(gamePk, timecode=None):
-    """Returns a python dict containing boxscore data for a given game.
-
-    Note: This function uses the game endpoint instead of game_box,
-    because game_box does not contain the players' names as they should be
-    displayed in the box score (e.g. Last name only or Last, F)
-
-    It is possible to get the boxscore as it existed at a specific time by including the timestamp in the timecode parameter.
-    The timecode should be in the format YYYYMMDD_HHMMSS, and in the UTC timezone
-    For example, 4/24/19 10:32:40 EDT (-4) would be: 20190425_012240
-    A list of timestamps for game events can be found through the game_timestamps endpoint:
-    statsapi.get('game_timestamps',{'gamePk':565997})
-    """
+    """Returns a python dict containing boxscore data for a given game."""
 
     boxData = {}
     """boxData holds the dict to be returned"""
@@ -911,33 +742,7 @@ def boxscore_data(gamePk, timecode=None):
 
 
 def linescore(gamePk, timecode=None):
-    """Get formatted linescore for a given game.
-
-    Note: This function uses the game endpoint instead of game_linescore,
-    because game_linescore does not contain the team names or game status
-    and it's better to make one call instead of two. All of this data can
-    also be retrieved through the schedule endpoint using hydrate=linescore,
-    but the schedule endpoint does not support the timecode parameter.
-
-    It is possible to get the linescore as it existed at a specific time by including the timestamp in the timecode parameter.
-    The timecode should be in the format YYYYMMDD_HHMMSS, and in the UTC timezone
-    For example, 4/24/19 10:32:40 EDT (-4) would be: 20190425_012240
-    A list of timestamps for game events can be found through the game_timestamps endpoint:
-    statsapi.get('game_timestamps',{'gamePk':565997})
-
-    Example use:
-
-    Print the linescore for the Phillies/Mets game on 4/25/19:
-
-    print( statsapi.linescore(565997) )
-
-    Output:
-
-    Final    1 2 3 4 5 6 7 8 9  R   H   E
-    Phillies 1 0 0 0 0 0 0 3 2  6   10  0
-    Mets     0 0 0 0 0 0 0 0 0  0   6   3
-
-    """
+    """Get formatted linescore for a given game."""
     linescore = ""
     params = {
         "gamePk": gamePk,
@@ -1028,22 +833,7 @@ def next_game(teamId):
 
 
 def game_scoring_plays(gamePk):
-    """Get a text-formatted list of scoring plays for a given game
-
-    Example use:
-
-    Print a list of scoring plays from the 4/28/2019 Marlins @ Phillies game
-
-    print( statsapi.game_scoring_plays(567074) )
-
-    Output (truncated to show only the first and last records):
-
-    Rhys Hoskins doubles (6) on a sharp line drive to left fielder Isaac Galloway.   Bryce Harper scores.
-    Bottom 1 - Miami Marlins: 0, Philadelphia Phillies: 1
-
-    Rhys Hoskins walks.   Andrew McCutchen scores.    Jean Segura to 3rd.  Wild pitch by pitcher Tayron Guerrero.
-    Bottom 8 - Miami Marlins: 1, Philadelphia Phillies: 5
-    """
+    """Get a text-formatted list of scoring plays for a given game."""
     sortedPlays = game_scoring_play_data(gamePk)
     scoring_plays = ""
     for a in sortedPlays["plays"]:
@@ -1064,9 +854,7 @@ def game_scoring_plays(gamePk):
 
 
 def game_scoring_play_data(gamePk):
-    """Returns a python list of scoring plays for a given game.
-
-    Will return a dict containing 3 keys:
+    """Returns a python dict of scoring plays for a given game containing 3 keys:
 
     * home - home team data
     * away - away team data
@@ -1100,24 +888,7 @@ def game_scoring_play_data(gamePk):
 
 
 def game_highlights(gamePk):
-    """Get the highlight video links for a given game
-
-    Example use:
-
-    Print the highlight links for the most recent Phillies game
-
-    print( statsapi.game_highlights( statsapi.last_game(143) ) )
-
-    Output (truncated to only include the first two highlights):
-
-    Hoskins' RBI double (00:00:16)
-    Rhys Hoskins belts a double off the left-center-field wall to score Bryce Harper and give the Phillies a 1-0 lead in the bottom of the 1st
-    https://cuts.diamond.mlb.com/FORGE/2019/2019-04/28/b1117503-3df11d8d-6df0dd65-csvm-diamondx64-asset_1280x720_59_4000K.mp4
-
-    Phanatic has birthday party (00:01:15)
-    Kids and fellow mascots were at Citizens Bank Park to celebrate the Phillie Phanatic's birthday before the game against the Marlins
-    https://cuts.diamond.mlb.com/FORGE/2019/2019-04/28/7d978385-db13f22d-f68c304f-csvm-diamondx64-asset_1280x720_59_4000K.mp4
-    """
+    """Get the highlight video links for a given game."""
     sortedHighlights = game_highlight_data(gamePk)
 
     highlights = ""
@@ -1145,8 +916,7 @@ def game_highlights(gamePk):
 
 
 def game_highlight_data(gamePk):
-    """Returns a list of highlight data for a given game
-    """
+    """Returns a list of highlight data for a given game."""
     r = get(
         "schedule",
         {
@@ -1175,58 +945,7 @@ def game_highlight_data(gamePk):
 
 
 def game_pace(season=datetime.now().year, sportId=1):
-    """Get a text-formatted list about pace of game for a given season (back to 1999).
-
-    Example use:
-
-    Print the pace of game stats for 2008, in order to determine the number and average time of extra inning games
-
-    print(statsapi.game_pace(2008))
-
-    Output:
-
-    2008 Game Pace Stats
-    hitsPer9Inn: 18.26
-    runsPer9Inn: 9.38
-    pitchesPer9Inn: 297.72
-    plateAppearancesPer9Inn: 77.89
-    hitsPerGame: 18.11
-    runsPerGame: 9.3
-    inningsPlayedPerGame: 8.96
-    pitchesPerGame: 295.36
-    pitchersPerGame: 7.83
-    plateAppearancesPerGame: 77.28
-    totalGameTime: 7086:06:00
-    totalInningsPlayed: 21748.0
-    totalHits: 43972
-    totalRuns: 22585
-    totalPlateAppearances: 187630
-    totalPitchers: 19012
-    totalPitches: 717131
-    totalGames: 2428
-    total9InnGames: 2428
-    totalExtraInnGames: 208
-    timePerGame: 02:55:07
-    timePerPitch: 00:00:36
-    timePerHit: 00:09:40
-    timePerRun: 00:18:50
-    timePerPlateAppearance: 00:02:16
-    timePer9Inn: 02:56:30
-    timePer77PlateAppearances: 02:54:29
-    totalExtraInnTime: 775:10:00
-    timePer7InnGameWithoutExtraInn: 00:00:00
-    total9InnGamesCompletedEarly: 3
-    total9InnGamesWithoutExtraInn: 2217
-    total9InnGamesScheduled: 2428
-    hitsPerRun: 1.947
-    pitchesPerPitcher: 37.72
-    total7InnGames: 3
-    total9InnGames: 2217
-    totalExtraInnGames: 208
-    timePer7InnGame: 01:54:40
-    timePer9InnGame: 02:50:38
-    timePerExtraInnGame: 03:43:36
-    """
+    """Get a text-formatted list about pace of game for a given season (back to 1999)."""
     r = game_pace_data(season, sportId)
 
     pace = ""
@@ -1247,8 +966,7 @@ def game_pace(season=datetime.now().year, sportId=1):
 
 
 def game_pace_data(season=datetime.now().year, sportId=1):
-    """Returns data about pace of game for a given season (back to 1999).
-    """
+    """Returns data about pace of game for a given season (back to 1999)."""
     params = {}
     if season:
         params.update({"season": season})
@@ -1269,56 +987,7 @@ def game_pace_data(season=datetime.now().year, sportId=1):
 
 
 def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
-    """Get current season or career stats for a given player.
-
-    For group use 'hitting', 'pitching', or 'fielding'.
-    Include multiple groups in the following format (this is a string, not actually a list):
-    group='[hitting,pitching]'
-
-    For type use 'career' or 'season'.
-    Include multiple types in the following format (this is a string, not actually a list):
-    group='[career,season]'
-
-    Example use:
-
-    Print Chase Utley's career hitting stats (using sports_players endpoint to look up person id)
-
-    print( statsapi.player_stats(next(x['id'] for x in statsapi.get('sports_players',{'season':2008,'gameType':'W'})['people'] if x['fullName']=='Chase Utley'), 'hitting', 'career') )
-
-    Output:
-
-    Chase "Silver Fox" Utley, 2B (2003-2018)
-
-    Career Hitting
-    gamesPlayed: 1937
-    groundOuts: 1792
-    runs: 1103
-    doubles: 411
-    triples: 58
-    homeRuns: 259
-    strikeOuts: 1193
-    baseOnBalls: 724
-    intentionalWalks: 62
-    hits: 1885
-    hitByPitch: 204
-    avg: .275
-    atBats: 6857
-    obp: .358
-    slg: .465
-    ops: .823
-    caughtStealing: 22
-    stolenBases: 154
-    groundIntoDoublePlay: 93
-    numberOfPitches: 31043
-    plateAppearances: 7863
-    totalBases: 3189
-    rbi: 1025
-    leftOnBase: 2780
-    sacBunts: 6
-    sacFlies: 72
-    babip: .297
-    groundOutsToAirouts: 0.84
-    """
+    """Get current season or career stats for a given player."""
     player = player_stat_data(personId, group, type)
 
     stats = ""
@@ -1355,16 +1024,7 @@ def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
 
 
 def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season"):
-    """Returns a list of current season or career stat data for a given player.
-
-    For group use 'hitting', 'pitching', or 'fielding'.
-    Include multiple groups in the following format (this is a string, not actually a list):
-    group='[hitting,pitching]'
-
-    For type use 'career' or 'season'.
-    Include multiple types in the following format (this is a string, not actually a list):
-    group='[career,season]'
-    """
+    """Returns a list of current season or career stat data for a given player."""
     params = {
         "personId": personId,
         "hydrate": "stats(group=" + group + ",type=" + type + "),currentTeam",
@@ -1402,33 +1062,7 @@ def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season
 
 
 def lookup_player(lookup_value, gameType="R", season=datetime.now().year, sportId=1):
-    """Get data about players based on first, last, or full name.
-
-    Example use:
-
-    Look up player id for Aaron Nola
-    Note: if using a full last name as the lookup_value and that last name could be part of another player's lastname,
-    e.g. 'Nola' is part of 'Nolan', include a comma on the end of the last name in order to match on the 'initLastName'
-    field which looks like 'Nola, A'
-
-    player = statsapi.lookup_player('nola,')
-    print(player[0]['id']) #assume only 1 record returned for demo purposes
-
-    Output:
-
-    605400
-
-
-    Print full name and position for all players named Harper
-
-    for player in statsapi.lookup_player('Harper'):
-        print('Full name: {}, Position: {}'.format(player['fullName'], player['primaryPosition']['abbreviation']))
-
-    Output:
-
-    Full name: Bryce Harper, Position: RF
-    Full name: Ryne Harper, Position: P
-    """
+    """Get data about players based on first, last, or full name."""
     params = {
         "gameType": gameType,
         "season": season,
@@ -1448,35 +1082,7 @@ def lookup_player(lookup_value, gameType="R", season=datetime.now().year, sportI
 
 
 def lookup_team(lookup_value, activeStatus="Y", season=datetime.now().year, sportIds=1):
-    """Get a info about a team or teams based on the team name, city, abbreviation, or file code.
-
-    Values for activeStatus: Y, N, B (Both)
-
-    Return value will be a list of teams matching the lookup_value.
-    If no matches are found, an empty list will be returned.
-
-    Example use:
-
-    Get teamId for team with code cwa
-
-    team = statsapi.lookup_team('chn')
-    print(team[0]['id']) #assume only 1 record returned for demo purposes
-
-    Output:
-
-    112
-
-
-    Get info about all teams from NY
-
-    for team in statsapi.lookup_team('ny'):
-        print(team)
-
-    Output:
-
-    {'id': 147, 'name': 'New York Yankees', 'teamCode': 'nya', 'fileCode': 'nyy', 'teamName': 'Yankees', 'locationName': 'Bronx', 'shortName': 'NY Yankees'}
-    {'id': 121, 'name': 'New York Mets', 'teamCode': 'nyn', 'fileCode': 'nym', 'teamName': 'Mets', 'locationName': 'New York', 'shortName': 'NY Mets'}
-    """
+    """Get a info about a team or teams based on the team name, city, abbreviation, or file code."""
     params = {
         "activeStatus": activeStatus,
         "season": season,
@@ -1498,25 +1104,7 @@ def lookup_team(lookup_value, activeStatus="Y", season=datetime.now().year, spor
 def team_leaders(
     teamId, leaderCategories, season=datetime.now().year, leaderGameTypes="R", limit=10
 ):
-    """Get stat leaders for a given team.
-
-    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
-
-    Example use:
-
-    Print the top 5 team leaders in walks for the 2008 Phillies
-
-    print(statsapi.team_leaders(143,'walks',limit=5,season=2008))
-
-    Output:
-
-    Rank Name                 Value
-     1   Pat Burrell           102
-     2   Ryan Howard           81
-     3   Chase Utley           64
-     4   Jimmy Rollins         58
-     5   Jayson Werth          57
-    """
+    """Get stat leaders for a given team."""
     lines = team_leader_data(teamId, leaderCategories, season, leaderGameTypes, limit)
 
     leaders = ""
@@ -1531,10 +1119,7 @@ def team_leaders(
 def team_leader_data(
     teamId, leaderCategories, season=datetime.now().year, leaderGameTypes="R", limit=10
 ):
-    """Returns a python list of stat leader data for a given team.
-
-    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
-    """
+    """Returns a python list of stat leader data for a given team."""
     params = {
         "leaderCategories": leaderCategories,
         "season": season,
@@ -1564,94 +1149,7 @@ def league_leaders(
     sportId=1,
     statType=None,
 ):
-    """NOTE: StatsAPI does not appear to be supporting the statType=statsSingleSeason at this time,
-    despite this appearing in the documentation as a best practice for all time leaders.
-    Be sure to specify a season or other statType such as 'career', or the default will be current season leaders.
-
-    Get stat leaders overall or for a given league (103=AL, 104=NL).
-
-    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
-
-    Get a list of available statGroups by calling the meta endpoint with type=statGroups
-    Note that excluding statGroup may return unexpected results. For example leaderCategories='earnedRunAverage'
-    will return different results with statGroup='pitching' and statGroup='catching'.
-
-    Get a list of available gameTypes by calling the meta endpoint with type=gameTypes
-
-    Get a list of available statTypes by calling the meta endpoint with type=statTypes
-
-    Available playerPool values: ['all','qualified','rookies'] (default is qualified)
-
-    Example use:
-
-    Print a list of the top 10 pitchers by career earned run average
-
-    print( statsapi.league_leaders('earnedRunAverage',statGroup='pitching',limit=10,statType='career') )
-
-    Output:
-
-    Rank Name                 Team                    Value
-     1   Al Spalding          Chicago White Stockings 1.78
-     2   Ed Walsh             Chicago White Sox       1.82
-     3   Addie Joss           Cleveland Naps          1.89
-     4   Jim Devlin           Louisville Grays        1.89
-     5   Craig Kimbrel        Atlanta Braves          2.00
-     5   Laurie Reis          Chicago White Stockings 2.00
-     7   Jack Pfiester        Pittsburgh Pirates      2.02
-     8   Joe Wood             Cleveland Indians       2.03
-     9   Christy Mathewson    New York Giants         2.13
-     10  Walter Johnson       Washington Senators     2.17
-
-
-    Print a list of the top 5 batters in 2018 by OPS
-
-    print( statsapi.league_leaders('onBasePlusSlugging',statGroup='hitting',limit=5,season=2018) )
-
-    Output:
-
-    Rank Name                 Team                    Value
-     1   Mike Trout           Los Angeles Angels      1.088
-     2   Mookie Betts         Boston Red Sox          1.078
-     3   J.D. Martinez        Boston Red Sox          1.031
-     4   Christian Yelich     Milwaukee Brewers       1.000
-     5   Jose Ramirez         Cleveland Indians       .939
-
-
-    Print a list of the 10 American League players with the most errors in 2017
-
-    print( statsapi.league_leaders('errors',statGroup='fielding',limit=10,season=2017,leagueId=103) )
-
-    Output:
-
-    Rank Name                 Team                   Value
-     1   Tim Anderson         Chicago White Sox       28
-     2   Rougned Odor         Texas Rangers           19
-     3   Tim Beckham          Baltimore Orioles       18
-     3   Nicholas Castellanos Detroit Tigers          18
-     3   Jorge Polanco        Minnesota Twins         18
-     6   Elvis Andrus         Texas Rangers           17
-     6   Xander Bogaerts      Boston Red Sox          17
-     6   Jean Segura          Seattle Mariners        17
-     9   Alcides Escobar      Kansas City Royals      15
-     9   Jonathan Schoop      Baltimore Orioles       15
-
-
-    Print a list of top 10 all time career leader in triples
-
-    print( statsapi.league_leaders('triples',statGroup='hitting',limit=10,sportId=1,statType='career') )
-
-    Rank Name                 Team                    Value
-     1   Sam Crawford         Detroit Tigers           309
-     2   Ty Cobb              Philadelphia Athletics   297
-     3   Tristram Speaker     Washington Senators      222
-     4   Paul Waner           New York Yankees         191
-     5   Bid McPhee           Cincinnati Reds          188
-     6   Eddie Collins        Chicago White Sox        187
-     7   Sam Rice             Washington Senators      184
-     8   Rabbit Maranville    Boston Braves            177
-     8   Stan Musial          St. Louis Cardinals      177
-     10  Goose Goslin         Washington Senators      173
-    """
+    """Get stat leaders overall or for a given league (103=AL, 104=NL)."""
     lines = league_leader_data(
         leaderCategories,
         season,
@@ -1684,24 +1182,7 @@ def league_leader_data(
     sportId=1,
     statType=None,
 ):
-    """NOTE: StatsAPI does not appear to be supporting the statType=statsSingleSeason at this time,
-    despite this appearing in the documentation as a best practice for all time leaders.
-    Be sure to specify a season or statType such as 'career', or you will get current season leaders by default.
-
-    Returns a python list of stat leaders overall or for a given league (103=AL, 104=NL).
-
-    Get a list of available leaderCategories by calling the meta endpoint with type=leagueLeaderTypes
-
-    Get a list of available statGroups by calling the meta endpoint with type=statGroups
-    Note that excluding statGroup may return unexpected results. For example leaderCategories='earnedRunAverage'
-    will return different results with statGroup='pitching' and statGroup='catching'.
-
-    Get a list of available gameTypes by calling the meta endpoint with type=gameTypes
-
-    Get a list of available statTypes by calling the meta endpoint with type=statTypes
-
-    Available playerPool values: ['all','qualified','rookies'] (default is qualified)
-    """
+    """Returns a python list of stat leaders overall or for a given league (103=AL, 104=NL)."""
     params = {"leaderCategories": leaderCategories, "sportId": sportId, "limit": limit}
     if season:
         params.update({"season": season})
@@ -1759,48 +1240,7 @@ def standings(
     standingsTypes=None,
     date=None,
 ):
-    """Get formatted standings for a given league/division and season.
-
-    Using both leagueId and divisionId is fine, as long as the division belongs to the specified league
-
-    Return value will be a formatted table including division and wildcard standings, unless include_wildcard=False
-
-    Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
-
-    Example use:
-
-    Print National League standings from 09/27/2008
-
-    print( statsapi.standings(leagueId=104,date='09/27/2008') )
-
-    Output:
-
-    National League Central
-    Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
-     1   Chicago Cubs          97  63   -    -      -      -    -
-     2   Milwaukee Brewers     89  72  8.5   E      1      -    -
-     3   Houston Astros        85  75  12.0  E      3     3.5   E
-     4   St. Louis Cardinals   85  76  12.5  E      4     4.0   E
-     5   Cincinnati Reds       74  87  23.5  E      7    15.0   E
-     6   Pittsburgh Pirates    66  95  31.5  E     11    23.0   E
-
-    National League West
-    Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
-     1   Los Angeles Dodgers   84  77   -    -      -      -    -
-     2   Arizona Diamondbacks  81  80  3.0   E      6     8.0   E
-     3   Colorado Rockies      74  87  10.0  E      8    15.0   E
-     4   San Francisco Giants  71  90  13.0  E     10    18.0   E
-     5   San Diego Padres      63  98  21.0  E     12    26.0   E
-
-    National League East
-    Rank Team                   W   L   GB  (E#) WC Rank WC GB (E#)
-     1   Philadelphia Phillies 91  70   -    -      -      -    -
-     2   New York Mets         89  72  2.0   E      2      -    -
-     3   Florida Marlins       83  77  7.5   E      5     5.5   E
-     4   Atlanta Braves        72  89  19.0  E      9    17.0   E
-     5   Washington Nationals  59  101 31.5  E     13    29.5   E
-
-    """
+    """Get formatted standings for a given league/division and season."""
     divisions = standings_data(
         leagueId, division, include_wildcard, season, standingsTypes, date
     )
@@ -1838,15 +1278,7 @@ def standings_data(
     standingsTypes=None,
     date=None,
 ):
-    """Returns a dict of standings data for a given league/division and season.
-
-    Using both leagueId and divisionId is fine, as long as the division belongs to the specified league
-
-    Return value will be a dict including division and wildcard standings, unless include_wildcard=False
-
-    Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
-
-    """
+    """Returns a dict of standings data for a given league/division and season."""
     params = {"leagueId": leagueId}
     if date:
         params.update({"date": date})
@@ -1907,45 +1339,7 @@ def standings_data(
 
 
 def roster(teamId, rosterType=None, season=datetime.now().year, date=None):
-    """Get the roster for a given team.
-    Get a list of available rosterTypes by calling the meta endpoint with type=rosterTypes.
-    Default rosterType=active
-    Format for date = 'MM/DD/YYYY', e.g. '04/24/2019'
-
-    Example use:
-
-    Print the current Phillies active roster:
-
-    print( statsapi.roster(143) )
-
-    Output:
-
-    #23  CF  Aaron Altherr
-    #27  P   Aaron Nola
-    #46  P   Adam Morgan
-    #15  C   Andrew Knapp
-    #22  RF  Andrew McCutchen
-    #3   RF  Bryce Harper
-    #16  2B  Cesar Hernandez
-    #25  RF  Dylan Cozens
-    #61  P   Edubray Ramos
-    #51  P   Enyel De Los Santos
-    #50  P   Hector Neris
-    #10  C   J.T. Realmuto
-    #49  P   Jake Arrieta
-    #48  P   Jerad Eickhoff
-    #52  P   Jose Alvarez
-    #12  P   Juan Nicasio
-    #7   3B  Maikel Franco
-    #5   RF  Nick Williams
-    #93  P   Pat Neshek
-    #9   2B  Phil Gosselin
-    #17  1B  Rhys Hoskins
-    #13  2B  Sean Rodriguez
-    #58  P   Seranthony Dominguez
-    #21  P   Vince Velasquez
-    #56  P   Zach Eflin
-    """
+    """Get the roster for a given team."""
     if not rosterType:
         rosterType = "active"
 
@@ -2008,21 +1402,7 @@ def meta(type, fields=None):
 
 
 def notes(endpoint):
-    """Get notes for a given endpoint.
-    Will include a list of required parameters, as well as hints for some endpoints.
-    If the specified endpoint has more than one distinct parameter requirement,
-    for example one of teamId, leagueId, or leagueListId must be included for the attendance endpoint,
-    the required query parameters list will contain separate sublists for each independent set of requirements:
-    'required_params': [['teamId'],['leagueId'],['leagueListid']]
-
-    Path parameters are part of the URL itself, for example the teamId parameter in the team endpoint (143 in the example):
-    https://statsapi.mlb.com/api/v1/teams/143
-
-    Query parameters are appended on to the URL after the question mark (hydrate in the example):
-    https://statsapi.mlb.com/api/v1/teams/143?hydrate=league
-
-    There is no difference in the way path and query parameters are passed into statsapi.get().
-    """
+    """Get notes for a given endpoint."""
     msg = ""
     if not endpoint:
         msg = "No endpoint specified."
@@ -2064,18 +1444,7 @@ def get(endpoint, params, force=False):
 
     This function is for advanced querying of the MLB StatsAPI,
     and is used by the functions in this library.
-
-    endpoint is one of the keys in the ENDPOINT dict
-    params is a dict of parameters, as defined in the ENDPOINT dict for each endpoint
-
-    force=True will force unrecognized parameters into the query string, and ignore parameter requirements
-    Please note results from Stats API may not be as expected when forcing.
-
-    statsapi.get('team',{'teamId':143}) will call the team endpoint for teamId=143 (Phillies)
-
-    return value will be the raw response from MLB Stats API in json format
     """
-
     # Lookup endpoint from input parameter
     ep = ENDPOINTS.get(endpoint)
     if not ep:
