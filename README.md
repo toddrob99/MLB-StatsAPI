@@ -8,7 +8,7 @@ https://pypi.org/project/MLB-StatsAPI/
 
 Issues: https://github.com/toddrob99/MLB-StatsAPI/issues
 
-Wiki/Documentation: Issues: https://github.com/toddrob99/MLB-StatsAPI/wiki
+Wiki/Documentation: https://github.com/toddrob99/MLB-StatsAPI/wiki
 
 ## Copyright Notice
 
