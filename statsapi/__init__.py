@@ -218,23 +218,23 @@ def boxscore(
 
         # Make sure the home and away batter lists are the same length
         blankBatter = {
-                         "namefield": "",
-                         "ab": "",
-                         "r": "",
-                         "h": "",
-                         "rbi": "",
-                         "bb": "",
-                         "k": "",
-                         "lob": "",
-                         "avg": "",
-                         "ops": ""
-                      }
-        
+            "namefield": "",
+            "ab": "",
+            "r": "",
+            "h": "",
+            "rbi": "",
+            "bb": "",
+            "k": "",
+            "lob": "",
+            "avg": "",
+            "ops": "",
+        }
+
         while len(awayBatters) > len(homeBatters):
             homeBatters.append(blankBatter)
 
         while len(awayBatters) < len(homeBatters):
-            awayBatters.append(blankBatter)            
+            awayBatters.append(blankBatter)
 
         # Get team totals
         awayBatters.append(boxData["awayBattingTotals"])
@@ -280,11 +280,15 @@ def boxscore(
             infoType == "FIELDING" and fieldingInfo
         ):
             for i in range(0, len(sides)):
-                for z in (x for x in boxData[sides[i]]["info"] if x.get("title") == infoType):
+                for z in (
+                    x for x in boxData[sides[i]]["info"] if x.get("title") == infoType
+                ):
                     boxInfo[i].update({len(boxInfo[i]): z["title"]})
                     for x in z["fieldList"]:
                         if len(x["label"] + ": " + x.get("value", "")) > rowLen:
-                            words = iter((x["label"] + ": " + x.get("value", "")).split())
+                            words = iter(
+                                (x["label"] + ": " + x.get("value", "")).split()
+                            )
                             check = ""
                             lines = []
                             for word in words:
@@ -296,15 +300,19 @@ def boxscore(
                                 else:
                                     lines.append(check)
                                     check = "    " + word
-    
+
                             if len(check):
                                 lines.append(check)
-    
+
                             for j in range(0, len(lines)):
                                 boxInfo[i].update({len(boxInfo[i]): lines[j]})
                         else:
                             boxInfo[i].update(
-                                {len(boxInfo[i]): x["label"] + ": " + x.get("value", "")}
+                                {
+                                    len(boxInfo[i]): x["label"]
+                                    + ": "
+                                    + x.get("value", "")
+                                }
                             )
 
             if infoType == "BATTING":
@@ -335,17 +343,17 @@ def boxscore(
 
         # Make sure the home and away pitcher lists are the same length
         blankPitcher = {
-                          "namefield": "",
-                          "ip": "",
-                          "h": "",
-                          "r": "",
-                          "er": "",
-                          "bb": "",
-                          "k": "",
-                          "hr": "",
-                          "era": "",
-                        }
-        
+            "namefield": "",
+            "ip": "",
+            "h": "",
+            "r": "",
+            "er": "",
+            "bb": "",
+            "k": "",
+            "hr": "",
+            "era": "",
+        }
+
         while len(awayPitchers) > len(homePitchers):
             homePitchers.append(blankPitcher)
 
@@ -469,8 +477,8 @@ def boxscore_data(gamePk, timecode=None):
         }
     ]
     # Add away and home column headers
-    sides = ["away", "home"]    
-    awayBatters = copy.deepcopy(batterColumns)    
+    sides = ["away", "home"]
+    awayBatters = copy.deepcopy(batterColumns)
     homeBatters = copy.deepcopy(batterColumns)
     homeBatters[0]["namefield"] = boxData["teamInfo"]["home"]["teamName"] + " Batters"
     homeBatters[0]["name"] = boxData["teamInfo"]["home"]["teamName"] + " Batters"
@@ -501,43 +509,67 @@ def boxscore_data(gamePk, timecode=None):
             batter = {
                 "namefield": namefield,
                 "ab": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["atBats"]
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "atBats"
+                    ]
                 ),
                 "r": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["runs"]
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "runs"
+                    ]
                 ),
                 "h": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["hits"]
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "hits"
+                    ]
                 ),
                 "doubles": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["doubles"]
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "doubles"
+                    ]
                 ),
                 "triples": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["triples"]
-                ),            
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "triples"
+                    ]
+                ),
                 "hr": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["homeRuns"]
-                ),            
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "homeRuns"
+                    ]
+                ),
                 "rbi": str(
                     boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["rbi"]
                 ),
                 "sb": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["stolenBases"]
-                ),            
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "stolenBases"
+                    ]
+                ),
                 "bb": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["baseOnBalls"]
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "baseOnBalls"
+                    ]
                 ),
                 "k": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["strikeOuts"]
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "strikeOuts"
+                    ]
                 ),
                 "lob": str(
-                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"]["leftOnBase"]
+                    boxData[side]["players"]["ID" + batterId]["stats"]["batting"][
+                        "leftOnBase"
+                    ]
                 ),
                 "avg": str(
-                    boxData[side]["players"]["ID" + batterId]["seasonStats"]["batting"]["avg"]
+                    boxData[side]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                        "avg"
+                    ]
                 ),
                 "ops": str(
-                    boxData[side]["players"]["ID" + batterId]["seasonStats"]["batting"]["ops"]
+                    boxData[side]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                        "ops"
+                    ]
                 ),
                 "personId": batterId_int,
                 "battingOrder": str(
@@ -547,18 +579,22 @@ def boxscore_data(gamePk, timecode=None):
                 if str(boxData[side]["players"]["ID" + batterId]["battingOrder"])[-1]
                 == "0"
                 else True,
-                "note": boxData[side]["players"]["ID" + batterId]["stats"]["batting"].get(
-                    "note", ""
-                ),
+                "note": boxData[side]["players"]["ID" + batterId]["stats"][
+                    "batting"
+                ].get("note", ""),
                 "name": boxData["playerInfo"]["ID" + batterId]["boxscoreName"],
                 "position": boxData[side]["players"]["ID" + batterId]["position"][
                     "abbreviation"
                 ],
                 "obp": str(
-                    boxData[side]["players"]["ID" + batterId]["seasonStats"]["batting"]["obp"]
+                    boxData[side]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                        "obp"
+                    ]
                 ),
                 "slg": str(
-                    boxData[side]["players"]["ID" + batterId]["seasonStats"]["batting"]["slg"]
+                    boxData[side]["players"]["ID" + batterId]["seasonStats"]["batting"][
+                        "slg"
+                    ]
                 ),
             }
             batters[i].append(batter)
@@ -602,7 +638,9 @@ def boxscore_data(gamePk, timecode=None):
     battingNotes = [awayBattingNotes, homeBattingNotes]
     for i in range(0, len(sides)):
         for n in boxData[sides[i]]["note"]:
-            awayBattingNotes.update({len(battingNotes[i]): n["label"] + "-" + n["value"]})
+            awayBattingNotes.update(
+                {len(battingNotes[i]): n["label"] + "-" + n["value"]}
+            )
 
     boxData.update({"awayBattingNotes": awayBattingNotes})
     boxData.update({"homeBattingNotes": homeBattingNotes})
@@ -632,7 +670,7 @@ def boxscore_data(gamePk, timecode=None):
     homePitchers[0]["namefield"] = boxData["teamInfo"]["home"]["teamName"] + " Pitchers"
     homePitchers[0]["name"] = boxData["teamInfo"]["away"]["teamName"] + " Pitchers"
     pitchers = [awayPitchers, homePitchers]
-    
+
     for i in range(0, len(sides)):
         side = sides[i]
         for pitcherId_int in boxData[side]["pitchers"]:
@@ -696,9 +734,9 @@ def boxscore_data(gamePk, timecode=None):
                     ]
                 ),
                 "era": str(
-                    boxData[side]["players"]["ID" + pitcherId]["seasonStats"]["pitching"][
-                        "era"
-                    ]
+                    boxData[side]["players"]["ID" + pitcherId]["seasonStats"][
+                        "pitching"
+                    ]["era"]
                 ),
                 "name": boxData["playerInfo"]["ID" + pitcherId]["boxscoreName"],
                 "personId": pitcherId_int,
@@ -707,7 +745,6 @@ def boxscore_data(gamePk, timecode=None):
                 ].get("note", ""),
             }
             pitchers[i].append(pitcher)
-
 
     boxData.update({"awayPitchers": awayPitchers})
     boxData.update({"homePitchers": homePitchers})
