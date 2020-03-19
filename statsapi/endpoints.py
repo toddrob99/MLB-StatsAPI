@@ -177,7 +177,7 @@ ENDPOINTS = {
             },
         },
         "query_params": ["startTimecode", "endTimecode"],
-        "required_params": [["startTimeCode", "endTimeCode"]],
+        "required_params": [["startTimecode", "endTimecode"]],
     },
     "game_timestamps": {
         "url": BASE_URL + "{ver}/game/{gamePk}/feed/live/timestamps",
