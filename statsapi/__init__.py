@@ -7,14 +7,16 @@ Created by Todd Roberts
 
 https://pypi.org/project/MLB-StatsAPI/
 
-Issues/Wiki: https://github.com/toddrob99/MLB-StatsAPI
+Issues: https://github.com/toddrob99/MLB-StatsAPI/issues
+
+Wiki/Documentation: Issues: https://github.com/toddrob99/MLB-StatsAPI/wiki
 """
 import sys
 
+import copy
 import logging
 import requests
 from datetime import datetime
-import copy
 
 from . import version
 from . import endpoints
