@@ -1108,6 +1108,7 @@ def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season
             stat_group = {
                 "type": s["type"]["displayName"],
                 "group": s["group"]["displayName"],
+                "season": s["splits"][i].get("season"),
                 "stats": s["splits"][i]["stat"],
             }
             stat_groups.append(stat_group)
