@@ -489,7 +489,7 @@ def boxscore_data(gamePk, timecode=None):
         for batterId_int in [
             x
             for x in boxData[side]["batters"]
-            if boxData[side]["players"]["ID" + str(x)].get("battingOrder")
+            if boxData[side]["players"].get("ID" + str(x), {}).get("battingOrder")
         ]:
             batterId = str(batterId_int)
             namefield = (
@@ -506,6 +506,14 @@ def boxscore_data(gamePk, timecode=None):
                 + "  "
                 + boxData[side]["players"]["ID" + batterId]["position"]["abbreviation"]
             )
+            if not len(
+                boxData[side]["players"]["ID" + batterId]
+                .get("stats", {})
+                .get("batting", {})
+            ):
+                # Protect against player with no batting data in the box score (#37)
+                continue
+
             batter = {
                 "namefield": namefield,
                 "ab": str(
@@ -675,6 +683,15 @@ def boxscore_data(gamePk, timecode=None):
         side = sides[i]
         for pitcherId_int in boxData[side]["pitchers"]:
             pitcherId = str(pitcherId_int)
+            if not boxData[side]["players"].get("ID" + pitcherId) or not len(
+                boxData[side]["players"]["ID" + pitcherId]
+                .get("stats", {})
+                .get("pitching", {})
+            ):
+                # Skip pitcher with no pitching data in the box score (#37)
+                # Or skip pitcher listed under the wrong team (from comments on #37)
+                continue
+
             namefield = boxData["playerInfo"]["ID" + pitcherId]["boxscoreName"]
             namefield += (
                 "  "
@@ -1091,6 +1108,7 @@ def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season
             stat_group = {
                 "type": s["type"]["displayName"],
                 "group": s["group"]["displayName"],
+                "season": s["splits"][i].get("season"),
                 "stats": s["splits"][i]["stat"],
             }
             stat_groups.append(stat_group)
