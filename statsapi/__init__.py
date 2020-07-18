@@ -36,7 +36,7 @@ ENDPOINTS = endpoints.ENDPOINTS
 
 logger = logging.getLogger("statsapi")
 
-# Trying to support Python 2.7:
+# Python 2 Support Warning
 if sys.version_info.major < 3:
     logger.warning(
         "WARNING: Support for Python 2 will be discontinued on or after "
