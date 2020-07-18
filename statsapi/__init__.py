@@ -117,6 +117,7 @@ def schedule(
                     ),
                     "inning_state": game.get("linescore", {}).get("inningState", ""),
                     "venue_id": game["venue"]['id'],
+                    "venue_name": game["venue"]['name'],
                 }
                 if game_info["status"] in ["Final", "Game Over"]:
                     if game.get("isTie"):
