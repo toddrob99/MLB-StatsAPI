@@ -36,6 +36,14 @@ ENDPOINTS = endpoints.ENDPOINTS
 
 logger = logging.getLogger("statsapi")
 
+# Python 2 Support Warning
+if sys.version_info.major < 3:
+    logger.warning(
+        "WARNING: Support for Python 2 will be discontinued on or after "
+        "January 1, 2021. The MLB-StatsAPI module may continue to function, but "
+        "issues not impacting Python 3 will be closed and support will not be provided."
+    )
+
 
 def schedule(
     date=None,
@@ -116,6 +124,8 @@ def schedule(
                         "currentInning", ""
                     ),
                     "inning_state": game.get("linescore", {}).get("inningState", ""),
+                    "venue_id": game.get("venue", {}).get("id"),
+                    "venue_name": game.get("venue", {}).get("name"),
                 }
                 if game_info["status"] in ["Final", "Game Over"]:
                     if game.get("isTie"):
