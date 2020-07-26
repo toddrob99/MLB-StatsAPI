@@ -927,30 +927,42 @@ def game_scoring_play_data(gamePk):
     * plays - sorted list of scoring play data
     """
     r = get(
-        "schedule",
+        "game",
         {
-            "sportId": 1,
             "gamePk": gamePk,
-            "hydrate": "scoringplays",
-            "fields": "dates,date,games,teams,away,team,name,scoringPlays,result,description,awayScore,homeScore,about,halfInning,inning,endTime",
+            "fields": (
+                "gamePk,link,gameData,game,pk,teams,away,id,name,teamCode,fileCode,"
+                "abbreviation,teamName,locationName,shortName,home,liveData,plays,"
+                "allPlays,scoringPlays,scoringPlays,atBatIndex,result,description,"
+                "awayScore,homeScore,about,halfInning,inning,endTime"
+            ),
         },
     )
-    if not len(r["dates"][0]["games"][0]["scoringPlays"]):
-        return ""
-
-    items = r["dates"][0]["games"][0]["scoringPlays"]
-    home_team = r["dates"][0]["games"][0]["teams"]["home"]["team"]
-    away_team = r["dates"][0]["games"][0]["teams"]["away"]["team"]
+    if not len(r["liveData"]["plays"].get("scoringPlays", [])):
+        return {
+            "home": r["gameData"]["teams"]["home"],
+            "away": r["gameData"]["teams"]["away"],
+            "plays": [],
+        }
 
     unorderedPlays = {}
-    for v in items:
-        unorderedPlays.update({v["about"]["endTime"]: v})
+    for i in r["liveData"]["plays"].get("scoringPlays", []):
+        play = next(
+            (p for p in r["liveData"]["plays"]["allPlays"] if p.get("atBatIndex") == i),
+            None,
+        )
+        if play:
+            unorderedPlays.update({play["about"]["endTime"]: play})
 
     sortedPlays = []
     for x in sorted(unorderedPlays):
         sortedPlays.append(unorderedPlays[x])
 
-    return {"home": home_team, "away": away_team, "plays": sortedPlays}
+    return {
+        "home": r["gameData"]["teams"]["home"],
+        "away": r["gameData"]["teams"]["away"],
+        "plays": sortedPlays,
+    }
 
 
 def game_highlights(gamePk):
