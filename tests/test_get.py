@@ -42,11 +42,7 @@ def test_get_calls_correct_url(mocker):
     # mock the requests object
     mock_req = mocker.patch("statsapi.requests", autospec=True)
 
-    try:
-        statsapi.get("foo", {"bar": "baz"})
-    except ValueError:
-        pass
-
+    statsapi.get("foo", {"bar": "baz"})
     mock_req.get.assert_called_with("http://www.foo.com?bar=baz")
 
 
