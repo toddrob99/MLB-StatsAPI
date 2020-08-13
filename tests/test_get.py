@@ -50,10 +50,11 @@ def test_get_calls_correct_url(mocker):
 def test_get_server_error(mocker):
     # mock the ENDPOINTS dictionary
     mocker.patch.dict("statsapi.ENDPOINTS", fake_dict(), clear=True)
-    responses.add(responses.GET, 'http://www.foo.com?bar=baz', status=500)
+    responses.add(responses.GET, "http://www.foo.com?bar=baz", status=500)
 
     with pytest.raises(requests.exceptions.HTTPError):
         statsapi.get("foo", {"bar": "baz"})
+
 
 def test_get_invalid_endpoint(mocker):
     # mock the ENDPOINTS dictionary
