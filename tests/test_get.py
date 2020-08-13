@@ -1,11 +1,13 @@
 import statsapi
 import pytest
+import requests.exceptions
+import responses
 
 
 def fake_dict():
     return {
         "foo": {
-            "url": "www.foo.com",
+            "url": "http://www.foo.com",
             "path_params": {
                 "ver": {
                     "type": "str",
@@ -40,26 +42,25 @@ def test_get_calls_correct_url(mocker):
     # mock the requests object
     mock_req = mocker.patch("statsapi.requests", autospec=True)
 
-    try:
+    statsapi.get("foo", {"bar": "baz"})
+    mock_req.get.assert_called_with("http://www.foo.com?bar=baz")
+
+
+@responses.activate
+def test_get_server_error(mocker):
+    # mock the ENDPOINTS dictionary
+    mocker.patch.dict("statsapi.ENDPOINTS", fake_dict(), clear=True)
+    responses.add(responses.GET, "http://www.foo.com?bar=baz", status=500)
+
+    with pytest.raises(requests.exceptions.HTTPError):
         statsapi.get("foo", {"bar": "baz"})
-    except ValueError:
-        pass
-
-    mock_req.get.assert_called_with("www.foo.com?bar=baz")
 
 
-def test_get_raises_errors(mocker):
+def test_get_invalid_endpoint(mocker):
     # mock the ENDPOINTS dictionary
     mocker.patch.dict("statsapi.ENDPOINTS", fake_dict(), clear=True)
     # mock the requests object
     mock_req = mocker.patch("statsapi.requests", autospec=True)
-    # mock the status code to always be 200
-    mock_req.get.return_value.status_code = 0
-
-    # bad status code
-    with pytest.raises(ValueError):
-        statsapi.get("foo", {"bar": "baz"})
-
     # invalid endpoint
     with pytest.raises(ValueError):
         statsapi.get("bar", {"foo": "baz"})

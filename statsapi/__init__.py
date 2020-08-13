@@ -1641,7 +1641,7 @@ def get(endpoint, params, force=False):
     # Make the request
     r = requests.get(url)
     if r.status_code not in [200, 201]:
-        raise ValueError("Request failed. Status Code: " + str(r.status_code) + ".")
+        r.raise_for_status()
     else:
         return r.json()
 
