@@ -1120,7 +1120,7 @@ def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season
         "position": r["people"][0]["primaryPosition"]["abbreviation"],
         "nickname": r["people"][0].get("nickName"),
         "last_played": r["people"][0].get("lastPlayedDate"),
-        "mlb_debut": r["people"][0]["mlbDebutDate"],
+        "mlb_debut": r["people"][0].get("mlbDebutDate"),
         "bat_side": r["people"][0]["batSide"]["description"],
         "pitch_hand": r["people"][0]["pitchHand"]["description"],
     }
