@@ -21,11 +21,6 @@ from datetime import datetime
 from . import version
 from . import endpoints
 
-# Trying to support Python 2.7:
-if sys.version_info.major < 3:
-    reload(sys)
-    sys.setdefaultencoding("utf8")
-
 __version__ = version.VERSION
 """Installed version of MLB-StatsAPI"""
 
@@ -39,8 +34,8 @@ logger = logging.getLogger("statsapi")
 # Python 2 Support Warning
 if sys.version_info.major < 3:
     logger.warning(
-        "WARNING: Support for Python 2 will be discontinued on or after "
-        "January 1, 2021. The MLB-StatsAPI module may continue to function, but "
+        "WARNING: Support for Python 2 has been discontinued. "
+        "The MLB-StatsAPI module may continue to function, but "
         "issues not impacting Python 3 will be closed and support will not be provided."
     )
 
@@ -1375,7 +1370,7 @@ def standings_data(
     params.update(
         {
             "hydrate": "team(division)",
-            "fields": "records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses",
+            "fields": "records,standingsType,teamRecords,team,name,division,id,nameShort,abbreviation,divisionRank,gamesBack,wildCardRank,wildCardGamesBack,wildCardEliminationNumber,divisionGamesBack,clinched,eliminationNumber,winningPercentage,type,wins,losses,leagueRank,sportRank",
         }
     )
 
@@ -1411,6 +1406,8 @@ def standings_data(
                 "wc_elim_num": x.get("wildCardEliminationNumber", "-"),
                 "elim_num": x["eliminationNumber"],
                 "team_id": x["team"]["id"],
+                "league_rank": x["leagueRank"],
+                "sport_rank": x["sportRank"],
             }
             divisions[x["team"]["division"]["id"]]["teams"].append(team)
 
