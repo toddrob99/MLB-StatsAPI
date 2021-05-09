@@ -1250,6 +1250,36 @@ ENDPOINTS = {
         "query_params": ["rosterType", "season", "date", "hydrate", "fields"],
         "required_params": [[]],
     },
+    "team_stats": {
+        "url": BASE_URL + "{ver}/teams/{teamId}/stats",
+        "path_params": {
+            "ver": {
+                "type": "str",
+                "default": "v1",
+                "leading_slash": False,
+                "trailing_slash": False,
+                "required": True,
+            },
+            "teamId": {
+                "type": "str",
+                "default": None,
+                "leading_slash": False,
+                "trailing_slash": False,
+                "required": True,
+            },
+        },
+        "query_params": [
+            "season",
+            "group",
+            "gameType",
+            "stats",
+            "sportIds",
+            "sitCodes",
+            "fields",
+        ],
+        "required_params": [["season", "group"]],
+        "note": "Use meta('statGroups') to look up valid values for group, meta('statTypes') for valid values for stats, and meta('situationCodes') for valid values for sitCodes. Use sitCodes with stats=statSplits.",
+    },
     "venue": {
         "url": BASE_URL + "{ver}/venues",
         "path_params": {
