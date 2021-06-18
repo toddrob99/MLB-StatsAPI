@@ -876,7 +876,7 @@ def last_game(teamId):
             "hydrate": "previousSchedule",
             "fields": "teams,id,teamName,previousGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name",
         },
-    )["teams"][0]["previousGameSchedule"]["dates"][-1]["games"][0]["gamePk"]
+    )["teams"][0]["previousGameSchedule"]["dates"][-2]["games"][0]["gamePk"]
 
 
 def next_game(teamId):
