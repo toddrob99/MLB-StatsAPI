@@ -464,7 +464,7 @@ ENDPOINTS = {
         "note": "Valid values for orgType parameter: player, team, division, league, sport, types.",
     },
     "homeRunDerby": {
-        "url": BASE_URL + "{ver}/honeRunDerby/{gamePk}{bracket}{pool}",
+        "url": BASE_URL + "{ver}/homeRunDerby/{gamePk}{bracket}{pool}",
         "path_params": {
             "ver": {
                 "type": "str",
@@ -989,6 +989,7 @@ ENDPOINTS = {
             "metrics",
         ],
         "required_params": [["stats", "group"]],
+        "note": "If no limit is specified, the response will be limited to 50 records.",
     },
     "stats_leaders": {
         "url": BASE_URL + "{ver}/stats/leaders",
