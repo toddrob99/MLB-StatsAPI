@@ -887,17 +887,24 @@ def last_game(teamId):
 
 
 def next_game(teamId):
-    """Get the gamePk for the given team's next game.
-    Note: Sometimes Stats API will actually return the next game in the previousSchedule hydration
+    """Get the gamePk for the given team's next unstarted game.
     """
-    return get(
+    nextSchedule = get(
         "team",
         {
             "teamId": teamId,
             "hydrate": "nextSchedule",
-            "fields": "teams,id,teamName,nextGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name",
+            "fields": "teams,team,id,nextGameSchedule,dates,date,games,gamePk,gameDate,status,abstractGameCode",
         },
-    )["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["gamePk"]
+    )
+    games = []
+    for d in nextSchedule["teams"][0]["nextGameSchedule"]["dates"]:
+        games.extend([x for x in d["games"] if x["status"]["abstractGameCode"] == "P"])
+
+    if not len(games):
+        return None
+
+    return games[0]["gamePk"]
 
 
 def game_scoring_plays(gamePk):
