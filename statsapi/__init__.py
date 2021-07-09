@@ -866,17 +866,24 @@ def linescore(gamePk, timecode=None):
 
 
 def last_game(teamId):
-    """Get the gamePk for the given team's most recent game.
-    Note: Sometimes Stats API will actually return the next game in the previousSchedule hydration
+    """Get the gamePk for the given team's most recent completed game.
     """
-    return get(
+    previousSchedule = get(
         "team",
         {
             "teamId": teamId,
             "hydrate": "previousSchedule",
-            "fields": "teams,id,teamName,previousGameSchedule,dates,date,games,gamePk,season,gameDate,teams,away,home,team,name",
+            "fields": "teams,team,id,previousGameSchedule,dates,date,games,gamePk,gameDate,status,abstractGameCode",
         },
-    )["teams"][0]["previousGameSchedule"]["dates"][0]["games"][0]["gamePk"]
+    )
+    games = []
+    for d in previousSchedule["teams"][0]["previousGameSchedule"]["dates"]:
+        games.extend([x for x in d["games"] if x["status"]["abstractGameCode"] == "F"])
+
+    if not len(games):
+        return None
+
+    return games[-1]["gamePk"]
 
 
 def next_game(teamId):
