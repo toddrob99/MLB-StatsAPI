@@ -1057,6 +1057,7 @@ ENDPOINTS = {
             "season",
             "activeStatus",
             "leagueIds",
+            "sportId",
             "sportIds",
             "gameType",
             "hydrate",
@@ -1280,6 +1281,33 @@ ENDPOINTS = {
         ],
         "required_params": [["season", "group"]],
         "note": "Use meta('statGroups') to look up valid values for group, meta('statTypes') for valid values for stats, and meta('situationCodes') for valid values for sitCodes. Use sitCodes with stats=statSplits.",
+    },
+    "transactions": {
+        "url": BASE_URL + "{ver}/transactions",
+        "path_params": {
+            "ver": {
+                "type": "str",
+                "default": "v1",
+                "leading_slash": False,
+                "trailing_slash": False,
+                "required": True,
+            }
+        },
+        "query_params": [
+            "teamId",
+            "playerId",
+            "date",
+            "startDate",
+            "endDate",
+            "sportId",
+            "fields",
+        ],
+        "required_params": [
+            ["teamId"],
+            ["playerId"],
+            ["date"],
+            ["startDate", "endDate"],
+        ],
     },
     "venue": {
         "url": BASE_URL + "{ver}/venues",
