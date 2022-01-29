@@ -746,9 +746,9 @@ def boxscore_data(gamePk, timecode=None):
                     ]
                 ),
                 "p": str(
-                    boxData[side]["players"]["ID" + pitcherId]["stats"]["pitching"][
-                        "pitchesThrown"
-                    ]
+                    boxData[side]["players"]["ID" + pitcherId]["stats"]["pitching"].get(
+                        "pitchesThrown", 0
+                    )
                 ),
                 "s": str(
                     boxData[side]["players"]["ID" + pitcherId]["stats"]["pitching"][
@@ -866,8 +866,7 @@ def linescore(gamePk, timecode=None):
 
 
 def last_game(teamId):
-    """Get the gamePk for the given team's most recent completed game.
-    """
+    """Get the gamePk for the given team's most recent completed game."""
     previousSchedule = get(
         "team",
         {
@@ -887,8 +886,7 @@ def last_game(teamId):
 
 
 def next_game(teamId):
-    """Get the gamePk for the given team's next unstarted game.
-    """
+    """Get the gamePk for the given team's next unstarted game."""
     nextSchedule = get(
         "team",
         {
@@ -1338,8 +1336,20 @@ def standings(
     for div in divisions.values():
         standings += div["div_name"] + "\n"
         if include_wildcard:
-            standings += "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n".format(
-                *["Rank", "Team", "W", "L", "GB", "(E#)", "WC Rank", "WC GB", "(E#)"]
+            standings += (
+                "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n".format(
+                    *[
+                        "Rank",
+                        "Team",
+                        "W",
+                        "L",
+                        "GB",
+                        "(E#)",
+                        "WC Rank",
+                        "WC GB",
+                        "(E#)",
+                    ]
+                )
             )
             for t in div["teams"]:
                 standings += "{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}\n".format(
