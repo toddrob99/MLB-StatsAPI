@@ -1,0 +1,20 @@
+name: Build & Deploy to PyPI on Release
+
+on:
+  release:
+    types: [released]
+
+jobs:
+    deploy:
+      name: PyPI Deploy
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - id: dist
+        uses: casperdcl/deploy-pypi@v2
+        with:
+          requirements: twine setuptools wheel
+          build: true
+          password: ${{ secrets.PYPI_TOKEN }}
+          upload: true
