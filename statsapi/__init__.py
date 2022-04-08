@@ -442,7 +442,7 @@ def boxscore_data(gamePk, timecode=None):
 
     params = {
         "gamePk": gamePk,
-        "fields": "gameData,game,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,doubles,triples,homeRuns,rbi,stolenBases,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,obp,slg,era,pitchesThrown,strikes,battingOrder,info,title,fieldList,note,label,value,wins,losses,holds,blownSaves",
+        "fields": "gameData,game,teams,teamName,shortName,teamStats,batting,atBats,runs,hits,doubles,triples,homeRuns,rbi,stolenBases,strikeOuts,baseOnBalls,leftOnBase,pitching,inningsPitched,earnedRuns,homeRuns,players,boxscoreName,liveData,boxscore,teams,players,id,fullName,allPositions,abbreviation,seasonStats,batting,avg,ops,obp,slg,era,pitchesThrown,numberOfPitches,strikes,battingOrder,info,title,fieldList,note,label,value,wins,losses,holds,blownSaves",
     }
     if timecode:
         params.update({"timecode": timecode})
@@ -747,7 +747,10 @@ def boxscore_data(gamePk, timecode=None):
                 ),
                 "p": str(
                     boxData[side]["players"]["ID" + pitcherId]["stats"]["pitching"].get(
-                        "pitchesThrown", 0
+                        "pitchesThrown",
+                        boxData[side]["players"]["ID" + pitcherId]["stats"][
+                            "pitching"
+                        ].get("numberOfPitches", 0),
                     )
                 ),
                 "s": str(
