@@ -77,7 +77,7 @@ def schedule(
     params.update(
         {
             "sportId": str(sportId),
-            "hydrate": "decisions,probablePitcher(note),linescore",
+            "hydrate": "decisions,probablePitcher(note),linescore,broadcasts",
         }
     )
 
@@ -121,6 +121,13 @@ def schedule(
                     "inning_state": game.get("linescore", {}).get("inningState", ""),
                     "venue_id": game.get("venue", {}).get("id"),
                     "venue_name": game.get("venue", {}).get("name"),
+                    "national_broadcasts": list(
+                        set(
+                            broadcast["name"]
+                            for broadcast in game.get("broadcasts", [])
+                            if broadcast.get("isNational", False)
+                        )
+                    ),
                 }
                 if game_info["status"] in ["Final", "Game Over"]:
                     if game.get("isTie"):
