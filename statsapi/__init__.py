@@ -77,7 +77,7 @@ def schedule(
     params.update(
         {
             "sportId": str(sportId),
-            "hydrate": "decisions,probablePitcher(note),linescore,broadcasts",
+            "hydrate": "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))",
         }
     )
 
@@ -129,6 +129,8 @@ def schedule(
                         )
                     ),
                 }
+                if game["content"].get("media", {}).get("freeGame", False):
+                    game_info["national_broadcasts"].append("MLB.tv Free Game")
                 if game_info["status"] in ["Final", "Game Over"]:
                     if game.get("isTie"):
                         game_info.update({"winning_team": "Tie", "losing_Team": "Tie"})
@@ -1346,20 +1348,8 @@ def standings(
     for div in divisions.values():
         standings += div["div_name"] + "\n"
         if include_wildcard:
-            standings += (
-                "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n".format(
-                    *[
-                        "Rank",
-                        "Team",
-                        "W",
-                        "L",
-                        "GB",
-                        "(E#)",
-                        "WC Rank",
-                        "WC GB",
-                        "(E#)",
-                    ]
-                )
+            standings += "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n".format(
+                *["Rank", "Team", "W", "L", "GB", "(E#)", "WC Rank", "WC GB", "(E#)",]
             )
             for t in div["teams"]:
                 standings += "{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}\n".format(
