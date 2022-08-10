@@ -77,7 +77,7 @@ def schedule(
     params.update(
         {
             "sportId": str(sportId),
-            "hydrate": "decisions,probablePitcher(note),linescore",
+            "hydrate": "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))",
         }
     )
 
@@ -121,7 +121,16 @@ def schedule(
                     "inning_state": game.get("linescore", {}).get("inningState", ""),
                     "venue_id": game.get("venue", {}).get("id"),
                     "venue_name": game.get("venue", {}).get("name"),
+                    "national_broadcasts": list(
+                        set(
+                            broadcast["name"]
+                            for broadcast in game.get("broadcasts", [])
+                            if broadcast.get("isNational", False)
+                        )
+                    ),
                 }
+                if game["content"].get("media", {}).get("freeGame", False):
+                    game_info["national_broadcasts"].append("MLB.tv Free Game")
                 if game_info["status"] in ["Final", "Game Over"]:
                     if game.get("isTie"):
                         game_info.update({"winning_team": "Tie", "losing_Team": "Tie"})
@@ -1111,11 +1120,19 @@ def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
     return stats
 
 
-def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season"):
+def player_stat_data(
+    personId, group="[hitting,pitching,fielding]", type="season", sportId=1
+):
     """Returns a list of current season or career stat data for a given player."""
     params = {
         "personId": personId,
-        "hydrate": "stats(group=" + group + ",type=" + type + "),currentTeam",
+        "hydrate": "stats(group="
+        + group
+        + ",type="
+        + type
+        + ",sportId="
+        + str(sportId)
+        + "),currentTeam",
     }
     r = get("person", params)
 
@@ -1150,14 +1167,37 @@ def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season
     return player
 
 
-def lookup_player(lookup_value, gameType="R", season=datetime.now().year, sportId=1):
+def latest_season(sportId=1):
+    """Get the latest season for a given sportId. Returns a dict containing seasonId and various dates."""
+    params = {
+        "sportId": sportId,
+        "seasonId": "all",
+    }
+    all_seasons = get("season", params)
+
+    return all_seasons.get("seasons")[-1]
+
+
+def lookup_player(lookup_value, gameType=None, season=None, sportId=1):
     """Get data about players based on first, last, or full name."""
     params = {
-        "gameType": gameType,
-        "season": season,
         "sportId": sportId,
         "fields": "people,id,fullName,firstName,lastName,primaryNumber,currentTeam,id,primaryPosition,code,abbreviation,useName,boxscoreName,nickName,mlbDebutDate,nameFirstLast,firstLastName,lastFirstName,lastInitName,initLastName,fullFMLName,fullLFMName",
     }
+    if gameType:
+        params.update(
+            {
+                "gameType": gameType,
+            }
+        )
+    if not season:
+        season_data = latest_season(sportId=sportId)
+        season = season_data.get("seasonId", datetime.now().year)
+    params.update(
+        {
+            "season": season,
+        }
+    )
     r = get("sports_players", params)
 
     players = []
@@ -1170,14 +1210,21 @@ def lookup_player(lookup_value, gameType="R", season=datetime.now().year, sportI
     return players
 
 
-def lookup_team(lookup_value, activeStatus="Y", season=datetime.now().year, sportIds=1):
+def lookup_team(lookup_value, activeStatus="Y", season=None, sportIds=1):
     """Get a info about a team or teams based on the team name, city, abbreviation, or file code."""
     params = {
         "activeStatus": activeStatus,
-        "season": season,
         "sportIds": sportIds,
         "fields": "teams,id,name,teamCode,fileCode,teamName,locationName,shortName",
     }
+    if not season:
+        season_data = latest_season(sportId=sportIds.split(",")[0])
+        season = season_data.get("seasonId", datetime.now().year)
+    params.update(
+        {
+            "season": season,
+        }
+    )
     r = get("teams", params)
 
     teams = []
