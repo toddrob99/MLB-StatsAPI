@@ -1120,11 +1120,19 @@ def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
     return stats
 
 
-def player_stat_data(personId, group="[hitting,pitching,fielding]", type="season"):
+def player_stat_data(
+    personId, group="[hitting,pitching,fielding]", type="season", sportId=1
+):
     """Returns a list of current season or career stat data for a given player."""
     params = {
         "personId": personId,
-        "hydrate": "stats(group=" + group + ",type=" + type + "),currentTeam",
+        "hydrate": "stats(group="
+        + group
+        + ",type="
+        + type
+        + ",sportId="
+        + str(sportId)
+        + "),currentTeam",
     }
     r = get("person", params)
 
