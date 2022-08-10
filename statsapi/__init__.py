@@ -1348,8 +1348,20 @@ def standings(
     for div in divisions.values():
         standings += div["div_name"] + "\n"
         if include_wildcard:
-            standings += "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n".format(
-                *["Rank", "Team", "W", "L", "GB", "(E#)", "WC Rank", "WC GB", "(E#)",]
+            standings += (
+                "{:^4} {:<21} {:^3} {:^3} {:^4} {:^4} {:^7} {:^5} {:^4}\n".format(
+                    *[
+                        "Rank",
+                        "Team",
+                        "W",
+                        "L",
+                        "GB",
+                        "(E#)",
+                        "WC Rank",
+                        "WC GB",
+                        "(E#)",
+                    ]
+                )
             )
             for t in div["teams"]:
                 standings += "{div_rank:^4} {name:<21} {w:^3} {l:^3} {gb:^4} {elim_num:^4} {wc_rank:^7} {wc_gb:^5} {wc_elim_num:^4}\n".format(
