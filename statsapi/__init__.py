@@ -1218,7 +1218,7 @@ def lookup_team(lookup_value, activeStatus="Y", season=None, sportIds=1):
         "fields": "teams,id,name,teamCode,fileCode,teamName,locationName,shortName",
     }
     if not season:
-        season_data = latest_season(sportId=sportIds.split(",")[0])
+        season_data = latest_season(sportId=str(sportIds).split(",")[0])
         season = season_data.get("seasonId", datetime.now().year)
     params.update(
         {
