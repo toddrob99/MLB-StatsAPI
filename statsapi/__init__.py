@@ -77,7 +77,7 @@ def schedule(
     params.update(
         {
             "sportId": str(sportId),
-            "hydrate": "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))",
+            "hydrate": "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg))),seriesStatus",
         }
     )
 
@@ -128,6 +128,7 @@ def schedule(
                             if broadcast.get("isNational", False)
                         )
                     ),
+                    "series_status": game.get("seriesStatus", {}).get("result"),
                 }
                 if game["content"].get("media", {}).get("freeGame", False):
                     game_info["national_broadcasts"].append("MLB.tv Free Game")
