@@ -74,10 +74,20 @@ def schedule(
     if game_id:
         params.update({"gamePks": game_id})
 
+    hydrate = (
+        "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))"
+    )
+    if date == "2014-03-11" or (str(start_date) <= "2014-03-11" <= str(end_date)):
+        # For some reason the seriesStatus hydration throws a server error on 2014-03-11 only (checked back to 2000)
+        logger.warning(
+            "Excluding seriesStatus hydration because the MLB API throws an error for 2014-03-11 which is included in the requested date range."
+        )
+    else:
+        hydrate += ",seriesStatus"
     params.update(
         {
             "sportId": str(sportId),
-            "hydrate": "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg))),seriesStatus",
+            "hydrate": hydrate,
         }
     )
 
