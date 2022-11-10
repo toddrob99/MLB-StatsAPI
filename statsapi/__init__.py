@@ -95,8 +95,8 @@ def schedule(
                     "game_date": date["date"],
                     "game_type": game["gameType"],
                     "status": game["status"]["detailedState"],
-                    "away_name": game["teams"]["away"]["team"]["name"],
-                    "home_name": game["teams"]["home"]["team"]["name"],
+                    "away_name": game["teams"]["away"]["team"].get("name", "???"),
+                    "home_name": game["teams"]["home"]["team"].get("name", "???"),
                     "away_id": game["teams"]["away"]["team"]["id"],
                     "home_id": game["teams"]["home"]["team"]["id"],
                     "doubleheader": game["doubleHeader"],
@@ -137,12 +137,12 @@ def schedule(
                     else:
                         game_info.update(
                             {
-                                "winning_team": game["teams"]["away"]["team"]["name"]
+                                "winning_team": game["teams"]["away"]["team"].get("name", "???")
                                 if game["teams"]["away"].get("isWinner")
-                                else game["teams"]["home"]["team"]["name"],
-                                "losing_team": game["teams"]["home"]["team"]["name"]
+                                else game["teams"]["home"]["team"].get("name", "???"),
+                                "losing_team": game["teams"]["home"]["team"].get("name", "???")
                                 if game["teams"]["away"].get("isWinner")
-                                else game["teams"]["away"]["team"]["name"],
+                                else game["teams"]["away"]["team"].get("name", "???"),
                                 "winning_pitcher": game.get("decisions", {})
                                 .get("winner", {})
                                 .get("fullName", ""),
@@ -157,13 +157,13 @@ def schedule(
                     summary = (
                         date["date"]
                         + " - "
-                        + game["teams"]["away"]["team"]["name"]
+                        + game["teams"]["away"]["team"].get("name", "???")
                         + " ("
-                        + str(game["teams"]["away"]["score"])
+                        + str(game["teams"]["away"].get("score", ""))
                         + ") @ "
-                        + game["teams"]["home"]["team"]["name"]
+                        + game["teams"]["home"]["team"].get("name", "???")
                         + " ("
-                        + str(game["teams"]["home"]["score"])
+                        + str(game["teams"]["home"].get("score", ""))
                         + ") ("
                         + game["status"]["detailedState"]
                         + ")"
@@ -176,11 +176,11 @@ def schedule(
                             + " - "
                             + game["teams"]["away"]["team"]["name"]
                             + " ("
-                            + str(game["teams"]["away"]["score"])
+                            + str(game["teams"]["away"].get("score", "0"))
                             + ") @ "
                             + game["teams"]["home"]["team"]["name"]
                             + " ("
-                            + str(game["teams"]["home"]["score"])
+                            + str(game["teams"]["home"].get("score", "0"))
                             + ") ("
                             + game["linescore"]["inningState"]
                             + " of the "
