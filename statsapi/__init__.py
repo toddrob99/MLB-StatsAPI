@@ -138,10 +138,14 @@ def schedule(
                     else:
                         game_info.update(
                             {
-                                "winning_team": game["teams"]["away"]["team"].get("name", "???")
+                                "winning_team": game["teams"]["away"]["team"].get(
+                                    "name", "???"
+                                )
                                 if game["teams"]["away"].get("isWinner")
                                 else game["teams"]["home"]["team"].get("name", "???"),
-                                "losing_team": game["teams"]["home"]["team"].get("name", "???")
+                                "losing_team": game["teams"]["home"]["team"].get(
+                                    "name", "???"
+                                )
                                 if game["teams"]["away"].get("isWinner")
                                 else game["teams"]["away"]["team"].get("name", "???"),
                                 "winning_pitcher": game.get("decisions", {})
