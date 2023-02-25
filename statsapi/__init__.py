@@ -1038,15 +1038,12 @@ def game_highlight_data(gamePk):
             "fields": "dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url",
         },
     )
-    if not len(
-        r["dates"][0]["games"][0]["content"]["highlights"]["highlights"]["items"]
-    ):
-        return ""
-
-    items = r["dates"][0]["games"][0]["content"]["highlights"]["highlights"]["items"]
+    gameHighlights = r["dates"][0]["games"][0]["content"]["highlights"]["highlights"]
+    if not gameHighlights or len(gameHighlights) == 0:
+        return []
 
     unorderedHighlights = {}
-    for v in (x for x in items if isinstance(x, dict) and x["type"] == "video"):
+    for v in (x for x in gameHighlights["items"] if isinstance(x, dict) and x["type"] == "video"):
         unorderedHighlights.update({v["date"]: v})
 
     sortedHighlights = []
