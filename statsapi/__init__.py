@@ -1039,7 +1039,7 @@ def game_highlight_data(gamePk):
         },
     )
     gameHighlights = r["dates"][0]["games"][0]["content"]["highlights"]["highlights"]
-    if not gameHighlights or len(gameHighlights) == 0:
+    if not gameHighlights or len(gameHighlights["items"]) == 0:
         return []
 
     unorderedHighlights = {}
