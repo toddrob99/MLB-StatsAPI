@@ -1490,7 +1490,7 @@ def standings_data(
                 "wc_rank": x.get("wildCardRank", "-"),
                 "wc_gb": x.get("wildCardGamesBack", "-"),
                 "wc_elim_num": x.get("wildCardEliminationNumber", "-"),
-                "elim_num": x["eliminationNumber"],
+                "elim_num": x.get("eliminationNumber", "-"),
                 "team_id": x["team"]["id"],
                 "league_rank": x["leagueRank"],
                 "sport_rank": x["sportRank"],
