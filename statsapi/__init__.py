@@ -1500,7 +1500,7 @@ def standings_data(
                 "elim_num": x.get("eliminationNumber", "-"),
                 "team_id": x["team"]["id"],
                 "league_rank": x["leagueRank"],
-                "sport_rank": x["sportRank"],
+                "sport_rank": x.get("sportRank", "-"),
             }
             divisions[x["team"]["division"]["id"]]["teams"].append(team)
 
