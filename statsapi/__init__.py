@@ -1499,7 +1499,7 @@ def standings_data(
                 "wc_elim_num": x.get("wildCardEliminationNumber", "-"),
                 "elim_num": x.get("eliminationNumber", "-"),
                 "team_id": x["team"]["id"],
-                "league_rank": x["leagueRank"],
+                "league_rank": x.get("leagueRank", "-"),
                 "sport_rank": x.get("sportRank", "-"),
             }
             divisions[x["team"]["division"]["id"]]["teams"].append(team)
