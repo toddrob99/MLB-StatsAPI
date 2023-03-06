@@ -1038,15 +1038,21 @@ def game_highlight_data(gamePk):
             "fields": "dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url",
         },
     )
-    if not len(
-        r["dates"][0]["games"][0]["content"]["highlights"]["highlights"]["items"]
-    ):
-        return ""
-
-    items = r["dates"][0]["games"][0]["content"]["highlights"]["highlights"]["items"]
+    gameHighlights = (
+        r["dates"][0]["games"][0]
+        .get("content", {})
+        .get("highlights", {})
+        .get("highlights", {})
+    )
+    if not gameHighlights or not len(gameHighlights.get("items", [])):
+        return []
 
     unorderedHighlights = {}
-    for v in (x for x in items if isinstance(x, dict) and x["type"] == "video"):
+    for v in (
+        x
+        for x in gameHighlights["items"]
+        if isinstance(x, dict) and x["type"] == "video"
+    ):
         unorderedHighlights.update({v["date"]: v})
 
     sortedHighlights = []
@@ -1493,10 +1499,10 @@ def standings_data(
                 "wc_rank": x.get("wildCardRank", "-"),
                 "wc_gb": x.get("wildCardGamesBack", "-"),
                 "wc_elim_num": x.get("wildCardEliminationNumber", "-"),
-                "elim_num": x["eliminationNumber"],
+                "elim_num": x.get("eliminationNumber", "-"),
                 "team_id": x["team"]["id"],
-                "league_rank": x["leagueRank"],
-                "sport_rank": x["sportRank"],
+                "league_rank": x.get("leagueRank", "-"),
+                "sport_rank": x.get("sportRank", "-"),
             }
             divisions[x["team"]["division"]["id"]]["teams"].append(team)
 
