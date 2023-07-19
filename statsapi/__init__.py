@@ -1448,9 +1448,7 @@ def standings_data(
     standingsTypes=None,
     date=None,
 ):
-    print("getting standings data")
-    print("division")
-    print(division)
+    
     """Returns a dict of standings data for a given league/division and season."""
     params = {"leagueId": leagueId}
     if date:
@@ -1473,13 +1471,12 @@ def standings_data(
         }
     )
 
-    print(params)
     r = get("standings", params)
 
     divisions = {}
 
     for y in r["records"]:
-        print(y["division"]["id"])
+
         for x in (
             x
             for x in y["teamRecords"]
@@ -1488,7 +1485,6 @@ def standings_data(
             or str(division) == str(x["team"]["division"]["id"])
             
         ):
-            print(x)
             if x["team"]["division"]["id"] not in divisions.keys():
                 divisions.update(
                     {
