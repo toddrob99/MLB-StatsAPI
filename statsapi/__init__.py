@@ -1477,8 +1477,9 @@ def standings_data(
         for x in (
             x
             for x in y["teamRecords"]
-            if division.lower() == "all"
-            or division.lower() == x["team"]["division"]["abbreviation"].lower()
+            if str(division).lower() == "all"
+            or str(division).lower() == x["team"]["division"]["abbreviation"].lower()
+            or str(division) == str(x["team"]["division"]["id"])
         ):
             if x["team"]["division"]["id"] not in divisions.keys():
                 divisions.update(
