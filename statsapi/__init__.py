@@ -1474,7 +1474,6 @@ def standings_data(
     divisions = {}
 
     for y in r["records"]:
-
         for x in (
             x
             for x in y["teamRecords"]
