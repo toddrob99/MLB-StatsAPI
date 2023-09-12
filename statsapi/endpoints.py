@@ -1,5 +1,17 @@
 #!/usr/bin/env python
 
+from datetime import datetime
+
+now = datetime.now()
+month = int(now.strftime('%m'))
+
+# before or after July (draft month)
+if month > 7:
+    year = now.strftime('%Y')
+else:
+    year = str(int(now.strftime('%Y')) - 1)
+    
+
 BASE_URL = "https://statsapi.mlb.com/api/"
 
 ENDPOINTS = {
@@ -106,7 +118,7 @@ ENDPOINTS = {
             },
             "year": {
                 "type": "str",
-                "default": "2019",  # TODO: current year or most recent draft year
+                "default": year,
                 "leading_slash": True,
                 "trailing_slash": False,
                 "required": True,
