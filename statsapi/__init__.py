@@ -1195,8 +1195,20 @@ def latest_season(sportId=1):
         "seasonId": "all",
     }
     all_seasons = get("season", params)
-
-    return all_seasons.get("seasons")[-1]
+    return next(
+        (
+            x
+            for x in all_seasons.get("seasons", [])
+            if x.get("seasonStartDate")
+            and x.get("seasonEndDate")
+            and (
+                x["seasonStartDate"]
+                < datetime.today().strftime("%Y-%m-%d")
+                < x["seasonEndDate"]
+            )
+        ),
+        all_seasons["seasons"][-1],
+    )
 
 
 def lookup_player(lookup_value, gameType=None, season=None, sportId=1):
