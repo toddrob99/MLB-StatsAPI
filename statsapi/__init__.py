@@ -1691,7 +1691,10 @@ def get(endpoint, params, force=False):
                     % (param, ep["path_params"][param]["default"])
                 )
                 url = url.replace(
-                    "{" + param + "}", ep["path_params"][param]["default"]
+                    "{" + param + "}",
+                    ("/" if ep["path_params"][param]["leading_slash"] else "")
+                    + ep["path_params"][param]["default"]
+                    + ("/" if ep["path_params"][param]["trailing_slash"] else ""),
                 )
             else:
                 if force:
