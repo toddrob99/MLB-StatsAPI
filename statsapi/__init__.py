@@ -1195,8 +1195,20 @@ def latest_season(sportId=1):
         "seasonId": "all",
     }
     all_seasons = get("season", params)
-
-    return all_seasons.get("seasons")[-1]
+    return next(
+        (
+            x
+            for x in all_seasons.get("seasons", [])
+            if x.get("seasonStartDate")
+            and x.get("seasonEndDate")
+            and (
+                x["seasonStartDate"]
+                < datetime.today().strftime("%Y-%m-%d")
+                < x["seasonEndDate"]
+            )
+        ),
+        all_seasons["seasons"][-1],
+    )
 
 
 def lookup_player(lookup_value, gameType=None, season=None, sportId=1):
@@ -1679,7 +1691,10 @@ def get(endpoint, params, force=False):
                     % (param, ep["path_params"][param]["default"])
                 )
                 url = url.replace(
-                    "{" + param + "}", ep["path_params"][param]["default"]
+                    "{" + param + "}",
+                    ("/" if ep["path_params"][param]["leading_slash"] else "")
+                    + ep["path_params"][param]["default"]
+                    + ("/" if ep["path_params"][param]["trailing_slash"] else ""),
                 )
             else:
                 if force:

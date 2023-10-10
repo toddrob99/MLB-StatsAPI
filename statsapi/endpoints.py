@@ -106,10 +106,10 @@ ENDPOINTS = {
             },
             "year": {
                 "type": "str",
-                "default": "2019",  # TODO: current year or most recent draft year
+                "default": "",
                 "leading_slash": True,
                 "trailing_slash": False,
-                "required": True,
+                "required": False,
             },
             "latest": {
                 "type": "bool",
