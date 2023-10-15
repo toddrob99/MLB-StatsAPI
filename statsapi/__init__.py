@@ -75,7 +75,7 @@ def schedule(
         params.update({"gamePks": game_id})
 
     hydrate = (
-        "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))"
+        "decisions,probablePitcher(note),linescore,broadcasts"
     )
     if date == "2014-03-11" or (str(start_date) <= "2014-03-11" <= str(end_date)):
         # For some reason the seriesStatus hydration throws a server error on 2014-03-11 only (checked back to 2000)
