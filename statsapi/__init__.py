@@ -679,7 +679,7 @@ def boxscore_data(gamePk, timecode=None):
     battingNotes = [awayBattingNotes, homeBattingNotes]
     for i in range(0, len(sides)):
         for n in boxData[sides[i]]["note"]:
-            awayBattingNotes.update(
+            battingNotes[i].update(
                 {len(battingNotes[i]): n["label"] + "-" + n["value"]}
             )
 
