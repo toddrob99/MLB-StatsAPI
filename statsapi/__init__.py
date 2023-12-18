@@ -48,6 +48,7 @@ def schedule(
     opponent="",
     sportId=1,
     game_id=None,
+    leagueId=None,
 ):
     """Get list of games for a given date/range and/or team/opponent."""
     if end_date and not start_date:
@@ -73,6 +74,9 @@ def schedule(
 
     if game_id:
         params.update({"gamePks": game_id})
+
+    if leagueId:
+        params.update({"leagueId": leagueId})
 
     hydrate = (
         "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))"
@@ -675,7 +679,7 @@ def boxscore_data(gamePk, timecode=None):
     battingNotes = [awayBattingNotes, homeBattingNotes]
     for i in range(0, len(sides)):
         for n in boxData[sides[i]]["note"]:
-            awayBattingNotes.update(
+            battingNotes[i].update(
                 {len(battingNotes[i]): n["label"] + "-" + n["value"]}
             )
 
