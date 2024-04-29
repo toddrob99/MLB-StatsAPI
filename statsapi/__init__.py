@@ -152,16 +152,20 @@ def schedule(
                     else:
                         game_info.update(
                             {
-                                "winning_team": game["teams"]["away"]["team"].get(
-                                    "name", "???"
-                                )
-                                if game["teams"]["away"].get("isWinner")
-                                else game["teams"]["home"]["team"].get("name", "???"),
-                                "losing_team": game["teams"]["home"]["team"].get(
-                                    "name", "???"
-                                )
-                                if game["teams"]["away"].get("isWinner")
-                                else game["teams"]["away"]["team"].get("name", "???"),
+                                "winning_team": (
+                                    game["teams"]["away"]["team"].get("name", "???")
+                                    if game["teams"]["away"].get("isWinner")
+                                    else game["teams"]["home"]["team"].get(
+                                        "name", "???"
+                                    )
+                                ),
+                                "losing_team": (
+                                    game["teams"]["home"]["team"].get("name", "???")
+                                    if game["teams"]["away"].get("isWinner")
+                                    else game["teams"]["away"]["team"].get(
+                                        "name", "???"
+                                    )
+                                ),
                                 "winning_pitcher": game.get("decisions", {})
                                 .get("winner", {})
                                 .get("fullName", ""),
@@ -616,10 +620,14 @@ def boxscore_data(gamePk, timecode=None):
                 "battingOrder": str(
                     boxData[side]["players"]["ID" + batterId]["battingOrder"]
                 ),
-                "substitution": False
-                if str(boxData[side]["players"]["ID" + batterId]["battingOrder"])[-1]
-                == "0"
-                else True,
+                "substitution": (
+                    False
+                    if str(boxData[side]["players"]["ID" + batterId]["battingOrder"])[
+                        -1
+                    ]
+                    == "0"
+                    else True
+                ),
                 "note": boxData[side]["players"]["ID" + batterId]["stats"][
                     "batting"
                 ].get("note", ""),
@@ -1219,7 +1227,7 @@ def lookup_player(lookup_value, gameType=None, season=None, sportId=1):
     """Get data about players based on first, last, or full name."""
     params = {
         "sportId": sportId,
-        "fields": "people,id,fullName,firstName,lastName,primaryNumber,currentTeam,id,primaryPosition,code,abbreviation,useName,boxscoreName,nickName,mlbDebutDate,nameFirstLast,firstLastName,lastFirstName,lastInitName,initLastName,fullFMLName,fullLFMName",
+        "fields": "people,id,fullName,firstName,lastName,primaryNumber,currentTeam,id,primaryPosition,code,abbreviation,useName,boxscoreName,nickName,mlbDebutDate,nameFirstLast,firstLastName,lastFirstName,lastInitName,initLastName,fullFMLName,fullLFMName,nameSlug",
     }
     if gameType:
         params.update(
