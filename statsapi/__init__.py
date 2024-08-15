@@ -1248,7 +1248,13 @@ def lookup_player(lookup_value, gameType=None, season=None, sportId=1):
     players = []
     lookup_values = str(lookup_value).lower().split()
     for player in r["people"]:
-        if all(any(l in str(v).lower() for v in player.values()) for l in lookup_values):
+        for l in lookup_values:
+            for v in player.values():
+                if l in str(v).lower():
+                    break
+            else:
+                break
+        else:
             players.append(player)
 
     return players
