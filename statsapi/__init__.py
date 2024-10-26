@@ -1635,7 +1635,7 @@ def notes(endpoint):
     return msg
 
 
-def get(endpoint, params, force=False):
+def get(endpoint, params={}, force=False):
     """Call MLB StatsAPI and return JSON data.
 
     This function is for advanced querying of the MLB StatsAPI,
