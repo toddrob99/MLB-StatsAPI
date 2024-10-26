@@ -782,6 +782,7 @@ ENDPOINTS = {
             "endDate",
             "opponentId",
             "fields",
+            "season",
         ],
         "required_params": [["sportId"], ["gamePk"], ["gamePks"]],
     },
