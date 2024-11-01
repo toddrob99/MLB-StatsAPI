@@ -1,3 +1,3 @@
 #!/usr/bin/env python
 
-VERSION = "1.8"
+VERSION = "1.8.1"

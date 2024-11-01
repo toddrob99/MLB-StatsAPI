@@ -988,6 +988,8 @@ ENDPOINTS = {
             "fields",
             "personId",
             "metrics",
+            "startDate",
+            "endDate",
         ],
         "required_params": [["stats", "group"]],
         "note": "If no limit is specified, the response will be limited to 50 records.",
