@@ -1209,14 +1209,11 @@ def latest_season(sportId=1):
     all_seasons = get("season", params)
     return next(
         (
-            x
-            for x in all_seasons.get("seasons", [])
-            if x.get("seasonStartDate")
-            and x.get("seasonEndDate")
-            and (
-                x["seasonStartDate"]
-                < datetime.today().strftime("%Y-%m-%d")
-                < x["seasonEndDate"]
+            s
+            for s in all_seasons.get("seasons", [])
+            if (
+                datetime.today().strftime("%Y-%m-%d")
+                < s.get("seasonEndDate", "")
             )
         ),
         all_seasons["seasons"][-1],
