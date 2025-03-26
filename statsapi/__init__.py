@@ -49,6 +49,7 @@ def schedule(
     sportId=1,
     game_id=None,
     leagueId=None,
+    season=None,
 ):
     """Get list of games for a given date/range and/or team/opponent."""
     if end_date and not start_date:
@@ -77,6 +78,9 @@ def schedule(
 
     if leagueId:
         params.update({"leagueId": leagueId})
+
+    if season:
+        params.update({"season": season})
 
     hydrate = (
         "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))"
