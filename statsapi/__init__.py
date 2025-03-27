@@ -50,6 +50,7 @@ def schedule(
     game_id=None,
     leagueId=None,
     season=None,
+    include_series_status=True,
 ):
     """Get list of games for a given date/range and/or team/opponent."""
     if end_date and not start_date:
@@ -85,13 +86,14 @@ def schedule(
     hydrate = (
         "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))"
     )
-    if date == "2014-03-11" or (str(start_date) <= "2014-03-11" <= str(end_date)):
-        # For some reason the seriesStatus hydration throws a server error on 2014-03-11 only (checked back to 2000)
-        logger.warning(
-            "Excluding seriesStatus hydration because the MLB API throws an error for 2014-03-11 which is included in the requested date range."
-        )
-    else:
-        hydrate += ",seriesStatus"
+    if include_series_status:
+        if date == "2014-03-11" or (str(start_date) <= "2014-03-11" <= str(end_date)):
+            # For some reason the seriesStatus hydration throws a server error on 2014-03-11 only (checked back to 2000)
+            logger.warning(
+                "Excluding seriesStatus hydration because the MLB API throws an error for 2014-03-11 which is included in the requested date range."
+            )
+        else:
+            hydrate += ",seriesStatus"
     params.update(
         {
             "sportId": str(sportId),
