@@ -1647,7 +1647,7 @@ def notes(endpoint):
     return msg
 
 
-def get(endpoint, params={}, force=False):
+def get(endpoint, params={}, force=False, *, request_kwargs={}):
     """Call MLB StatsAPI and return JSON data.
 
     This function is for advanced querying of the MLB StatsAPI,
@@ -1771,7 +1771,7 @@ def get(endpoint, params={}, force=False):
         )
 
     # Make the request
-    r = requests.get(url)
+    r = requests.get(url, **request_kwargs)
     if r.status_code not in [200, 201]:
         r.raise_for_status()
     else:
