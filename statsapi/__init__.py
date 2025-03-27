@@ -1578,6 +1578,7 @@ def meta(type, fields=None):
         "awards",
         "baseballStats",
         "eventTypes",
+        "freeGameTypes",
         "gameStatus",
         "gameTypes",
         "hitTrajectories",
@@ -1592,12 +1593,15 @@ def meta(type, fields=None):
         "positions",
         "reviewReasons",
         "rosterTypes",
+        "runnerDetailTypes",
+        "scheduleTypes",
         "scheduleEventTypes",
         "situationCodes",
         "sky",
         "standingsTypes",
         "statGroups",
         "statTypes",
+        "violationTypes",
         "windDirection",
     ]
     if type not in types:
