@@ -1120,9 +1120,9 @@ def game_pace_data(season=datetime.now().year, sportId=1):
     return r
 
 
-def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
+def player_stats(personId, group="[hitting,pitching,fielding]", type="season", season=None):
     """Get current season or career stats for a given player."""
-    player = player_stat_data(personId, group, type)
+    player = player_stat_data(personId, group, type, season)
 
     stats = ""
     stats += player["first_name"]
@@ -1158,15 +1158,22 @@ def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
 
 
 def player_stat_data(
-    personId, group="[hitting,pitching,fielding]", type="season", sportId=1
+    personId, group="[hitting,pitching,fielding]", type="season", sportId=1, season=None
 ):
     """Returns a list of current season or career stat data for a given player."""
+
+    if season is not None and 'season' not in type:
+        raise ValueError(
+            "The 'season' parameter is only valid when using the 'season' type."
+        )
+
     params = {
         "personId": personId,
         "hydrate": "stats(group="
         + group
         + ",type="
         + type
+        + (",season=" + str(season) if season else "")
         + ",sportId="
         + str(sportId)
         + "),currentTeam",
