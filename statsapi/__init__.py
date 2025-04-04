@@ -1122,7 +1122,9 @@ def game_pace_data(season=datetime.now().year, sportId=1):
     return r
 
 
-def player_stats(personId, group="[hitting,pitching,fielding]", type="season", season=None):
+def player_stats(
+    personId, group="[hitting,pitching,fielding]", type="season", season=None
+):
     """Get current season or career stats for a given player."""
     player = player_stat_data(personId, group, type, season)
 
@@ -1164,7 +1166,7 @@ def player_stat_data(
 ):
     """Returns a list of current season or career stat data for a given player."""
 
-    if season is not None and 'season' not in type:
+    if season is not None and "season" not in type:
         raise ValueError(
             "The 'season' parameter is only valid when using the 'season' type."
         )
@@ -1224,10 +1226,7 @@ def latest_season(sportId=1):
         (
             s
             for s in all_seasons.get("seasons", [])
-            if (
-                datetime.today().strftime("%Y-%m-%d")
-                < s.get("seasonEndDate", "")
-            )
+            if (datetime.today().strftime("%Y-%m-%d") < s.get("seasonEndDate", ""))
         ),
         all_seasons["seasons"][-1],
     )
@@ -1775,6 +1774,11 @@ def get(endpoint, params={}, force=False, *, request_kwargs={}):
             + str(ep.get("required_params", []))
             + ". \n--Note: If there are multiple sets in the required parameter list, you can choose any of the sets."
             + note
+        )
+
+    if len(request_kwargs):
+        logger.debug(
+            "Including request_kwargs in requests.get call: {}".format(request_kwargs)
         )
 
     # Make the request
