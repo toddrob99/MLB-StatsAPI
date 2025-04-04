@@ -404,6 +404,25 @@ ENDPOINTS = {
         "query_params": ["timecode", "fields"],
         "required_params": [[]],
     },
+    "game_uniforms": {
+        "url": BASE_URL + "{ver}/uniforms/game",
+        "path_params": {
+            "ver": {
+                "type": "str",
+                "default": "v1",
+                "leading_slash": False,
+                "trailing_slash": False,
+                "required": True,
+            }
+        },
+        "query_params": [
+            "gamePks",
+            "fields",
+        ],
+        "required_params": [
+            ["gamePks"],
+        ],
+    },
     "gamePace": {
         "url": BASE_URL + "{ver}/gamePace",
         "path_params": {
@@ -1284,6 +1303,26 @@ ENDPOINTS = {
         ],
         "required_params": [["season", "group"]],
         "note": "Use meta('statGroups') to look up valid values for group, meta('statTypes') for valid values for stats, and meta('situationCodes') for valid values for sitCodes. Use sitCodes with stats=statSplits.",
+    },
+    "team_uniforms": {
+        "url": BASE_URL + "{ver}/uniforms/team",
+        "path_params": {
+            "ver": {
+                "type": "str",
+                "default": "v1",
+                "leading_slash": False,
+                "trailing_slash": False,
+                "required": True,
+            }
+        },
+        "query_params": [
+            "teamIds",
+            "season",
+            "fields",
+        ],
+        "required_params": [
+            ["teamIds"],
+        ],
     },
     "transactions": {
         "url": BASE_URL + "{ver}/transactions",

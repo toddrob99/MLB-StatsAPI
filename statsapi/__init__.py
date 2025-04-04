@@ -49,6 +49,8 @@ def schedule(
     sportId=1,
     game_id=None,
     leagueId=None,
+    season=None,
+    include_series_status=True,
 ):
     """Get list of games for a given date/range and/or team/opponent."""
     if end_date and not start_date:
@@ -78,16 +80,20 @@ def schedule(
     if leagueId:
         params.update({"leagueId": leagueId})
 
+    if season:
+        params.update({"season": season})
+
     hydrate = (
         "decisions,probablePitcher(note),linescore,broadcasts,game(content(media(epg)))"
     )
-    if date == "2014-03-11" or (str(start_date) <= "2014-03-11" <= str(end_date)):
-        # For some reason the seriesStatus hydration throws a server error on 2014-03-11 only (checked back to 2000)
-        logger.warning(
-            "Excluding seriesStatus hydration because the MLB API throws an error for 2014-03-11 which is included in the requested date range."
-        )
-    else:
-        hydrate += ",seriesStatus"
+    if include_series_status:
+        if date == "2014-03-11" or (str(start_date) <= "2014-03-11" <= str(end_date)):
+            # For some reason the seriesStatus hydration throws a server error on 2014-03-11 only (checked back to 2000)
+            logger.warning(
+                "Excluding seriesStatus hydration because the MLB API throws an error for 2014-03-11 which is included in the requested date range."
+            )
+        else:
+            hydrate += ",seriesStatus"
     params.update(
         {
             "sportId": str(sportId),
@@ -1116,9 +1122,11 @@ def game_pace_data(season=datetime.now().year, sportId=1):
     return r
 
 
-def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
+def player_stats(
+    personId, group="[hitting,pitching,fielding]", type="season", season=None
+):
     """Get current season or career stats for a given player."""
-    player = player_stat_data(personId, group, type)
+    player = player_stat_data(personId, group, type, season)
 
     stats = ""
     stats += player["first_name"]
@@ -1154,15 +1162,22 @@ def player_stats(personId, group="[hitting,pitching,fielding]", type="season"):
 
 
 def player_stat_data(
-    personId, group="[hitting,pitching,fielding]", type="season", sportId=1
+    personId, group="[hitting,pitching,fielding]", type="season", sportId=1, season=None
 ):
     """Returns a list of current season or career stat data for a given player."""
+
+    if season is not None and "season" not in type:
+        raise ValueError(
+            "The 'season' parameter is only valid when using the 'season' type."
+        )
+
     params = {
         "personId": personId,
         "hydrate": "stats(group="
         + group
         + ",type="
         + type
+        + (",season=" + str(season) if season else "")
         + ",sportId="
         + str(sportId)
         + "),currentTeam",
@@ -1209,15 +1224,9 @@ def latest_season(sportId=1):
     all_seasons = get("season", params)
     return next(
         (
-            x
-            for x in all_seasons.get("seasons", [])
-            if x.get("seasonStartDate")
-            and x.get("seasonEndDate")
-            and (
-                x["seasonStartDate"]
-                < datetime.today().strftime("%Y-%m-%d")
-                < x["seasonEndDate"]
-            )
+            s
+            for s in all_seasons.get("seasons", [])
+            if (datetime.today().strftime("%Y-%m-%d") < s.get("seasonEndDate", ""))
         ),
         all_seasons["seasons"][-1],
     )
@@ -1574,6 +1583,7 @@ def meta(type, fields=None):
         "awards",
         "baseballStats",
         "eventTypes",
+        "freeGameTypes",
         "gameStatus",
         "gameTypes",
         "hitTrajectories",
@@ -1588,12 +1598,15 @@ def meta(type, fields=None):
         "positions",
         "reviewReasons",
         "rosterTypes",
+        "runnerDetailTypes",
+        "scheduleTypes",
         "scheduleEventTypes",
         "situationCodes",
         "sky",
         "standingsTypes",
         "statGroups",
         "statTypes",
+        "violationTypes",
         "windDirection",
     ]
     if type not in types:
@@ -1640,7 +1653,7 @@ def notes(endpoint):
     return msg
 
 
-def get(endpoint, params={}, force=False):
+def get(endpoint, params={}, force=False, *, request_kwargs={}):
     """Call MLB StatsAPI and return JSON data.
 
     This function is for advanced querying of the MLB StatsAPI,
@@ -1763,8 +1776,13 @@ def get(endpoint, params={}, force=False):
             + note
         )
 
+    if len(request_kwargs):
+        logger.debug(
+            "Including request_kwargs in requests.get call: {}".format(request_kwargs)
+        )
+
     # Make the request
-    r = requests.get(url)
+    r = requests.get(url, **request_kwargs)
     if r.status_code not in [200, 201]:
         r.raise_for_status()
     else:
