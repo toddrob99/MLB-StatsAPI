@@ -243,6 +243,217 @@ def boxscore(
     pitchingBox=True,
     gameInfo=True,
     timecode=None,
+    stacked=False
+):
+    """Get a formatted boxscore for a given game."""
+    return boxscore_stacked(gamePk, battingBox, battingInfo, fieldingInfo, pitchingBox,
+                         gameInfo, timecode) if stacked else boxscore_wide(gamePk, battingBox, battingInfo, fieldingInfo, pitchingBox,
+                         gameInfo, timecode)
+
+
+def boxscore_stacked(
+    gamePk,
+    battingBox=True,
+    battingInfo=True,
+    fieldingInfo=True,
+    pitchingBox=True,
+    gameInfo=True,
+    timecode=None,
+):
+    """Get a formatted boxscore for a given game."""
+    boxData = boxscore_data(gamePk, timecode)
+
+    rowLen = 79
+    boxscore = ""
+
+    # same process as boxscore_wide, just a different order
+
+    # if battingBox, make away batting box
+    if battingBox:
+        awayBatters = boxData["awayBatters"]
+        awayBatters.append(boxData["awayBattingTotals"])
+
+        for i in range(0, len(awayBatters)):
+            if i == 0 or i == len(awayBatters)- 1:
+                boxscore += "-" * rowLen + "\n"
+
+            boxscore += "{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5}\n".format(
+                **awayBatters[i]
+            )
+
+            if i == 0 or i == len(awayBatters) - 1:
+                boxscore += "-" * rowLen + "\n"
+
+        awayBattingNotes = boxData["awayBattingNotes"]
+        for i in range(0, len(awayBattingNotes)):
+            boxscore += "{:<79}\n".format(awayBattingNotes[i])
+
+
+    # if battingInfo, make away batting info
+    # if fieldingInfo, make away fielding info
+    awayBoxInfo = {}
+    side = "away"
+    for infoType in ["BATTING", "FIELDING"]:
+        if (infoType == "BATTING" and battingInfo) or (
+            infoType == "FIELDING" and fieldingInfo
+        ):
+            for z in (
+                x for x in boxData[side]["info"] if x.get("title") == infoType
+            ):
+                awayBoxInfo.update({len(awayBoxInfo): " "}) # Blank line for spacing
+                awayBoxInfo.update({len(awayBoxInfo): z["title"]})
+                for x in z["fieldList"]:
+                    if len(x["label"] + ": " + x.get("value", "")) > rowLen:
+                        words = iter(
+                            (x["label"] + ": " + x.get("value", "")).split()
+                        )
+                        check = ""
+                        lines = []
+                        for word in words:
+                            if len(check) + 1 + len(word) <= rowLen:
+                                if check == "":
+                                    check = word
+                                else:
+                                    check += " " + word
+                            else:
+                                lines.append(check)
+                                check = "    " + word
+
+                        if len(check):
+                            lines.append(check)
+
+                        for j in range(0, len(lines)):
+                            awayBoxInfo.update({len(awayBoxInfo): lines[j]})
+                    else:
+                        awayBoxInfo.update(
+                            {
+                                len(awayBoxInfo): x["label"]
+                                + ": "
+                                + x.get("value", "")
+                            }
+                        )
+            
+    for i in range(0, len(awayBoxInfo)):
+        boxscore += ("{:<%s}\n" % rowLen).format(awayBoxInfo[i])
+        if i == len(awayBoxInfo) - 1:
+            boxscore += "\n"
+
+    # if battingBox, make home batting box
+    if battingBox:
+        homeBatters = boxData["homeBatters"]
+        homeBatters.append(boxData["homeBattingTotals"])
+
+        for i in range(0, len(homeBatters)):
+            if i == 0 or i == len(homeBatters) - 1:
+                boxscore += "-" * rowLen + "\n"
+
+            boxscore += "{namefield:<40} {ab:^3} {r:^3} {h:^3} {rbi:^3} {bb:^3} {k:^3} {lob:^3} {avg:^4} {ops:^5}\n".format(
+                **homeBatters[i]
+            )
+
+            if i == 0 or i == len(homeBatters) - 1:
+                boxscore += "-" * rowLen + "\n"
+
+        homeBattingNotes = boxData["homeBattingNotes"]
+        for i in range(0, len(homeBattingNotes)):
+            boxscore += "{:<79}\n".format(homeBattingNotes[i])
+
+    # if battingInfo, make home batting info
+    # if fieldingInfo, make home fielding info
+    homeBoxInfo = {}
+    side = "home"
+    for infoType in ["BATTING", "FIELDING"]:
+        if (infoType == "BATTING" and battingInfo) or (
+            infoType == "FIELDING" and fieldingInfo
+        ):
+            for z in (
+                x for x in boxData[side]["info"] if x.get("title") == infoType
+            ):
+                homeBoxInfo.update({len(homeBoxInfo): " "}) # Blank line for spacing
+                homeBoxInfo.update({len(homeBoxInfo): z["title"]})
+                for x in z["fieldList"]:
+                    if len(x["label"] + ": " + x.get("value", "")) > rowLen:
+                        words = iter(
+                            (x["label"] + ": " + x.get("value", "")).split()
+                        )
+                        check = ""
+                        lines = []
+                        for word in words:
+                            if len(check) + 1 + len(word) <= rowLen:
+                                if check == "":
+                                    check = word
+                                else:
+                                    check += " " + word
+                            else:
+                                lines.append(check)
+                                check = "    " + word
+
+                        if len(check):
+                            lines.append(check)
+
+                        for j in range(0, len(lines)):
+                            homeBoxInfo.update({len(homeBoxInfo): lines[j]})
+                    else:
+                        homeBoxInfo.update(
+                            {
+                                len(homeBoxInfo): x["label"]
+                                + ": "
+                                + x.get("value", "")
+                            }
+                        )
+            
+    for i in range(0, len(homeBoxInfo)):
+        boxscore += ("{:<%s}\n" % rowLen).format(homeBoxInfo[i])
+        if i == len(homeBoxInfo) - 1:
+            boxscore += "-" * rowLen + "\n"
+
+    # if pitchingBox, make away and home pitching boxes stacked
+    if pitchingBox:
+        awayPitchers = boxData["awayPitchers"]
+        homePitchers = boxData["homePitchers"]
+
+        awayPitchers.append(boxData["awayPitchingTotals"])
+        homePitchers.append(boxData["homePitchingTotals"])
+
+        # Separate loops for away and home
+        # Slightly different from wide, bottom border of away is top border of home
+        for i in range(0, len(awayPitchers)):
+            if i == 0 or i == len(awayPitchers) - 1:
+                boxscore += "-" * rowLen + "\n"
+
+            boxscore += "{namefield:<43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6}\n".format(
+                **awayPitchers[i]
+            )
+            if i == 0:
+                boxscore += "-" * rowLen + "\n"
+
+        boxscore += "-" * rowLen + "\n"
+
+        for i in range(0, len(homePitchers)):
+            if i == len(homePitchers) - 1:
+                boxscore += "-" * rowLen + "\n"
+
+            boxscore += "{namefield:<43} {ip:^4} {h:^3} {r:^3} {er:^3} {bb:^3} {k:^3} {hr:^3} {era:^6}\n".format(
+                **homePitchers[i]
+            )
+            if i == 0 or i == len(homePitchers) - 1:
+                boxscore += "-" * rowLen + "\n"
+
+    # if gameInfo, make game info
+    if gameInfo:
+        boxscore += boxscore_gameinfo(boxData, rowLen)
+
+    return boxscore
+
+
+def boxscore_wide(
+    gamePk,
+    battingBox=True,
+    battingInfo=True,
+    fieldingInfo=True,
+    pitchingBox=True,
+    gameInfo=True,
+    timecode=None,
 ):
     """Get a formatted boxscore for a given game."""
     boxData = boxscore_data(gamePk, timecode)
@@ -423,53 +634,61 @@ def boxscore(
 
     # Get game info
     if gameInfo:
-        z = boxData["gameBoxInfo"]
-        gameBoxInfo = {}
-        for x in z:
-            if (
-                len(x["label"] + (": " if x.get("value") else "") + x.get("value", ""))
-                > fullRowLen
-            ):
-                words = iter(
-                    (
-                        x["label"]
-                        + (": " if x.get("value") else "")
-                        + x.get("value", "")
-                    ).split()
-                )
-                check = ""
-                lines = []
-                for word in words:
-                    if len(check) + 1 + len(word) <= fullRowLen:
-                        if check == "":
-                            check = word
-                        else:
-                            check += " " + word
-                    else:
-                        lines.append(check)
-                        check = "    " + word
-
-                if len(check):
-                    lines.append(check)
-
-                for i in range(0, len(lines)):
-                    gameBoxInfo.update({len(gameBoxInfo): lines[i]})
-            else:
-                gameBoxInfo.update(
-                    {
-                        len(gameBoxInfo): x["label"]
-                        + (": " if x.get("value") else "")
-                        + x.get("value", "")
-                    }
-                )
-
-        # Build the game info box
-        for i in range(0, len(gameBoxInfo)):
-            boxscore += ("{:<%s}" % fullRowLen + "\n").format(gameBoxInfo[i])
-            if i == len(gameBoxInfo) - 1:
-                boxscore += "-" * fullRowLen + "\n"
+        boxscore += boxscore_gameinfo(boxData, fullRowLen)
 
     return boxscore
+
+
+def boxscore_gameinfo(boxData, rowLen):
+    '''Get the Game Info section for a box score'''
+    returnStr = ""
+    z = boxData["gameBoxInfo"]
+    gameBoxInfo = {}
+    for x in z:
+        if (
+            len(x["label"] + (": " if x.get("value") else "") + x.get("value", ""))
+            > rowLen
+        ):
+            words = iter(
+                (
+                    x["label"]
+                    + (": " if x.get("value") else "")
+                    + x.get("value", "")
+                ).split()
+            )
+            check = ""
+            lines = []
+            for word in words:
+                if len(check) + 1 + len(word) <= rowLen:
+                    if check == "":
+                        check = word
+                    else:
+                        check += " " + word
+                else:
+                    lines.append(check)
+                    check = "    " + word
+
+            if len(check):
+                lines.append(check)
+
+            for i in range(0, len(lines)):
+                gameBoxInfo.update({len(gameBoxInfo): lines[i]})
+        else:
+            gameBoxInfo.update(
+                {
+                    len(gameBoxInfo): x["label"]
+                    + (": " if x.get("value") else "")
+                    + x.get("value", "")
+                }
+            )
+
+    # Build the game info box
+    for i in range(0, len(gameBoxInfo)):
+        returnStr += ("{:<%s}" % rowLen + "\n").format(gameBoxInfo[i])
+        if i == len(gameBoxInfo) - 1:
+            returnStr += "-" * rowLen + "\n"
+
+    return returnStr
 
 
 def boxscore_data(gamePk, timecode=None):
