@@ -1056,12 +1056,20 @@ def game_highlight_data(gamePk):
             "fields": "dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url",
         },
     )
-    gameHighlights = (
-        r["dates"][0]["games"][0]
-        .get("content", {})
-        .get("highlights", {})
-        .get("highlights", {})
-    )
+
+    gameHighlights = { "items": [] }
+
+    for date in r["dates"]:
+        for game in date["games"]:
+            highlights = (
+                game.get("content", {})
+                .get("highlights", {})
+                .get("highlights", {})
+                .get("items", [])
+            )
+
+            gameHighlights["items"].extend(highlights)
+
     if not gameHighlights or not len(gameHighlights.get("items", [])):
         return []
 
