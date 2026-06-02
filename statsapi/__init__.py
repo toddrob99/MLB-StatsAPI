@@ -1056,28 +1056,21 @@ def game_highlight_data(gamePk):
             "fields": "dates,date,games,gamePk,content,highlights,items,headline,type,value,title,description,duration,playbacks,name,url",
         },
     )
-    gameHighlights = (
-        r["dates"][0]["games"][0]
-        .get("content", {})
-        .get("highlights", {})
-        .get("highlights", {})
-    )
-    if not gameHighlights or not len(gameHighlights.get("items", [])):
-        return []
 
-    unorderedHighlights = {}
-    for v in (
-        x
-        for x in gameHighlights["items"]
-        if isinstance(x, dict) and x["type"] == "video"
-    ):
-        unorderedHighlights.update({v["date"]: v})
+    gameHighlights = []
 
-    sortedHighlights = []
-    for x in sorted(unorderedHighlights):
-        sortedHighlights.append(unorderedHighlights[x])
+    for date in r["dates"]:
+        for game in date["games"]:
+            highlights = (
+                game.get("content", {})
+                .get("highlights", {})
+                .get("highlights", {})
+                .get("items", [])
+            )
 
-    return sortedHighlights
+            gameHighlights.extend(h for h in highlights if isinstance(h, dict) and h.get("type") == "video")
+
+    return sorted(gameHighlights, key=lambda x: x["date"])
 
 
 def game_pace(season=datetime.now().year, sportId=1):
