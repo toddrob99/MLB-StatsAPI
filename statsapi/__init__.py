@@ -1057,7 +1057,7 @@ def game_highlight_data(gamePk):
         },
     )
 
-    gameHighlights = { "items": [] }
+    gameHighlights = []
 
     for date in r["dates"]:
         for game in date["games"]:
@@ -1068,24 +1068,9 @@ def game_highlight_data(gamePk):
                 .get("items", [])
             )
 
-            gameHighlights["items"].extend(highlights)
+            gameHighlights.extend(h for h in highlights if isinstance(h, dict) and h.get("type") == "video")
 
-    if not gameHighlights or not len(gameHighlights.get("items", [])):
-        return []
-
-    unorderedHighlights = {}
-    for v in (
-        x
-        for x in gameHighlights["items"]
-        if isinstance(x, dict) and x["type"] == "video"
-    ):
-        unorderedHighlights.update({v["date"]: v})
-
-    sortedHighlights = []
-    for x in sorted(unorderedHighlights):
-        sortedHighlights.append(unorderedHighlights[x])
-
-    return sortedHighlights
+    return sorted(gameHighlights, key=lambda x: x["date"])
 
 
 def game_pace(season=datetime.now().year, sportId=1):
