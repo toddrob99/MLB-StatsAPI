@@ -950,9 +950,13 @@ def next_game(teamId):
     return games[0]["gamePk"]
 
 
-def game_scoring_plays(gamePk):
-    """Get a text-formatted list of scoring plays for a given game."""
-    sortedPlays = game_scoring_play_data(gamePk)
+def game_scoring_plays(gamePk, timecode=None):
+    """Get a text-formatted list of scoring plays for a given game.
+
+    Include a timecode to get the scoring plays as of that moment in the game,
+    in the YYYYMMDD_HHMMSS format returned by the game_timestamps endpoint.
+    """
+    sortedPlays = game_scoring_play_data(gamePk, timecode)
     scoring_plays = ""
     for a in sortedPlays["plays"]:
         scoring_plays += "{}\n{} {} - {}: {}, {}: {}\n\n".format(
@@ -971,25 +975,29 @@ def game_scoring_plays(gamePk):
     return scoring_plays
 
 
-def game_scoring_play_data(gamePk):
+def game_scoring_play_data(gamePk, timecode=None):
     """Returns a python dict of scoring plays for a given game containing 3 keys:
 
     * home - home team data
     * away - away team data
     * plays - sorted list of scoring play data
+
+    Include a timecode to get the scoring plays as of that moment in the game,
+    in the YYYYMMDD_HHMMSS format returned by the game_timestamps endpoint.
     """
-    r = get(
-        "game",
-        {
-            "gamePk": gamePk,
-            "fields": (
-                "gamePk,link,gameData,game,pk,teams,away,id,name,teamCode,fileCode,"
-                "abbreviation,teamName,locationName,shortName,home,liveData,plays,"
-                "allPlays,scoringPlays,scoringPlays,atBatIndex,result,description,"
-                "awayScore,homeScore,about,halfInning,inning,endTime"
-            ),
-        },
-    )
+    params = {
+        "gamePk": gamePk,
+        "fields": (
+            "gamePk,link,gameData,game,pk,teams,away,id,name,teamCode,fileCode,"
+            "abbreviation,teamName,locationName,shortName,home,liveData,plays,"
+            "allPlays,scoringPlays,scoringPlays,atBatIndex,result,description,"
+            "awayScore,homeScore,about,halfInning,inning,endTime"
+        ),
+    }
+    if timecode:
+        params.update({"timecode": timecode})
+
+    r = get("game", params)
     if not len(r["liveData"]["plays"].get("scoringPlays", [])):
         return {
             "home": r["gameData"]["teams"]["home"],
